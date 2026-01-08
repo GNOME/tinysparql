@@ -1,14 +1,14 @@
 # Norwegian bokmål translation of tracker.
 # Copyright (C) 2010 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the tracker package.
-# Kjartan Maraas <kmaraas@gnome.org>, 2007-2017.
+# Kjartan Maraas <kmaraas@gnome.org>, 2007-2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker 1.13.x\n"
-"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=General\n"
-"POT-Creation-Date: 2017-10-04 16:19+0000\n"
-"PO-Revision-Date: 2017-11-20 19:26+0100\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
+"POT-Creation-Date: 2025-12-10 23:05+0000\n"
+"PO-Revision-Date: 2026-01-08 17:32+0100\n"
 "Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
 "Language-Team: Norwegian bokmål <i18n-nb@lister.ping.uio.no>\n"
 "Language: nb\n"
@@ -17,145 +17,483 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../examples/rss-reader/rss_viewer.ui.h:1
-msgid "All posts"
-msgstr "Alle innlegg"
+#: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46
+#: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
+#: src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
+msgid "Location of the database"
+msgstr "Lokasjon for databasen"
 
-#: ../examples/rss-reader/rss_viewer.ui.h:2
-msgid "By usage"
-msgstr "Etter bruk"
+#: src/cli/tracker-endpoint.c:59 src/cli/tracker-endpoint.c:71
+msgid "DIR"
+msgstr ""
 
-#: ../src/libtracker-common/tracker-utils.c:90
-msgid "unknown time"
-msgstr "ukjent tid"
+#: src/cli/tracker-endpoint.c:62
+msgid "Specify the DBus name of this endpoint"
+msgstr ""
 
-#: ../src/libtracker-common/tracker-utils.c:104
-#: ../src/libtracker-common/tracker-utils.c:155
-msgid "less than one second"
-msgstr "mindre enn ett sekund"
+#: src/cli/tracker-endpoint.c:63 src/cli/tracker-endpoint.c:67
+msgid "NAME"
+msgstr "NAVN"
 
-#. Translators: this is %d days
-#: ../src/libtracker-common/tracker-utils.c:119
+#: src/cli/tracker-endpoint.c:66
+msgid "Specify the ontology name used in this endpoint"
+msgstr ""
+
+#: src/cli/tracker-endpoint.c:70
+msgid "Specify a path to an ontology to be used in this endpoint"
+msgstr ""
+
+#: src/cli/tracker-endpoint.c:74
+msgid "HTTP port"
+msgstr "HTTP-port"
+
+#: src/cli/tracker-endpoint.c:78
+msgid "Whether to only allow HTTP connections in the loopback device"
+msgstr ""
+
+#: src/cli/tracker-endpoint.c:82
+msgid "Use session bus"
+msgstr "Bruk sesjonsbussen"
+
+#: src/cli/tracker-endpoint.c:86
+msgid "Use system bus"
+msgstr "Bruk systembussen"
+
+#: src/cli/tracker-endpoint.c:90
+msgid "List SPARQL endpoints available in DBus"
+msgstr ""
+
+#: src/cli/tracker-endpoint.c:94
+msgid "List network-local HTTP SPARQL endpoints"
+msgstr ""
+
+#. TRANSLATORS: these are commandline arguments
+#: src/cli/tracker-endpoint.c:115
+msgid "--list can only be used with --session or --system"
+msgstr ""
+
+#. TRANSLATORS: those are commandline arguments
+#: src/cli/tracker-endpoint.c:121
+msgid "One “ontology” or “ontology-path” option should be provided"
+msgstr ""
+
+#. TRANSLATORS: those are commandline arguments
+#: src/cli/tracker-endpoint.c:127
+msgid "--http-port cannot be used with --dbus-service"
+msgstr ""
+
+#: src/cli/tracker-endpoint.c:198
 #, c-format
-msgid " %dd"
-msgstr "%dd"
+msgid "Creating HTTP endpoint at %s…"
+msgstr ""
 
-#. Translators: this is %2.2d hours
-#: ../src/libtracker-common/tracker-utils.c:123
+#: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
+#: src/cli/tracker-webide.c:100
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr ""
+
+#. Carriage return, so we paper over the ^C
+#: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
+#: src/cli/tracker-webide.c:105
+msgid "Closing connection…"
+msgstr ""
+
+#: src/cli/tracker-endpoint.c:241
 #, c-format
-msgid " %2.2dh"
-msgstr "%2.2dt"
+msgid "Creating endpoint at %s…"
+msgstr ""
 
-#. Translators: this is %2.2d minutes
-#: ../src/libtracker-common/tracker-utils.c:127
+#: src/cli/tracker-endpoint.c:277
+#, fuzzy
+#| msgid "Could not run update"
+msgid "Could not own DBus name"
+msgstr "Kunne ikke kjøre oppdatering"
+
+#: src/cli/tracker-endpoint.c:291
+msgid "DBus name lost"
+msgstr ""
+
+#: src/cli/tracker-endpoint.c:608 src/cli/tracker-export.c:214
+#: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1025
+#: src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
+#: src/cli/tracker-webide.c:122 src/portal/tracker-main.c:108
+msgid "Unrecognized options"
+msgstr "Ikke gjenkjente flagg"
+
+#: src/cli/tracker-endpoint.c:652
 #, c-format
-msgid " %2.2dm"
-msgstr "%2.2dm"
+msgid "Opening database at %s…"
+msgstr ""
 
-#. Translators: this is %2.2d seconds
-#: ../src/libtracker-common/tracker-utils.c:131
+#: src/cli/tracker-endpoint.c:655
+#, fuzzy, c-format
+#| msgid "Backing up database"
+msgid "Creating in-memory database"
+msgstr "Sikkerhetskopierer database"
+
+#: src/cli/tracker-endpoint.c:683
 #, c-format
-msgid " %2.2ds"
-msgstr "%2.2ds"
-
-#: ../src/libtracker-common/tracker-utils.c:135
-#, c-format
-msgid " %d day"
-msgid_plural " %d days"
-msgstr[0] "%d dag"
-msgstr[1] "%d dager"
-
-#: ../src/libtracker-common/tracker-utils.c:139
-#, c-format
-msgid " %2.2d hour"
-msgid_plural " %2.2d hours"
-msgstr[0] "%2.2d time"
-msgstr[1] "%2.2d timer"
-
-#: ../src/libtracker-common/tracker-utils.c:143
-#, c-format
-msgid " %2.2d minute"
-msgid_plural " %2.2d minutes"
-msgstr[0] "%2.2d minutt"
-msgstr[1] "%2.2d minutter"
-
-#: ../src/libtracker-common/tracker-utils.c:147
-#, c-format
-msgid " %2.2d second"
-msgid_plural " %2.2d seconds"
-msgstr[0] "%2.2d sekund"
-msgstr[1] "%2.2d sekunder"
-
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
-msgid "Maximum length of a word to be indexed"
-msgstr "Maksimal lengde på et ord som skal indekseres"
-
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
 msgid ""
-"Words with more characters than this length will be ignored by the indexer."
+"New database created. Use the “--dbus-service” option to share this database "
+"on a message bus."
 msgstr ""
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
-msgid "Maximum number of words to index in a document"
+#: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
+#: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
+#: src/cli/tracker-introspect.c:99 src/cli/tracker-query.c:53
+#: src/cli/tracker-query.c:65 src/cli/tracker-sql.c:46 src/cli/tracker-sql.c:50
+msgid "FILE"
+msgstr "FIL"
+
+#: src/cli/tracker-export.c:50 src/cli/tracker-import.c:50
+#: src/cli/tracker-introspect.c:102 src/cli/tracker-query.c:56
+msgid "Connects to a DBus service"
 msgstr ""
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
+#: src/cli/tracker-export.c:51 src/cli/tracker-import.c:51
+#: src/cli/tracker-introspect.c:103 src/cli/tracker-query.c:57
+msgid "DBus service name"
+msgstr ""
+
+#: src/cli/tracker-export.c:54
+#, fuzzy
+#| msgid "Output results format: “sparql”, or “turtle”"
+msgid "Output results format: “turtle”, “trig” or “json-ld”"
+msgstr "Format for utdataresultat: «sparql» eller «turtle»"
+
+#: src/cli/tracker-export.c:55
+#, fuzzy
+#| msgid "FORMAT"
+msgid "RDF_FORMAT"
+msgstr "FORMAT"
+
+#: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54
+#: src/cli/tracker-introspect.c:106 src/cli/tracker-query.c:60
+msgid "Connects to a remote service"
+msgstr ""
+
+#: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
+#: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
+msgid "Remote service URI"
+msgstr ""
+
+#: src/cli/tracker-export.c:62
+msgid "Output TriG format which includes named graph information"
+msgstr ""
+
+#: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
+msgid "IRI"
+msgstr ""
+
+#. TRANSLATORS: Those are commandline arguments
+#: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
+#: src/cli/tracker-introspect.c:164 src/cli/tracker-query.c:105
+#, c-format
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
+msgstr ""
+
+#: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137
+#: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:829
+#: src/cli/tracker-query.c:345
+msgid "No error given"
+msgstr "Ingen feil oppgitt"
+
+#: src/cli/tracker-export.c:136 src/cli/tracker-import.c:124
+#: src/cli/tracker-introspect.c:828 src/cli/tracker-query.c:344
+msgid "Could not establish a connection to Tracker"
+msgstr "Kunne ikke etablere en tilkobling til Tracker"
+
+#: src/cli/tracker-export.c:179
+#, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr ""
+
+#: src/cli/tracker-import.c:58
+msgid "Read TriG format which includes named graph information"
+msgstr ""
+
+#: src/cli/tracker-import.c:103 src/cli/tracker-import.c:141
+#, fuzzy
+#| msgid "Could not run update"
+msgid "Could not run import"
+msgstr "Kunne ikke kjøre oppdatering"
+
+#: src/cli/tracker-introspect.c:110
+#, fuzzy
+#| msgid "List all Tracker processes"
+msgid "Lists all available classes"
+msgstr "Vis alle Tracker-prosesser"
+
+#: src/cli/tracker-introspect.c:114
+#, fuzzy
+#| msgid "List all Tracker processes"
+msgid "Lists all available prefixes"
+msgstr "Vis alle Tracker-prosesser"
+
+#: src/cli/tracker-introspect.c:118
+msgid "Lists all classes which notify changes in the database"
+msgstr ""
+
+#: src/cli/tracker-introspect.c:122
+msgid "List indexes used in database to improve performance"
+msgstr ""
+
+#: src/cli/tracker-introspect.c:125
+#, fuzzy
+#| msgid "Retrieve classes"
+msgid "Retrieve all named graphs"
+msgstr "Hent klasser"
+
+#: src/cli/tracker-introspect.c:129
 msgid ""
-"Indexer will read only this maximum number of words from a single document."
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
 msgstr ""
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
-msgid "Enable stemmer"
-msgstr ""
+#: src/cli/tracker-introspect.c:130 src/cli/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "KLASSE"
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
+#: src/cli/tracker-introspect.c:133
+#, fuzzy
+#| msgid "List all Tracker processes"
+msgid "Lists all available properties"
+msgstr "Vis alle Tracker-prosesser"
+
+#: src/cli/tracker-introspect.c:137
 msgid ""
-"Simplify the words to their root to provide more results. E.g. “shelves” and "
-"“shelf” to “shel”"
+"Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
-msgid "Enable unaccent"
+#: src/cli/tracker-introspect.c:138
+msgid "CLASS/PROPERTY"
+msgstr "KLASSE/EGENSKAP"
+
+#: src/cli/tracker-introspect.c:716
+msgid "Could not create tree: subclass query failed"
+msgstr "Kunne ikke lage tre: spørring på underklasse feilet"
+
+#: src/cli/tracker-introspect.c:765
+msgid "Could not create tree: class properties query failed"
+msgstr "Kunne ikke lage tre: spørring på klasseegenskaper feilet"
+
+#: src/cli/tracker-introspect.c:848
+msgid "Could not search classes"
+msgstr "Kunne ikke søke i klasser"
+
+#: src/cli/tracker-introspect.c:856 src/cli/tracker-introspect.c:940
+msgid "Classes"
+msgstr "Klasser"
+
+#: src/cli/tracker-introspect.c:868
+msgid "Could not search properties"
+msgstr "Kunne ikke søke i egenskaper"
+
+#: src/cli/tracker-introspect.c:876 src/cli/tracker-introspect.c:910
+msgid "Properties"
+msgstr "Egenskaper"
+
+#: src/cli/tracker-introspect.c:902
+msgid "Could not list properties"
+msgstr "Kunne ikke vise egenskaper"
+
+#: src/cli/tracker-introspect.c:918
+msgid "Namespaces"
 msgstr ""
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
+#: src/cli/tracker-introspect.c:932
+msgid "Could not list classes"
+msgstr "Kunne ikke vise klasser"
+
+#: src/cli/tracker-introspect.c:952
+msgid "Could not find notify classes"
+msgstr "Kunne ikke finne varslingsklasser"
+
+#: src/cli/tracker-introspect.c:960
+msgid "Notifies"
+msgstr "Varsel"
+
+#: src/cli/tracker-introspect.c:972
+msgid "Could not find indexed properties"
+msgstr "Kunne ikke finne indekserte egenskaper"
+
+#: src/cli/tracker-introspect.c:980
+msgid "Indexes"
+msgstr "Indekser"
+
+#: src/cli/tracker-introspect.c:992
+#, fuzzy
+#| msgid "Could not list classes"
+msgid "Could not list named graphs"
+msgstr "Kunne ikke vise klasser"
+
+#: src/cli/tracker-introspect.c:1000
+msgid "Named graphs"
+msgstr ""
+
+#: src/cli/tracker-introspect.c:1034
 msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-"“Idea” for improved matching."
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
 msgstr ""
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
-msgid "Ignore numbers"
-msgstr "Ignorer tall"
-
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
-msgid "If enabled, numbers will not be indexed."
+#: src/cli/tracker-main.c:69
+msgid "Get help on how to use TinySPARQL and any of these commands"
 msgstr ""
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
-msgid "Ignore stop words"
+#: src/cli/tracker-main.c:70
+msgid "Create a SPARQL endpoint"
 msgstr ""
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
-msgid ""
-"If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like “the”, “yes”, “no”, etc."
+#: src/cli/tracker-main.c:71
+msgid "Export data from a TinySPARQL database"
 msgstr ""
 
-#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
-msgid "Maximum size of journal"
-msgstr "Maksimal størrelse på journalen"
-
-#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+#: src/cli/tracker-main.c:72
+msgid "Import data into a TinySPARQL database"
 msgstr ""
 
-#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
-msgid "Location of journal pieces"
-msgstr "Lokasjon for journalbitene"
+#: src/cli/tracker-main.c:73
+msgid "Introspect a SPARQL endpoint"
+msgstr ""
 
-#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
-msgid "Where to store a journal chunk when it hits the max size."
+#: src/cli/tracker-main.c:74
+msgid "Query and update the index using SPARQL"
+msgstr ""
+
+#: src/cli/tracker-main.c:75
+msgid "Create a Web IDE to query local databases"
+msgstr ""
+
+#: src/cli/tracker-main.c:92
+#, fuzzy
+#| msgid "Available tracker commands are:"
+msgid "Available tinysparql commands are:"
+msgstr "Tilgjengelige tracker-kommandoer er:"
+
+#: src/cli/tracker-main.c:111
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr ""
+
+#: src/cli/tracker-main.c:154
+#, c-format
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr ""
+
+#: src/cli/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr ""
+
+#: src/cli/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "SPARQL-spørring"
+
+#: src/cli/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/cli/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr ""
+
+#: src/cli/tracker-query.c:76
+msgid "Provides an argument for a query parameter."
+msgstr ""
+
+#: src/cli/tracker-query.c:77
+msgid "PARAMETER:TYPE:VALUE"
+msgstr ""
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#: src/cli/tracker-query.c:214 src/cli/tracker-query.c:262
+msgid "None"
+msgstr "Ingen"
+
+#: src/cli/tracker-query.c:282
+#, c-format
+msgid "Invalid argument string %s"
+msgstr ""
+
+#: src/cli/tracker-query.c:292
+#, c-format
+msgid "Invalid parameter type for argument %s"
+msgstr ""
+
+#: src/cli/tracker-query.c:360
+msgid "Could not get UTF-8 path from path"
+msgstr "Kunne ikke hente UTF-8-sti fra sti"
+
+#: src/cli/tracker-query.c:372 src/cli/tracker-sql.c:75
+msgid "Could not read file"
+msgstr "Kunne ikke lese fil"
+
+#: src/cli/tracker-query.c:403
+msgid "Could not run update"
+msgstr "Kunne ikke kjøre oppdatering"
+
+#: src/cli/tracker-query.c:410
+msgid "Done"
+msgstr "Ferdig"
+
+#: src/cli/tracker-query.c:428 src/cli/tracker-sql.c:131
+#: src/cli/tracker-sql.c:164
+msgid "Could not run query"
+msgstr "Kunne ikke kjøre spørring"
+
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+msgid "No results found matching your query"
+msgstr "Ingen resultater med treff for din spørring"
+
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+#: src/cli/tracker-sql.c:138
+msgid "Results"
+msgstr "Resultater"
+
+#: src/cli/tracker-query.c:498 src/cli/tracker-sql.c:250
+msgid "File and query can not be used together"
+msgstr "Fil og spørring kan ikke brukes sammen"
+
+#: src/cli/tracker-sql.c:49
+msgid "Path to use to run a query from file"
+msgstr ""
+
+#: src/cli/tracker-sql.c:53
+msgid "SQL query"
+msgstr "SQL-spørring"
+
+#: src/cli/tracker-sql.c:54
+msgid "SQL"
+msgstr "SQL"
+
+#: src/cli/tracker-sql.c:108
+msgid "Failed to initialize data manager"
+msgstr "Klarte ikke å initiere datahåndterer"
+
+#: src/cli/tracker-sql.c:172
+msgid "Empty result set"
+msgstr "Tomt resultatsett"
+
+#: src/cli/tracker-sql.c:248
+msgid "A database path must be specified"
+msgstr ""
+
+#. Translators: this is a HTTP port
+#: src/cli/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr ""
+
+#. Translators: this is a HTTP port
+#: src/cli/tracker-webide.c:50
+msgid "Port not specified"
+msgstr ""
+
+#. Translators: This will point to a local HTTP address
+#: src/cli/tracker-webide.c:81
+#, c-format
+msgid "Creating Web IDE at %s…"
 msgstr ""
 
 #. Translators: this is a '|' (U+007C) separated list of common
@@ -164,1568 +502,10 @@ msgstr ""
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: ../src/libtracker-data/tracker-collation.c:332
+#: src/libtinysparql/core/tracker-collation.c:116
 msgid "the|a|an"
 msgstr ""
 
-#: ../src/libtracker-data/tracker-data-backup.c:494
-#: ../src/libtracker-data/tracker-data-backup.c:634
-msgid "Error starting “tar” program"
-msgstr "Feil ved start av programmet «tar»"
-
-#: ../src/libtracker-data/tracker-data-backup.c:495
-#: ../src/libtracker-data/tracker-data-backup.c:635
-#: ../src/tracker/tracker-config.c:61 ../src/tracker/tracker-daemon.c:462
-#: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
-#: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
-#: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
-#: ../src/tracker/tracker-daemon.c:1052 ../src/tracker/tracker-daemon.c:1243
-#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1668
-#: ../src/tracker/tracker-dbus.c:45 ../src/tracker/tracker-dbus.c:63
-#: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
-#: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
-#: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
-#: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
-#: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:173
-#: ../src/tracker/tracker-sparql.c:1087 ../src/tracker/tracker-status.c:74
-#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:313
-#: ../src/tracker/tracker-status.c:387 ../src/tracker/tracker-status.c:432
-#: ../src/tracker/tracker-status.c:461 ../src/tracker/tracker-tag.c:977
-msgid "No error given"
-msgstr "Ingen feil oppgitt"
-
-#: ../src/libtracker-data/tracker-data-backup.c:648
-#, c-format
-msgid "Unknown error, “tar” exited with status %d"
-msgstr "Ukjent feil. «tar» avsluttet med status %d"
-
-#: ../src/libtracker-miner/tracker-data-provider.c:108
-#: ../src/libtracker-miner/tracker-data-provider.c:168
-msgid "Operation not supported"
-msgstr "Operasjonen er ikke støttet"
-
-#: ../src/libtracker-miner/tracker-miner-proxy.c:352
-msgid "Cookie not recognized to resume paused miner"
-msgstr ""
-
-#: ../src/libtracker-miner/tracker-miner-proxy.c:409
-msgid "Pause application and reason match an already existing pause request"
-msgstr ""
-
-#: ../src/libtracker-miner/tracker-miner-proxy.c:772
-msgid "Data store is not available"
-msgstr "Datalager er ikke tilgjengelig"
-
-#. Daemon options
-#: ../src/tracker-store/tracker-main.vala:57
-msgid "Displays version information"
-msgstr "Vis versjonsinformasjon"
-
-#: ../src/tracker-store/tracker-main.vala:58
-msgid ""
-"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
-"0)"
-msgstr ""
-"Logging, 0 = kun feil, 1 = minimal, 2 = detaljert og 3 = feilsøking (forvalg "
-"= 0)"
-
-#. Indexer options
-#: ../src/tracker-store/tracker-main.vala:61
-msgid "Force a re-index of all content"
-msgstr "Tvungen reindeksering av alt innhold"
-
-#: ../src/tracker-store/tracker-main.vala:62
-msgid "Only allow read based actions on the database"
-msgstr "Kun tillat lesebaserte handlinger på databasen"
-
-#: ../src/tracker-store/tracker-main.vala:63
-msgid "Load a specified domain ontology"
-msgstr "Last en oppgitt domeneontologi"
-
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: ../src/tracker-store/tracker-main.vala:194
-msgid "— start the tracker daemon"
-msgstr "– start tracker-tjenesten"
-
-#: ../src/tracker-store/tracker-store.desktop.in.in.h:1
-msgid "Tracker Store"
-msgstr "Tracker lager"
-
-#: ../src/tracker-store/tracker-store.desktop.in.in.h:2
-msgid "Metadata database store and lookup manager"
-msgstr "Databaselager og oppslagshåndterer for metadata"
-
-#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
-msgid "Log verbosity"
-msgstr "Detaljgrad for logg"
-
-#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
-msgid "Log verbosity."
-msgstr "Detaljgrad for logg."
-
-#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
-msgid "GraphUpdated delay"
-msgstr ""
-
-#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:4
-msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
-msgstr ""
-
-#: ../src/tracker/tracker-config.c:60
-#, c-format
-msgid "Could not get GSettings for miners, manager could not be created, %s"
-msgstr ""
-"Kunne ikke finne GSettings for gravere, håndterer kunne ikke opprettes, %s"
-
-#: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
-msgid "Unavailable"
-msgstr "Ikke tilgjengelig"
-
-#. generic
-#: ../src/tracker/tracker-daemon.c:122
-msgid "Initializing"
-msgstr "Initierer"
-
-#: ../src/tracker/tracker-daemon.c:123
-msgid "Processing…"
-msgstr "Prosesserer …"
-
-#: ../src/tracker/tracker-daemon.c:124
-msgid "Fetching…"
-msgstr "Henter …"
-
-#. miner/rss
-#: ../src/tracker/tracker-daemon.c:125
-#, c-format
-msgid "Crawling single directory “%s”"
-msgstr "Gjennomgår enkeltkatalog «%s»"
-
-#: ../src/tracker/tracker-daemon.c:126
-#, c-format
-msgid "Crawling recursively directory “%s”"
-msgstr "Gjennomgår katalog %s rekursivt"
-
-#: ../src/tracker/tracker-daemon.c:127
-msgid "Paused"
-msgstr "Pause"
-
-#: ../src/tracker/tracker-daemon.c:128
-msgid "Idle"
-msgstr "Ledig"
-
-#: ../src/tracker/tracker-daemon.c:134
-msgid "Follow status changes as they happen"
-msgstr "Følg statusendringer mens de skjer"
-
-#: ../src/tracker/tracker-daemon.c:138
-msgid ""
-"Watch changes to the database in real time (e.g. resources or files being "
-"added)"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:139
-msgid "ONTOLOGY"
-msgstr "ONTOLOGI"
-
-#: ../src/tracker/tracker-daemon.c:142
-msgid "List common statuses for miners and the store"
-msgstr "Vis vanlige statuser for gavere og lager"
-
-#: ../src/tracker/tracker-daemon.c:147
-msgid "Pause a miner (you must use this with --miner)"
-msgstr "Sett en graver på pause (du må bruke denne med --miner)"
-
-#: ../src/tracker/tracker-daemon.c:148 ../src/tracker/tracker-daemon.c:152
-msgid "REASON"
-msgstr "ÅRSAK"
-
-#: ../src/tracker/tracker-daemon.c:151
-msgid ""
-"Pause a miner while the calling process is alive or until resumed (you must "
-"use this with --miner)"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:155
-msgid "Resume a miner (you must use this with --miner)"
-msgstr "Gjenoppta en graver (du må bruke denne med --miner)"
-
-#: ../src/tracker/tracker-daemon.c:156
-msgid "COOKIE"
-msgstr "INFORMASJONSKAPSEL"
-
-#: ../src/tracker/tracker-daemon.c:159
-msgid ""
-"Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
-"Applications)"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:160
-msgid "MINER"
-msgstr "GRAVER"
-
-#: ../src/tracker/tracker-daemon.c:163
-msgid "List all miners currently running"
-msgstr "Vis alle gravere som kjører"
-
-#: ../src/tracker/tracker-daemon.c:167
-msgid "List all miners installed"
-msgstr "Vis alle installerte gravere"
-
-#: ../src/tracker/tracker-daemon.c:171
-msgid "List pause reasons"
-msgstr "Vis årsaker for pause"
-
-#: ../src/tracker/tracker-daemon.c:176
-msgid "List all Tracker processes"
-msgstr "Vis alle Tracker-prosesser"
-
-#: ../src/tracker/tracker-daemon.c:178
-msgid ""
-"Use SIGKILL to stop all matching processes, either “store”, “miners” or "
-"“all” may be used, no parameter equals “all”"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
-msgid "APPS"
-msgstr "PROGRAMMER"
-
-#: ../src/tracker/tracker-daemon.c:181
-msgid ""
-"Use SIGTERM to stop all matching processes, either “store”, “miners” or "
-"“all” may be used, no parameter equals “all”"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:184
-msgid "Starts miners (which indirectly starts tracker-store too)"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
-msgid ""
-"Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
-"“errors”) for all processes"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
-msgid "LEVEL"
-msgstr "NIVÅ"
-
-#: ../src/tracker/tracker-daemon.c:190
-msgid "Show logging values in terms of log verbosity for each process"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:264
-#, c-format
-msgid "Could not get status from miner: %s"
-msgstr "Kunne ikke hente status fra graver: %s"
-
-#. Translators: %s is a time string
-#: ../src/tracker/tracker-daemon.c:326
-#, c-format
-msgid "%s remaining"
-msgstr "%s gjenstår"
-
-#: ../src/tracker/tracker-daemon.c:329
-msgid "unknown time left"
-msgstr "ukjent tid gjenstår"
-
-#. Work out lengths for output spacing
-#: ../src/tracker/tracker-daemon.c:342 ../src/tracker/tracker-daemon.c:1319
-msgid "PAUSED"
-msgstr "PAUSE"
-
-#: ../src/tracker/tracker-daemon.c:359
-msgid "Not running or is a disabled plugin"
-msgstr "Kjører ikke eller er et tillegg som er slått av"
-
-#: ../src/tracker/tracker-daemon.c:461
-msgid "Could not retrieve tracker-store status"
-msgstr "Kunne ikke hente status for tracker-store"
-
-#: ../src/tracker/tracker-daemon.c:482
-msgid "Could not retrieve tracker-store progress"
-msgstr "Kunne ikke hente fremdrift for tracker-store"
-
-#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:200
-msgid "Unable to retrieve namespace prefixes"
-msgstr "Kunne ikke hente prefiks for navneområder"
-
-#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:208
-msgid "No namespace prefixes were returned"
-msgstr "Ingen navneområdeprefiks ble returnert"
-
-#: ../src/tracker/tracker-daemon.c:699 ../src/tracker/tracker-daemon.c:726
-msgid "Could not run SPARQL query"
-msgstr "Kunne ikke kjøre SPARQL-spørring"
-
-#: ../src/tracker/tracker-daemon.c:707 ../src/tracker/tracker-daemon.c:739
-msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:889
-#, c-format
-msgid "Could not pause miner, manager could not be created, %s"
-msgstr "Kunne ikke sette graver på pause, håndterer kunne ikke opprettes, %s"
-
-#: ../src/tracker/tracker-daemon.c:896
-#, c-format
-msgid "Attempting to pause miner “%s” with reason “%s”"
-msgstr "Forsøker å sette graver «%s» på pause med årsak «%s»"
-
-#: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
-#, c-format
-msgid "Could not pause miner: %s"
-msgstr "Kunne ikke sette graver på pause: %s"
-
-#: ../src/tracker/tracker-daemon.c:916
-#, c-format
-msgid "Cookie is %d"
-msgstr "Informasjonskapsel er %d"
-
-#: ../src/tracker/tracker-daemon.c:923 ../src/tracker/tracker-daemon.c:1276
-#: ../src/tracker/tracker-daemon.c:1420
-msgid "Press Ctrl+C to stop"
-msgstr "Trykk Ctrl+C for å stoppe"
-
-#: ../src/tracker/tracker-daemon.c:947
-#, c-format
-msgid "Could not resume miner, manager could not be created, %s"
-msgstr "Kunne ikke gjenoppta graver, håndterer kunne ikke opprettes, %s"
-
-#: ../src/tracker/tracker-daemon.c:954
-#, c-format
-msgid "Attempting to resume miner %s with cookie %d"
-msgstr "Forsøker å gjenoppta graver %s med informasjonskapsel %d"
-
-#: ../src/tracker/tracker-daemon.c:961
-#, c-format
-msgid "Could not resume miner: %s"
-msgstr "Kunne ikke gjenoppta graver: %s"
-
-#: ../src/tracker/tracker-daemon.c:965 ../src/tracker/tracker-index.c:222
-#: ../src/tracker/tracker-sparql.c:1396
-msgid "Done"
-msgstr "Ferdig"
-
-#: ../src/tracker/tracker-daemon.c:982
-#, c-format
-msgid "Could not list miners, manager could not be created, %s"
-msgstr "Kunne ikke vise gravere, håndterer kunne ikke opprettes, %s"
-
-#: ../src/tracker/tracker-daemon.c:996
-#, c-format
-msgid "Found %d miner installed"
-msgid_plural "Found %d miners installed"
-msgstr[0] "Fant %d installert graver"
-msgstr[1] "Fant %d installerte gravere"
-
-#: ../src/tracker/tracker-daemon.c:1019
-#, c-format
-msgid "Found %d miner running"
-msgid_plural "Found %d miners running"
-msgstr[0] "Fant %d graver som kjører"
-msgstr[1] "Fant %d gravere som kjører"
-
-#: ../src/tracker/tracker-daemon.c:1051
-#, c-format
-msgid "Could not get pause details, manager could not be created, %s"
-msgstr "Kunne ikke hente detaljer om pause, håndterer kunne ikke opprettes, %s"
-
-#: ../src/tracker/tracker-daemon.c:1061
-msgid "No miners are running"
-msgstr "Ingen gravere kjører"
-
-#: ../src/tracker/tracker-daemon.c:1101 ../src/tracker/tracker-daemon.c:1355
-#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1646
-msgid "Miners"
-msgstr "Gravere"
-
-#: ../src/tracker/tracker-daemon.c:1108
-msgid "Application"
-msgstr "Program"
-
-#: ../src/tracker/tracker-daemon.c:1110
-msgid "Reason"
-msgstr "Årsak"
-
-#: ../src/tracker/tracker-daemon.c:1119
-msgid "No miners are paused"
-msgstr "Ingen gravere er pauset"
-
-#: ../src/tracker/tracker-daemon.c:1207
-msgid "Only one of “all”, “store” and “miners” options are allowed"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:1242
-msgid "Could not get SPARQL connection"
-msgstr "Kunne ikke hente SPARQL-tilkobling"
-
-#: ../src/tracker/tracker-daemon.c:1274
-msgid "Now listening for resource updates to the database"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:1275
-msgid "All nie:plainTextContent properties are omitted"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:1290
-msgid "Common statuses include"
-msgstr "Vanlige statuser inkluderer"
-
-#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:460
-#, c-format
-msgid "Could not get status, manager could not be created, %s"
-msgstr "Kunne ikke hente status. Håndterer ble ikke laget, %s"
-
-#. Display states
-#: ../src/tracker/tracker-daemon.c:1329
-msgid "Store"
-msgstr "Lager"
-
-#: ../src/tracker/tracker-daemon.c:1363
-#, c-format
-msgid "Could not get display name for miner “%s”"
-msgstr "Kunne ikke hente skjermnavn for graver «%s»"
-
-#: ../src/tracker/tracker-daemon.c:1461
-msgid "You can not use miner pause and resume switches together"
-msgstr "Du kan ikke bruke pause og gjennoppta brytere for graver sammen"
-
-#: ../src/tracker/tracker-daemon.c:1467
-msgid "You must provide the miner for pause or resume commands"
-msgstr "Du må oppgi graver for pause- eller gjenoppta-kommandoene"
-
-#: ../src/tracker/tracker-daemon.c:1473
-msgid "You must provide a pause or resume command for the miner"
-msgstr "Du må oppgi en pause- eller gjenoppta-kommando for graver"
-
-#: ../src/tracker/tracker-daemon.c:1509
-msgid "You can not use the --kill and --terminate arguments together"
-msgstr "Du kan ikke bruke argumentene --kill og --terminate sammen"
-
-#: ../src/tracker/tracker-daemon.c:1515
-msgid "You can not use the --get-logging and --set-logging arguments together"
-msgstr "Du kan ikke bruke argumentene --get-logging og --set-logging sammen"
-
-#: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
-msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:1568
-#, c-format
-msgid "Found process ID %d for “%s”"
-msgstr "Fant prosess-ID %d for «%s»"
-
-#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
-msgid "Components"
-msgstr "Komponenter"
-
-#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1647
-msgid "Only those with config listed"
-msgstr "Kun dem med konfigurasjon oppgitt"
-
-#: ../src/tracker/tracker-daemon.c:1623
-#, c-format
-msgid "Setting log verbosity for all components to “%s”…"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:1662
-msgid "Starting miners…"
-msgstr "Starter gravere …"
-
-#: ../src/tracker/tracker-daemon.c:1667
-#, c-format
-msgid "Could not start miners, manager could not be created, %s"
-msgstr "Kunne ikke starte gravere, håndterer kunne ikke opprettes, %s"
-
-#: ../src/tracker/tracker-daemon.c:1692
-msgid "perhaps a disabled plugin?"
-msgstr "kanskje et tillegg som er slått av?"
-
-#: ../src/tracker/tracker-daemon.c:1736
-msgid ""
-"If no arguments are given, the status of the store and data miners is shown"
-msgstr ""
-
-#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
-#: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
-#: ../src/tracker/tracker-reset.c:449 ../src/tracker/tracker-search.c:1778
-#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:238
-#: ../src/tracker/tracker-status.c:587 ../src/tracker/tracker-tag.c:1079
-msgid "Unrecognized options"
-msgstr "Ikke gjenkjente flagg"
-
-#: ../src/tracker/tracker-dbus.c:44
-msgid "Could not get D-Bus connection"
-msgstr "Kunne ikke etablere en tilkobling til D-Bus"
-
-#: ../src/tracker/tracker-dbus.c:62
-msgid "Could not create D-Bus proxy to tracker-store"
-msgstr "Kunne ikke lage D-Bus mellomtjener for tracker-store"
-
-#: ../src/tracker/tracker-extract.c:45
-msgid "Output results format: “sparql”, or “turtle”"
-msgstr "Format for utdataresultat: «sparql» eller «turtle»"
-
-#: ../src/tracker/tracker-extract.c:46
-msgid "FORMAT"
-msgstr "FORMAT"
-
-#: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
-#: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
-#: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
-#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
-#: ../src/tracker/tracker-sparql.c:106 ../src/tracker/tracker-sql.c:44
-msgid "FILE"
-msgstr "FIL"
-
-#: ../src/tracker/tracker-extract.c:77
-msgid "Could not run tracker-extract: "
-msgstr "Kunne ikke kjøre tracker-extract: "
-
-#: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
-#, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "klarte ikke å kjøre «%s»: %s"
-
-#: ../src/tracker/tracker-index.c:56
-msgid ""
-"Tell miners to reindex files which match the mime type supplied (for new "
-"extractors), use -m MIME1 -m MIME2"
-msgstr ""
-
-#: ../src/tracker/tracker-index.c:57
-msgid "MIME"
-msgstr "MIME"
-
-#: ../src/tracker/tracker-index.c:59
-msgid "Tell miners to (re)index a given file"
-msgstr "Be gravere om å (re)indeksere en gitt fil"
-
-#: ../src/tracker/tracker-index.c:62
-msgid "Backup current index / database to the file provided"
-msgstr "Sikkerhetskopier indeks / database til oppgitt fil"
-
-#: ../src/tracker/tracker-index.c:65
-msgid "Restore a database from a previous backup (see --backup)"
-msgstr "Gjenopprett en database fra tidligere sikkerhetskopi (se --backup)"
-
-#: ../src/tracker/tracker-index.c:68
-msgid "Import a dataset from the provided file (in Turtle format)"
-msgstr "Importer et datasett fra oppgitt fil (i Turtle-format)"
-
-#: ../src/tracker/tracker-index.c:122
-#, c-format
-msgid "Could not reindex mimetypes, manager could not be created, %s"
-msgstr "Kunne ikke reindeksere MIME-typer, håndterer kunne ikke opprettes, %s"
-
-#: ../src/tracker/tracker-index.c:132
-msgid "Could not reindex mimetypes"
-msgstr "Kunne ikke reindeksere MIME-typer"
-
-#: ../src/tracker/tracker-index.c:138
-msgid "Reindexing mime types was successful"
-msgstr "Reindeksering av MIME-typer fullført"
-
-#: ../src/tracker/tracker-index.c:154
-#, c-format
-msgid "Could not (re)index file, manager could not be created, %s"
-msgstr "Kunne ikke indeksere fil. Håndterer kunne ikke opprettes, %s"
-
-#: ../src/tracker/tracker-index.c:169
-msgid "Could not (re)index file"
-msgstr "Kunne ikke indeksere fil"
-
-#: ../src/tracker/tracker-index.c:175
-msgid "(Re)indexing file was successful"
-msgstr "Indeksering av fil fullført"
-
-#: ../src/tracker/tracker-index.c:195 ../src/tracker/tracker-info.c:263
-#: ../src/tracker/tracker-search.c:1580 ../src/tracker/tracker-sparql.c:172
-#: ../src/tracker/tracker-sparql.c:1086 ../src/tracker/tracker-status.c:73
-#: ../src/tracker/tracker-status.c:386 ../src/tracker/tracker-tag.c:976
-msgid "Could not establish a connection to Tracker"
-msgstr "Kunne ikke etablere en tilkobling til Tracker"
-
-#: ../src/tracker/tracker-index.c:206
-msgid "Importing Turtle file"
-msgstr "Importerer Turtle-fil"
-
-#: ../src/tracker/tracker-index.c:215
-msgid "Unable to import Turtle file"
-msgstr "Kan ikke importere Turtle-fil"
-
-#: ../src/tracker/tracker-index.c:251
-msgid "Backing up database"
-msgstr "Sikkerhetskopierer database"
-
-#: ../src/tracker/tracker-index.c:271 ../src/tracker/tracker-index.c:328
-msgid "Could not backup database"
-msgstr "Kunne ikke sikkerhetskopiere database"
-
-#: ../src/tracker/tracker-index.c:308
-msgid "Restoring database from backup"
-msgstr "Gjenoppretter database fra sikkerhetskopi"
-
-#: ../src/tracker/tracker-index.c:437
-msgid ""
-"Only one action (--backup, --restore, --index-file or --import) can be used "
-"at a time"
-msgstr ""
-
-#: ../src/tracker/tracker-index.c:439
-msgid "Missing one or more files which are required"
-msgstr "Mangler en eller flere filer som er nødvendige"
-
-#: ../src/tracker/tracker-index.c:441
-msgid "Only one file can be used with --backup and --restore"
-msgstr ""
-
-#: ../src/tracker/tracker-index.c:443
-msgid ""
-"Actions (--backup, --restore, --index-file and --import) can not be used "
-"with --reindex-mime-type"
-msgstr ""
-
-#: ../src/tracker/tracker-info.c:49
-msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
-msgstr ""
-
-#: ../src/tracker/tracker-info.c:53
-msgid "Show plain text content if available for resources"
-msgstr ""
-
-#. To translators:
-#. * IRI (International Resource Identifier) is a generalization
-#. * of the URI. While URI supports only ASCI encoding, IRI
-#. * fully supports international characters. In practice, UTF-8
-#. * is the most popular encoding used for IRI.
-#.
-#: ../src/tracker/tracker-info.c:63
-msgid ""
-"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
-"(e.g. <file:///path/to/some/file.txt>)"
-msgstr ""
-
-#: ../src/tracker/tracker-info.c:67
-msgid "Output results as RDF in Turtle format"
-msgstr ""
-
-#: ../src/tracker/tracker-info.c:285
-msgid "Querying information for entity"
-msgstr "Kjører spørring om informasjon for entitet"
-
-#: ../src/tracker/tracker-info.c:309
-msgid "Unable to retrieve URN for URI"
-msgstr "Kan ikke hente URN for URI"
-
-#: ../src/tracker/tracker-info.c:319 ../src/tracker/tracker-info.c:353
-msgid "Unable to retrieve data for URI"
-msgstr "Kan ikke hente data for URI"
-
-#: ../src/tracker/tracker-info.c:362
-msgid "No metadata available for that URI"
-msgstr "Ingen metadata tilgjengelig for denne URIen"
-
-#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1455
-#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
-#: ../src/tracker/tracker-sql.c:146
-msgid "Results"
-msgstr "Resultater"
-
-#: ../src/tracker/tracker-main.c:48
-msgid "See “tracker help <command>” to read about a specific subcommand."
-msgstr ""
-
-#: ../src/tracker/tracker-main.c:97
-msgid "Start, stop, pause and list processes responsible for indexing content"
-msgstr ""
-
-#: ../src/tracker/tracker-main.c:98
-msgid "Extract information from a file"
-msgstr "Hent ut informasjon fra en fil"
-
-#: ../src/tracker/tracker-main.c:99
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr ""
-
-#: ../src/tracker/tracker-main.c:100
-msgid "Show information known about local files or items indexed"
-msgstr ""
-
-#: ../src/tracker/tracker-main.c:101
-msgid "Backup, restore, import and (re)index by MIME type or file name"
-msgstr ""
-
-#: ../src/tracker/tracker-main.c:102
-msgid "Reset or remove index and revert configurations to defaults"
-msgstr ""
-
-#: ../src/tracker/tracker-main.c:103
-msgid "Search for content indexed or show content by type"
-msgstr ""
-
-#: ../src/tracker/tracker-main.c:104
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-
-#: ../src/tracker/tracker-main.c:105
-msgid "Query the database at the lowest level using SQL"
-msgstr ""
-
-#: ../src/tracker/tracker-main.c:106
-msgid "Show the indexing progress, content statistics and index state"
-msgstr ""
-
-#: ../src/tracker/tracker-main.c:107
-msgid "Create, list or delete tags for indexed content"
-msgstr ""
-
-#: ../src/tracker/tracker-main.c:108
-msgid "Show the license and version in use"
-msgstr ""
-
-#: ../src/tracker/tracker-main.c:153
-#, c-format
-msgid "“%s” is not a tracker command. See “tracker --help”"
-msgstr ""
-
-#: ../src/tracker/tracker-main.c:176
-msgid "Available tracker commands are:"
-msgstr "Tilgjengelige tracker-kommandoer er:"
-
-#: ../src/tracker/tracker-process.c:79
-msgid "Could not open /proc"
-msgstr "Kunne ikke åpne /proc"
-
-#: ../src/tracker/tracker-process.c:132
-msgid "Could not stat() file"
-msgstr "Kunne ikke kjøre stat() på fil"
-
-#: ../src/tracker/tracker-process.c:203
-#, c-format
-msgid "Could not open “%s”"
-msgstr "Kunne ikke åpne «%s»"
-
-#: ../src/tracker/tracker-process.c:332
-#, c-format
-msgid "Could not terminate process %d — “%s”"
-msgstr "Kunne ikke terminere prosess %d – «%s»"
-
-#: ../src/tracker/tracker-process.c:338
-#, c-format
-msgid "Terminated process %d — “%s”"
-msgstr "Terminerte prosess %d – «%s»"
-
-#: ../src/tracker/tracker-process.c:353
-#, c-format
-msgid "Could not kill process %d — “%s”"
-msgstr "Kunne ikke terminere prosess %d – «%s»"
-
-#: ../src/tracker/tracker-process.c:359
-#, c-format
-msgid "Killed process %d — “%s”"
-msgstr "Terminerte prosess %d – «%s»"
-
-#: ../src/tracker/tracker-reset.c:53
-msgid "Kill all Tracker processes and remove all databases"
-msgstr ""
-
-#: ../src/tracker/tracker-reset.c:56
-msgid "Same as --hard but the backup & journal are restored after restart"
-msgstr ""
-
-#: ../src/tracker/tracker-reset.c:59
-msgid "Remove all configuration files so they are re-generated on next start"
-msgstr ""
-
-#: ../src/tracker/tracker-reset.c:62
-msgid ""
-"Erase indexed information about a file, works recursively for directories"
-msgstr ""
-
-#. Now, delete the element recursively
-#: ../src/tracker/tracker-reset.c:167
-msgid "Deleting…"
-msgstr "Sletter …"
-
-#: ../src/tracker/tracker-reset.c:188
-msgid ""
-"The indexed data for this file has been deleted and will be reindexed again."
-msgstr ""
-
-#. TRANSLATORS: --hard and --soft are commandline arguments
-#: ../src/tracker/tracker-reset.c:215
-msgid "You can not use the --hard and --soft arguments together"
-msgstr "Du kan ikke bruke argumentene --hard og --soft sammen"
-
-#: ../src/tracker/tracker-reset.c:223
-msgid "CAUTION: This process may irreversibly delete data."
-msgstr ""
-
-#: ../src/tracker/tracker-reset.c:224
-msgid ""
-"Although most content indexed by Tracker can be safely reindexed, it can’t "
-"be assured that this is the case for all data. Be aware that you may be "
-"incurring in a data loss situation, proceed at your own risk."
-msgstr ""
-
-#: ../src/tracker/tracker-reset.c:229
-msgid "Are you sure you want to proceed?"
-msgstr "Er du sikker på at du vil fortsette?"
-
-#. TRANSLATORS: This is to be displayed on command line output
-#: ../src/tracker/tracker-reset.c:231
-msgid "[y|N]"
-msgstr "[j|N]"
-
-#. TRANSLATORS: this is our test for a [y|N] question in the command line.
-#. * A partial or full match will be considered an affirmative answer,
-#. * it is intentionally lowercase, so please keep it like this.
-#.
-#: ../src/tracker/tracker-reset.c:240
-msgid "yes"
-msgstr "ja"
-
-#: ../src/tracker/tracker-reset.c:366
-msgid "Removing configuration files…"
-msgstr "Fjerner konfigurasjonsfiler …"
-
-#: ../src/tracker/tracker-reset.c:371
-msgid "Resetting existing configuration…"
-msgstr "Nullstiller eksisterende konfigurasjon …"
-
-#: ../src/tracker/tracker-search.c:80
-msgid "Search for files"
-msgstr "Søk etter filer"
-
-#: ../src/tracker/tracker-search.c:84
-msgid "Search for folders"
-msgstr "Søk etter mapper"
-
-#: ../src/tracker/tracker-search.c:88
-msgid "Search for music files"
-msgstr "Søk etter musikkfiler"
-
-#: ../src/tracker/tracker-search.c:92
-msgid "Search for music albums (--all has no effect on this)"
-msgstr "Søk etter musikkalbum (--all har ingen effekt)"
-
-#: ../src/tracker/tracker-search.c:96
-msgid "Search for music artists (--all has no effect on this)"
-msgstr "Søk etter musikkartister (--all har ingen effekt) "
-
-#: ../src/tracker/tracker-search.c:100
-msgid "Search for image files"
-msgstr "Søk etter bildefiler"
-
-#: ../src/tracker/tracker-search.c:104
-msgid "Search for video files"
-msgstr "Søk etter videofiler"
-
-#: ../src/tracker/tracker-search.c:108
-msgid "Search for document files"
-msgstr "Søk etter dokumentfiler"
-
-#: ../src/tracker/tracker-search.c:112
-msgid "Search for emails"
-msgstr "Søk etter e-post"
-
-#: ../src/tracker/tracker-search.c:116
-msgid "Search for contacts"
-msgstr "Søk etter kontakter"
-
-#: ../src/tracker/tracker-search.c:120
-msgid "Search for software (--all has no effect on this)"
-msgstr "Søk etter programvare (--all har ingen effekt) "
-
-#: ../src/tracker/tracker-search.c:124
-msgid "Search for software categories (--all has no effect on this)"
-msgstr "Søk etter programvarekategorier (--all har ingen effekt) "
-
-#: ../src/tracker/tracker-search.c:128
-msgid "Search for feeds (--all has no effect on this)"
-msgstr "Søk etter strømmer (--all har ingen effekt) "
-
-#: ../src/tracker/tracker-search.c:132
-msgid "Search for bookmarks (--all has no effect on this)"
-msgstr "Søk etter bokmerker (--all har ingen effekt her) "
-
-#: ../src/tracker/tracker-search.c:138 ../src/tracker/tracker-tag.c:73
-msgid "Limit the number of results shown"
-msgstr "Begrense antall resulater som vises"
-
-#: ../src/tracker/tracker-search.c:142 ../src/tracker/tracker-tag.c:77
-msgid "Offset the results"
-msgstr ""
-
-#: ../src/tracker/tracker-search.c:146
-msgid "Use OR for search terms instead of AND (the default)"
-msgstr ""
-
-#: ../src/tracker/tracker-search.c:150
-msgid ""
-"Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
-"feeds, --software, --software-categories)"
-msgstr ""
-
-#: ../src/tracker/tracker-search.c:154
-msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
-msgstr ""
-
-#: ../src/tracker/tracker-search.c:158
-msgid ""
-"Disable showing snippets with results. This is only shown for some "
-"categories, e.g. Documents, Music…"
-msgstr ""
-
-#: ../src/tracker/tracker-search.c:162
-msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
-msgstr ""
-
-#: ../src/tracker/tracker-search.c:166
-msgid "Disable color when printing snippets and results"
-msgstr ""
-
-#: ../src/tracker/tracker-search.c:173 ../src/tracker/tracker-status.c:57
-msgid "search terms"
-msgstr "søkebegreper"
-
-#: ../src/tracker/tracker-search.c:174 ../src/tracker/tracker-status.c:58
-msgid "EXPRESSION"
-msgstr "UTTRYKK"
-
-#: ../src/tracker/tracker-search.c:192 ../src/tracker/tracker-tag.c:103
-msgid ""
-"NOTE: Limit was reached, there are more items in the database not listed here"
-msgstr ""
-
-#: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
-#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:811
-#: ../src/tracker/tracker-search.c:900 ../src/tracker/tracker-search.c:990
-#: ../src/tracker/tracker-search.c:1072 ../src/tracker/tracker-search.c:1156
-#: ../src/tracker/tracker-search.c:1238 ../src/tracker/tracker-search.c:1442
-msgid "Could not get search results"
-msgstr "Kunne ikke hente søkeresultater"
-
-#: ../src/tracker/tracker-search.c:295
-msgid "No contacts were found"
-msgstr "Ingen kontakter ble funnet"
-
-#: ../src/tracker/tracker-search.c:299
-msgid "Contacts"
-msgstr "Kontakter"
-
-#: ../src/tracker/tracker-search.c:356 ../src/tracker/tracker-search.c:369
-msgid "No name"
-msgstr "Ingen navn"
-
-#: ../src/tracker/tracker-search.c:357 ../src/tracker/tracker-search.c:370
-msgid "No E-mail address"
-msgstr "Ingen e-postadresse"
-
-#: ../src/tracker/tracker-search.c:404
-msgid "No emails were found"
-msgstr "Ingen e-post ble funnet"
-
-#: ../src/tracker/tracker-search.c:408
-msgid "Emails"
-msgstr "E-post"
-
-#: ../src/tracker/tracker-search.c:506
-msgid "No files were found"
-msgstr "Ingen filer ble funnet"
-
-#: ../src/tracker/tracker-search.c:510 ../src/tracker/tracker-tag.c:439
-msgid "Files"
-msgstr "Filer"
-
-#: ../src/tracker/tracker-search.c:820
-msgid "No artists were found"
-msgstr "Ingen artister ble funnet"
-
-#: ../src/tracker/tracker-search.c:824
-msgid "Artists"
-msgstr "Artister"
-
-#: ../src/tracker/tracker-search.c:909
-msgid "No music was found"
-msgstr "Ingen musikk ble funnet"
-
-#: ../src/tracker/tracker-search.c:913
-msgid "Albums"
-msgstr "Album"
-
-#: ../src/tracker/tracker-search.c:999
-msgid "No bookmarks were found"
-msgstr "Ingen bokmerker ble funnet"
-
-#: ../src/tracker/tracker-search.c:1003
-msgid "Bookmarks"
-msgstr "Bokmerker"
-
-#: ../src/tracker/tracker-search.c:1081
-msgid "No feeds were found"
-msgstr "Ingen strømmer ble funnet"
-
-#: ../src/tracker/tracker-search.c:1085
-msgid "Feeds"
-msgstr "Strømmer"
-
-#: ../src/tracker/tracker-search.c:1165
-msgid "No software was found"
-msgstr "Ingen programvare ble funnet"
-
-#: ../src/tracker/tracker-search.c:1169
-msgid "Software"
-msgstr "Programvare"
-
-#: ../src/tracker/tracker-search.c:1247
-msgid "No software categories were found"
-msgstr "Ingen programvarekategorier ble funnet"
-
-#: ../src/tracker/tracker-search.c:1251
-msgid "Software Categories"
-msgstr "Programvarekategorier"
-
-#: ../src/tracker/tracker-search.c:1451
-msgid "No results were found matching your query"
-msgstr "Ingen resultater ble funnet for din spørring"
-
-#: ../src/tracker/tracker-search.c:1553
-#, c-format
-msgid "Search term “%s” is a stop word."
-msgstr "Søkebegrep «%s» er et stopp-ord."
-
-#: ../src/tracker/tracker-search.c:1564
-#, c-format
-msgid ""
-"Stop words are common words which may be ignored during the indexing process."
-msgstr ""
-
-#: ../src/tracker/tracker-sparql.c:105
-msgid "Path to use to run a query or update from file"
-msgstr ""
-
-#: ../src/tracker/tracker-sparql.c:109
-msgid "SPARQL query"
-msgstr "SPARQL-spørring"
-
-#: ../src/tracker/tracker-sparql.c:110
-msgid "SPARQL"
-msgstr "SPARQL"
-
-#: ../src/tracker/tracker-sparql.c:113
-msgid "This is used with --query and for database updates only."
-msgstr ""
-
-#: ../src/tracker/tracker-sparql.c:117
-msgid "Retrieve classes"
-msgstr "Hent klasser"
-
-#: ../src/tracker/tracker-sparql.c:121
-msgid "Retrieve class prefixes"
-msgstr "Hent klasseprefiks"
-
-#: ../src/tracker/tracker-sparql.c:125
-msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-"Resource)"
-msgstr ""
-
-#: ../src/tracker/tracker-sparql.c:126 ../src/tracker/tracker-sparql.c:130
-#: ../src/tracker/tracker-sparql.c:138 ../src/tracker/tracker-sparql.c:146
-#: ../src/tracker/tracker-sparql.c:150
-msgid "CLASS"
-msgstr "KLASSE"
-
-#: ../src/tracker/tracker-sparql.c:129
-msgid ""
-"Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr ""
-
-#: ../src/tracker/tracker-sparql.c:133
-msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional)"
-msgstr ""
-
-#: ../src/tracker/tracker-sparql.c:134
-msgid "PROPERTY"
-msgstr "EGENSKAP"
-
-#: ../src/tracker/tracker-sparql.c:137
-msgid ""
-"Describe subclasses, superclasses (can be used with -s to highlight parts of "
-"the tree and -p to show properties)"
-msgstr ""
-
-#: ../src/tracker/tracker-sparql.c:141
-msgid ""
-"Search for a class or property and display more information (e.g. Document)"
-msgstr ""
-
-#: ../src/tracker/tracker-sparql.c:142
-msgid "CLASS/PROPERTY"
-msgstr "KLASSE/EGENSKAP"
-
-#: ../src/tracker/tracker-sparql.c:145
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr ""
-
-#: ../src/tracker/tracker-sparql.c:149
-msgid "Returns the full namespace for a class."
-msgstr ""
-
-#: ../src/tracker/tracker-sparql.c:153
-msgid "Remote service to query to"
-msgstr ""
-
-#: ../src/tracker/tracker-sparql.c:154
-msgid "BASE_URL"
-msgstr "BASIS_URL"
-
-#: ../src/tracker/tracker-sparql.c:254
-msgid "Could not get namespace prefixes"
-msgstr "Kunne ikke hente navneområdeprefiks"
-
-#: ../src/tracker/tracker-sparql.c:263
-msgid "No namespace prefixes were found"
-msgstr "Ingen navneområdeprefiks ble funnet"
-
-#. To translators: This is to say there are no
-#. * search results found. We use a "foo: None"
-#. * with multiple print statements, where "foo"
-#. * may be Music or Images, etc.
-#. To translators: This is to say there are no
-#. * tags found with a particular unique ID.
-#. To translators: This is to say there are no
-#. * files found associated with multiple tags, e.g.:
-#. *
-#. *   Files:
-#. *     None
-#. *
-#.
-#. To translators: This is to say there are no
-#. * resources found associated with this tag, e.g.:
-#. *
-#. *   Tags (shown by name):
-#. *     None
-#. *
-#.
-#. To translators: This is to say there are no
-#. * tags found for a particular file, e.g.:
-#. *
-#. *   /path/to/some/file:
-#. *     None
-#. *
-#.
-#: ../src/tracker/tracker-sparql.c:509 ../src/tracker/tracker-sparql.c:557
-#: ../src/tracker/tracker-status.c:136 ../src/tracker/tracker-tag.c:323
-#: ../src/tracker/tracker-tag.c:455 ../src/tracker/tracker-tag.c:577
-#: ../src/tracker/tracker-tag.c:955
-msgid "None"
-msgstr "Ingen"
-
-#: ../src/tracker/tracker-sparql.c:963
-msgid "Could not create tree: subclass query failed"
-msgstr "Kunne ikke lage tre: spørring på underklasse feilet"
-
-#: ../src/tracker/tracker-sparql.c:1012
-msgid "Could not create tree: class properties query failed"
-msgstr "Kunne ikke lage tre: spørring på klasseegenskaper feilet"
-
-#: ../src/tracker/tracker-sparql.c:1100
-msgid "Could not list classes"
-msgstr "Kunne ikke vise klasser"
-
-#: ../src/tracker/tracker-sparql.c:1108
-msgid "No classes were found"
-msgstr "Ingen klasser ble funnet"
-
-#: ../src/tracker/tracker-sparql.c:1108 ../src/tracker/tracker-sparql.c:1299
-msgid "Classes"
-msgstr "Klasser"
-
-#: ../src/tracker/tracker-sparql.c:1124
-msgid "Could not list class prefixes"
-msgstr "Kunne ikke vise klasseprefiks"
-
-#: ../src/tracker/tracker-sparql.c:1132
-msgid "No class prefixes were found"
-msgstr "Ingen klasseprefiks ble funnet"
-
-#: ../src/tracker/tracker-sparql.c:1132
-msgid "Prefixes"
-msgstr "Prefiks"
-
-#: ../src/tracker/tracker-sparql.c:1152
-msgid ""
-"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
-msgstr ""
-"Kunne ikke finne egenskap for klasseprefiks. F.eks. :Resource i «rdfs:"
-"Resource»"
-
-#: ../src/tracker/tracker-sparql.c:1191
-msgid "Could not list properties"
-msgstr "Kunne ikke vise egenskaper"
-
-#: ../src/tracker/tracker-sparql.c:1199
-msgid "No properties were found"
-msgstr "Ingen egenskaper ble funnet"
-
-#: ../src/tracker/tracker-sparql.c:1199 ../src/tracker/tracker-sparql.c:1322
-msgid "Properties"
-msgstr "Egenskaper"
-
-#: ../src/tracker/tracker-sparql.c:1227
-msgid "Could not find notify classes"
-msgstr "Kunne ikke finne varslingsklasser"
-
-#: ../src/tracker/tracker-sparql.c:1235
-msgid "No notifies were found"
-msgstr "Ingen varsel ble funnet"
-
-#: ../src/tracker/tracker-sparql.c:1235
-msgid "Notifies"
-msgstr "Varsel"
-
-#: ../src/tracker/tracker-sparql.c:1261
-msgid "Could not find indexed properties"
-msgstr "Kunne ikke finne indekserte egenskaper"
-
-#: ../src/tracker/tracker-sparql.c:1269
-msgid "No indexes were found"
-msgstr "Ingen indekser ble funnet"
-
-#: ../src/tracker/tracker-sparql.c:1269
-msgid "Indexes"
-msgstr "Indekser"
-
-#: ../src/tracker/tracker-sparql.c:1291
-msgid "Could not search classes"
-msgstr "Kunne ikke søke i klasser"
-
-#: ../src/tracker/tracker-sparql.c:1299
-msgid "No classes were found to match search term"
-msgstr "Ingen klasser ble funnet som passer søkebegrepet"
-
-#: ../src/tracker/tracker-sparql.c:1314
-msgid "Could not search properties"
-msgstr "Kunne ikke søke i egenskaper"
-
-#: ../src/tracker/tracker-sparql.c:1322
-msgid "No properties were found to match search term"
-msgstr "Ingen egenskaper ble funnet med treff fra søkebegrepet"
-
-#: ../src/tracker/tracker-sparql.c:1358 ../src/tracker/tracker-sql.c:65
-msgid "Could not get UTF-8 path from path"
-msgstr "Kunne ikke hente UTF-8-sti fra sti"
-
-#: ../src/tracker/tracker-sparql.c:1370 ../src/tracker/tracker-sql.c:76
-msgid "Could not read file"
-msgstr "Kunne ikke lese fil"
-
-#: ../src/tracker/tracker-sparql.c:1389
-msgid "Could not run update"
-msgstr "Kunne ikke kjøre oppdatering"
-
-#: ../src/tracker/tracker-sparql.c:1437 ../src/tracker/tracker-sql.c:139
-#: ../src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "Kunne ikke kjøre spørring"
-
-#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
-msgid "No results found matching your query"
-msgstr "Ingen resultater med treff for din spørring"
-
-#: ../src/tracker/tracker-sparql.c:1506 ../src/tracker/tracker-sql.c:247
-msgid "File and query can not be used together"
-msgstr "Fil og spørring kan ikke brukes sammen"
-
-#: ../src/tracker/tracker-sparql.c:1508
-msgid ""
-"The --list-properties argument can only be empty when used with the --tree "
-"argument"
-msgstr ""
-
-#: ../src/tracker/tracker-sql.c:43
-msgid "Path to use to run a query from file"
-msgstr ""
-
-#: ../src/tracker/tracker-sql.c:47
-msgid "SQL query"
-msgstr "SQL-spørring"
-
-#: ../src/tracker/tracker-sql.c:48
-msgid "SQL"
-msgstr "SQL"
-
-#: ../src/tracker/tracker-sql.c:120
-msgid "Failed to initialize data manager"
-msgstr "Klarte ikke å initiere datahåndterer"
-
-#: ../src/tracker/tracker-sql.c:180
-msgid "Empty result set"
-msgstr "Tomt resultatsett"
-
-#: ../src/tracker/tracker-status.c:49
-msgid "Show statistics for current index / data set"
-msgstr "Vis statistikk for aktiv indeks / datasett"
-
-#: ../src/tracker/tracker-status.c:53
-msgid ""
-"Collect debug information useful for problem reporting and investigation, "
-"results are output to terminal"
-msgstr ""
-
-#: ../src/tracker/tracker-status.c:85
-msgid "Could not get Tracker statistics"
-msgstr "Kunne ikke hente statistikk for Tracker"
-
-#: ../src/tracker/tracker-status.c:92
-msgid "No statistics available"
-msgstr "Ingen statistikk tilgjengelig"
-
-#. To translators: This is to say there are no
-#. * statistics found. We use a "Statistics:
-#. * None" with multiple print statements
-#: ../src/tracker/tracker-status.c:133
-msgid "Statistics:"
-msgstr "Statistikk:"
-
-#: ../src/tracker/tracker-status.c:170
+#: src/portal/tracker-main.c:51
 msgid "Version"
 msgstr "Versjon"
-
-#: ../src/tracker/tracker-status.c:177
-msgid "Disk Information"
-msgstr "Diskinformasjon"
-
-#: ../src/tracker/tracker-status.c:184 ../src/tracker/tracker-status.c:538
-msgid "Remaining space on database partition"
-msgstr "Gjenværende plass på databasepartisjon"
-
-#. 3. Size of dataset (tracker-stats), size of databases
-#: ../src/tracker/tracker-status.c:191
-msgid "Data Set"
-msgstr "Datasett"
-
-#: ../src/tracker/tracker-status.c:223
-msgid "Configuration"
-msgstr "Konfigurasjon"
-
-#: ../src/tracker/tracker-status.c:251
-msgid "No configuration was found"
-msgstr "Ingen konfigurasjon ble funnet"
-
-#: ../src/tracker/tracker-status.c:255
-msgid "States"
-msgstr "Tilstander"
-
-#: ../src/tracker/tracker-status.c:296
-msgid "Data Statistics"
-msgstr "Statistikk for data"
-
-#: ../src/tracker/tracker-status.c:302
-msgid "No connection available"
-msgstr "Ingen tilkobling tilgjengelig"
-
-#: ../src/tracker/tracker-status.c:312
-msgid "Could not get statistics"
-msgstr "Kunne ikke hente statistikk"
-
-#: ../src/tracker/tracker-status.c:318
-msgid "No statistics were available"
-msgstr "Ingen statistikk tilgjengelig"
-
-#: ../src/tracker/tracker-status.c:331
-msgid "Database is currently empty"
-msgstr "Databasen er tom"
-
-#: ../src/tracker/tracker-status.c:408 ../src/tracker/tracker-status.c:431
-msgid "Could not get basic status for Tracker"
-msgstr "Klarte ikke å hente grunnleggende status for Tracker"
-
-#: ../src/tracker/tracker-status.c:515
-#, c-format
-msgid "Currently indexed"
-msgstr "Allerede indeksert"
-
-#: ../src/tracker/tracker-status.c:550
-msgid "Data is still being indexed"
-msgstr "Data indekseres fortsatt"
-
-#: ../src/tracker/tracker-status.c:551
-#, c-format
-msgid "Estimated %s left"
-msgstr "Estimerer at %s gjenstår"
-
-#: ../src/tracker/tracker-status.c:555
-msgid "All data miners are idle, indexing complete"
-msgstr "Alle datagravere er ledige, indeksering fullført"
-
-#: ../src/tracker/tracker-tag.c:53
-msgid ""
-"List all tags (using FILTER if specified; FILTER always uses logical OR)"
-msgstr ""
-"Vis alle merkinger (bruker FILTER hvis oppgitt; FILTER bruker alltid logisk "
-"ELLER)"
-
-#: ../src/tracker/tracker-tag.c:54
-msgid "FILTER"
-msgstr "FILTER"
-
-#: ../src/tracker/tracker-tag.c:57
-msgid "Show files associated with each tag (this is only used with --list)"
-msgstr "Vis filer assosiert med hver merking (dette brukes kun med --list)"
-
-#: ../src/tracker/tracker-tag.c:61
-msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
-msgstr ""
-"Legg til en merking (hvis FILER er utelatt vil MERKING ikke assosieres med "
-"noen filer)"
-
-#: ../src/tracker/tracker-tag.c:62 ../src/tracker/tracker-tag.c:66
-msgid "TAG"
-msgstr "MERKING"
-
-#: ../src/tracker/tracker-tag.c:65
-msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
-msgstr ""
-"Slett en merking (hvis FILER utelates vil MERKING bli fjernet for alle filer)"
-
-#: ../src/tracker/tracker-tag.c:69
-msgid "Description for a tag (this is only used with --add)"
-msgstr "Beskrivelse for en merking (dette brukes kun med --add)"
-
-#: ../src/tracker/tracker-tag.c:70
-msgid "STRING"
-msgstr "STRENG"
-
-#: ../src/tracker/tracker-tag.c:81
-msgid "Use AND for search terms instead of OR (the default)"
-msgstr ""
-
-#: ../src/tracker/tracker-tag.c:86
-msgid "FILE…"
-msgstr "FIL …"
-
-#: ../src/tracker/tracker-tag.c:87
-msgid "FILE [FILE…]"
-msgstr "FIL [FIL …]"
-
-#: ../src/tracker/tracker-tag.c:249
-msgid "Could not get file URNs"
-msgstr "Kunne ikke hente URNer for filer"
-
-#: ../src/tracker/tracker-tag.c:314
-msgid "Could not get files related to tag"
-msgstr "Kunne ikke hente filer relatert til merking"
-
-#: ../src/tracker/tracker-tag.c:381
-msgid "Could not get all tags in the database"
-msgstr "Kunne ikke hente alle merkinger i databasen"
-
-#: ../src/tracker/tracker-tag.c:391
-msgid "No files have been tagged"
-msgstr "Ingen filer er merket"
-
-#: ../src/tracker/tracker-tag.c:426
-msgid "Could not get files for matching tags"
-msgstr "Kunne ikke hente filer med denne merkingen"
-
-#: ../src/tracker/tracker-tag.c:435
-msgid "No files were found matching ALL of those tags"
-msgstr "Ingen filer med treff på alle merkingene ble funnet"
-
-#: ../src/tracker/tracker-tag.c:514 ../src/tracker/tracker-tag.c:929
-msgid "Could not get all tags"
-msgstr "Kunne ikke hente alle merkinger"
-
-#: ../src/tracker/tracker-tag.c:523 ../src/tracker/tracker-tag.c:938
-msgid "No tags were found"
-msgstr "Ingen merkinger ble funnet"
-
-#: ../src/tracker/tracker-tag.c:527
-msgid "Tags (shown by name)"
-msgstr "Merkinger (vist etter navn)"
-
-#: ../src/tracker/tracker-tag.c:601
-msgid "No files were modified"
-msgstr "Ingen filer ble endret"
-
-#: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
-msgid "Files do not exist or aren’t indexed"
-msgstr "Filene eksisterer ikke eller er ikke indeksert"
-
-#: ../src/tracker/tracker-tag.c:709
-msgid "Could not add tag"
-msgstr "Kunne ikke legge til merking"
-
-#: ../src/tracker/tracker-tag.c:725
-msgid "Tag was added successfully"
-msgstr "Merking ble lagt til"
-
-#: ../src/tracker/tracker-tag.c:754
-msgid "Could not add tag to files"
-msgstr "Kunne ikke legge til merke på filer"
-
-#: ../src/tracker/tracker-tag.c:764
-msgid "Tagged"
-msgstr "Merket"
-
-#: ../src/tracker/tracker-tag.c:765
-msgid "Not tagged, file is not indexed"
-msgstr "Ikke merket, filen er ikke indeksert"
-
-#: ../src/tracker/tracker-tag.c:811
-msgid "Could not get tag by label"
-msgstr "Kunne ikke finne merking etter etikett"
-
-#: ../src/tracker/tracker-tag.c:822
-msgid "No tags were found by that name"
-msgstr "Ingen merkinger ble funnet ved det navnet"
-
-#: ../src/tracker/tracker-tag.c:839
-msgid "None of the files had this tag set"
-msgstr "Ingen av filene hadde denne merkingen satt"
-
-#: ../src/tracker/tracker-tag.c:885
-msgid "Could not remove tag"
-msgstr "Kunne ikke fjerne merking"
-
-#: ../src/tracker/tracker-tag.c:892
-msgid "Tag was removed successfully"
-msgstr "Merking ble fjernet"
-
-#: ../src/tracker/tracker-tag.c:896
-msgid "Untagged"
-msgstr "Fjernet merking"
-
-#: ../src/tracker/tracker-tag.c:897
-msgid "File not indexed or already untagged"
-msgstr "Filer som ikke er indeksert eller allerede har fått merking fjernet"
-
-#: ../src/tracker/tracker-tag.c:1088
-msgid "The --list option is required for --show-files"
-msgstr "Flagget --list kreves for --show-files"
-
-#: ../src/tracker/tracker-tag.c:1090
-msgid ""
-"The --and-operator option can only be used with --list and tag label "
-"arguments"
-msgstr ""
-
-#: ../src/tracker/tracker-tag.c:1092
-msgid "Add and delete actions can not be used together"
-msgstr "Handlinger for å legge til og slette kan ikke brukes sammen"
-
-#: ../src/tracker/tracker-tag.c:1094
-msgid "The --description option can only be used with --add"
-msgstr ""
