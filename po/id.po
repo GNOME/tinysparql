@@ -7,10 +7,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tracker master\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-09-08 15:11+0000\n"
-"PO-Revision-Date: 2024-09-09 16:25+0700\n"
+"Project-Id-Version: TinySPARQL tinysparql-3.10\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
+"POT-Creation-Date: 2025-06-19 12:48+0000\n"
+"PO-Revision-Date: 2026-01-21 12:45+0700\n"
 "Last-Translator: Andika Triwidada <andika@gmail.com>\n"
 "Language-Team: GNOME Indonesian Translation Team <gnome@i15n.org>\n"
 "Language: id\n"
@@ -18,133 +18,122 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.8\n"
 "X-DamnedLies-Scope: partial\n"
 
-#. Translators: this is a '|' (U+007C) separated list of common
-#. * title beginnings. Meant to be skipped for sorting purposes,
-#. * case doesn't matter. Given English media is quite common, it is
-#. * advised to leave the untranslated articles in addition to
-#. * the translated ones.
-#.
-#: src/libtracker-sparql/core/tracker-collation.c:116
-msgid "the|a|an"
-msgstr "the|a|an"
-
-#: src/portal/tracker-main.c:53
-msgid "Version"
-msgstr "Versi"
-
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:606
-#: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-introspect.c:1027 src/tracker/tracker-query.c:486
-#: src/tracker/tracker-sql.c:238 src/tracker/tracker-webide.c:118
-msgid "Unrecognized options"
-msgstr "Opsi tak dikenal"
-
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-introspect.c:98
-#: src/tracker/tracker-query.c:52 src/tracker/tracker-sql.c:44
+#: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46
+#: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
+#: src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
 msgid "Location of the database"
 msgstr "Lokasi basis data"
 
-#: src/tracker/tracker-endpoint.c:59 src/tracker/tracker-endpoint.c:71
+#: src/cli/tracker-endpoint.c:59 src/cli/tracker-endpoint.c:71
 msgid "DIR"
 msgstr "DIR"
 
-#: src/tracker/tracker-endpoint.c:62
+#: src/cli/tracker-endpoint.c:62
 msgid "Specify the DBus name of this endpoint"
 msgstr "Tentukan nama DBus titik akhir ini"
 
-#: src/tracker/tracker-endpoint.c:63 src/tracker/tracker-endpoint.c:67
+#: src/cli/tracker-endpoint.c:63 src/cli/tracker-endpoint.c:67
 msgid "NAME"
 msgstr "NAMA"
 
-#: src/tracker/tracker-endpoint.c:66
+#: src/cli/tracker-endpoint.c:66
 msgid "Specify the ontology name used in this endpoint"
 msgstr "Tentukan nama ontologi yang digunakan di titik akhir ini"
 
-#: src/tracker/tracker-endpoint.c:70
+#: src/cli/tracker-endpoint.c:70
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr "Tentukan path ke ontologi yang akan digunakan di titik akhir ini"
 
-#: src/tracker/tracker-endpoint.c:74
+#: src/cli/tracker-endpoint.c:74
 msgid "HTTP port"
 msgstr "Port HTTP"
 
-#: src/tracker/tracker-endpoint.c:78
+#: src/cli/tracker-endpoint.c:78
 msgid "Whether to only allow HTTP connections in the loopback device"
 msgstr "Apakah hanya memperbolehkan sambungan HTTP di perangkat loopback"
 
-#: src/tracker/tracker-endpoint.c:82
+#: src/cli/tracker-endpoint.c:82
 msgid "Use session bus"
 msgstr "Gunakan bus sesi"
 
-#: src/tracker/tracker-endpoint.c:86
+#: src/cli/tracker-endpoint.c:86
 msgid "Use system bus"
 msgstr "Gunakan bus sistem"
 
-#: src/tracker/tracker-endpoint.c:90
+#: src/cli/tracker-endpoint.c:90
 msgid "List SPARQL endpoints available in DBus"
 msgstr "Buat daftar titik akhir SPARQL yang tersedia di DBus"
 
-#: src/tracker/tracker-endpoint.c:94
+#: src/cli/tracker-endpoint.c:94
 msgid "List network-local HTTP SPARQL endpoints"
 msgstr "Cantumkan daftar titik akhir SPARQL HTTP jaringan-lokal"
 
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:115
+#: src/cli/tracker-endpoint.c:115
 msgid "--list can only be used with --session or --system"
 msgstr "--list hanya dapat digunakan dengan --session atau --system"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:121
+#: src/cli/tracker-endpoint.c:121
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "Satu opsi \"ontology\" atau \"ontology-path\" harus disediakan"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:127
+#: src/cli/tracker-endpoint.c:127
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "--http-port tidak dapat digunakan dengan --dbus-service"
 
-#: src/tracker/tracker-endpoint.c:198
+#: src/cli/tracker-endpoint.c:198
 #, c-format
-msgid "Creating HTTP endpoint at %s…\n"
-msgstr "Membuat titik akhir HTTP di %s…\n"
+msgid "Creating HTTP endpoint at %s…"
+msgstr "Membuat titik akhir HTTP di %s…"
 
-#: src/tracker/tracker-endpoint.c:217 src/tracker/tracker-endpoint.c:280
+#: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
+#: src/cli/tracker-webide.c:100
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "Mendengarkan perintah SPARQL. Tekan Ctrl-C untuk berhenti."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:225 src/tracker/tracker-endpoint.c:295
-#: src/tracker/tracker-webide.c:101
+#: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
+#: src/cli/tracker-webide.c:105
 msgid "Closing connection…"
 msgstr "Menutup koneksi…"
 
-#: src/tracker/tracker-endpoint.c:240
+#: src/cli/tracker-endpoint.c:241
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Membuat titik akhir di %s…"
 
-#: src/tracker/tracker-endpoint.c:276
+#: src/cli/tracker-endpoint.c:277
 msgid "Could not own DBus name"
 msgstr "Tidak dapat memiliki nama DBus"
 
-#: src/tracker/tracker-endpoint.c:290
+#: src/cli/tracker-endpoint.c:291
 msgid "DBus name lost"
 msgstr "Nama DBus hilang"
 
-#: src/tracker/tracker-endpoint.c:650
+#: src/cli/tracker-endpoint.c:608 src/cli/tracker-export.c:214
+#: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1025
+#: src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
+#: src/cli/tracker-webide.c:122 src/portal/tracker-main.c:108
+msgid "Unrecognized options"
+msgstr "Opsi tak dikenal"
+
+#: src/cli/tracker-endpoint.c:652
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Membuka basis data di %s…"
 
-#: src/tracker/tracker-endpoint.c:653
+#: src/cli/tracker-endpoint.c:655
+#, c-format
 msgid "Creating in-memory database"
 msgstr "Membuat basis data dalam memori"
 
-#: src/tracker/tracker-endpoint.c:680
+#: src/cli/tracker-endpoint.c:683
+#, c-format
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -152,106 +141,106 @@ msgstr ""
 "Basis data baru dibuat. Gunakan opsi \"--dbus-service\" untuk berbagi basis "
 "data ini di bus pesan."
 
-#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
-#: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-introspect.c:99 src/tracker/tracker-query.c:53
-#: src/tracker/tracker-query.c:65 src/tracker/tracker-sql.c:45
-#: src/tracker/tracker-sql.c:49
+#: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
+#: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
+#: src/cli/tracker-introspect.c:99 src/cli/tracker-query.c:53
+#: src/cli/tracker-query.c:65 src/cli/tracker-sql.c:46 src/cli/tracker-sql.c:50
 msgid "FILE"
 msgstr "BERKAS"
 
-#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-introspect.c:102 src/tracker/tracker-query.c:56
+#: src/cli/tracker-export.c:50 src/cli/tracker-import.c:50
+#: src/cli/tracker-introspect.c:102 src/cli/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "Hubungkan ke layanan DBus"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-introspect.c:103 src/tracker/tracker-query.c:57
+#: src/cli/tracker-export.c:51 src/cli/tracker-import.c:51
+#: src/cli/tracker-introspect.c:103 src/cli/tracker-query.c:57
 msgid "DBus service name"
 msgstr "Nama layanan DBus"
 
-#: src/tracker/tracker-export.c:55
+#: src/cli/tracker-export.c:54
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "Format hasil keluaran: \"turtle\", \"trig\" atau \"json-ld\""
 
-#: src/tracker/tracker-export.c:56
+#: src/cli/tracker-export.c:55
 msgid "RDF_FORMAT"
 msgstr "RDF_FORMAT"
 
-#: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-introspect.c:106 src/tracker/tracker-query.c:60
+#: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54
+#: src/cli/tracker-introspect.c:106 src/cli/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "Menghubungkan ke layanan jarak jauh"
 
-#: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-introspect.c:107 src/tracker/tracker-query.c:61
+#: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
+#: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "URI layanan jarak jauh"
 
-#: src/tracker/tracker-export.c:63
+#: src/cli/tracker-export.c:62
 msgid "Output TriG format which includes named graph information"
 msgstr "Keluaran format TriG yang mencakup informasi grafik bernama"
 
-#: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
+#: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-introspect.c:164 src/tracker/tracker-query.c:105
+#: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
+#: src/cli/tracker-introspect.c:164 src/cli/tracker-query.c:105
+#, c-format
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Tentukan satu opsi \"--database\", \"--dbus-service\" atau \"--remote-"
 "service\""
 
-#: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-introspect.c:831
-#: src/tracker/tracker-query.c:345
+#: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137
+#: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:829
+#: src/cli/tracker-query.c:345
 msgid "No error given"
 msgstr "Tak ada galat yang diberikan"
 
-#: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-introspect.c:830 src/tracker/tracker-query.c:344
+#: src/cli/tracker-export.c:136 src/cli/tracker-import.c:124
+#: src/cli/tracker-introspect.c:828 src/cli/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "Tak bisa membentuk koneksi ke Pelacak"
 
-#: src/tracker/tracker-export.c:180
+#: src/cli/tracker-export.c:179
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Format serialisasi yang tidak didukung \"%s\"\n"
 
-#: src/tracker/tracker-import.c:58
+#: src/cli/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
 msgstr "Baca format TriG yang mencakup informasi grafik bernama"
 
-#: src/tracker/tracker-import.c:103 src/tracker/tracker-import.c:141
+#: src/cli/tracker-import.c:103 src/cli/tracker-import.c:141
 msgid "Could not run import"
 msgstr "Tidak dapat menjalankan impor"
 
-#: src/tracker/tracker-introspect.c:110
+#: src/cli/tracker-introspect.c:110
 msgid "Lists all available classes"
 msgstr "Mencantumkan daftar semua kelas yang tersedia"
 
-#: src/tracker/tracker-introspect.c:114
+#: src/cli/tracker-introspect.c:114
 msgid "Lists all available prefixes"
 msgstr "Mencantumkan daftar semua awalan yang tersedia"
 
-#: src/tracker/tracker-introspect.c:118
+#: src/cli/tracker-introspect.c:118
 msgid "Lists all classes which notify changes in the database"
 msgstr ""
 "Mencantumkan daftar semua kelas yang memberi tahu perubahan dalam basis data"
 
-#: src/tracker/tracker-introspect.c:122
+#: src/cli/tracker-introspect.c:122
 msgid "List indexes used in database to improve performance"
 msgstr ""
 "Mencantumkan daftar indeks yang digunakan dalam basis data untuk "
 "meningkatkan kinerja"
 
-#: src/tracker/tracker-introspect.c:125
+#: src/cli/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "Ambil semua grafik bernama"
 
-#: src/tracker/tracker-introspect.c:129
+#: src/cli/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -259,85 +248,85 @@ msgstr ""
 "Menguraikan subkelas, superkelas (dapat dipakai dengan -s untuk menyorot "
 "bagian dari pohon dan -p untuk menampilkan properti)"
 
-#: src/tracker/tracker-introspect.c:130 src/tracker/tracker-introspect.c:134
+#: src/cli/tracker-introspect.c:130 src/cli/tracker-introspect.c:134
 msgid "CLASS"
 msgstr "KELAS"
 
-#: src/tracker/tracker-introspect.c:133
+#: src/cli/tracker-introspect.c:133
 msgid "Lists all available properties"
 msgstr "Mencantumkan daftar semua properti yang tersedia"
 
-#: src/tracker/tracker-introspect.c:137
+#: src/cli/tracker-introspect.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Cari kelas atau properti dan tampilkan lebih banyak informasi (mis. Dokumen)"
 
-#: src/tracker/tracker-introspect.c:138
+#: src/cli/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "KELAS/PROPERTI"
 
-#: src/tracker/tracker-introspect.c:716
+#: src/cli/tracker-introspect.c:716
 msgid "Could not create tree: subclass query failed"
 msgstr "Tak bisa membuat pohon: kueri subkelas gagal"
 
-#: src/tracker/tracker-introspect.c:766
+#: src/cli/tracker-introspect.c:765
 msgid "Could not create tree: class properties query failed"
 msgstr "Tak bisa membuat pohon: kueri properti subkelas gagal"
 
-#: src/tracker/tracker-introspect.c:850
+#: src/cli/tracker-introspect.c:848
 msgid "Could not search classes"
 msgstr "Tak bisa mencari kelas"
 
-#: src/tracker/tracker-introspect.c:858 src/tracker/tracker-introspect.c:942
+#: src/cli/tracker-introspect.c:856 src/cli/tracker-introspect.c:940
 msgid "Classes"
 msgstr "Kelas"
 
-#: src/tracker/tracker-introspect.c:870
+#: src/cli/tracker-introspect.c:868
 msgid "Could not search properties"
 msgstr "Tak bisa mencari properti"
 
-#: src/tracker/tracker-introspect.c:878 src/tracker/tracker-introspect.c:912
+#: src/cli/tracker-introspect.c:876 src/cli/tracker-introspect.c:910
 msgid "Properties"
 msgstr "Properti"
 
-#: src/tracker/tracker-introspect.c:904
+#: src/cli/tracker-introspect.c:902
 msgid "Could not list properties"
 msgstr "Tak bisa meyusun daftar properti"
 
-#: src/tracker/tracker-introspect.c:920
+#: src/cli/tracker-introspect.c:918
 msgid "Namespaces"
 msgstr "Namespace"
 
-#: src/tracker/tracker-introspect.c:934
+#: src/cli/tracker-introspect.c:932
 msgid "Could not list classes"
 msgstr "Tak bisa menyusun daftar kelas"
 
-#: src/tracker/tracker-introspect.c:954
+#: src/cli/tracker-introspect.c:952
 msgid "Could not find notify classes"
 msgstr "Tak bisa temukan kelas pemberitahuan"
 
-#: src/tracker/tracker-introspect.c:962
+#: src/cli/tracker-introspect.c:960
 msgid "Notifies"
 msgstr "Memberitahu"
 
-#: src/tracker/tracker-introspect.c:974
+#: src/cli/tracker-introspect.c:972
 msgid "Could not find indexed properties"
 msgstr "Tak bisa temukan properti terindeks"
 
-#: src/tracker/tracker-introspect.c:982
+#: src/cli/tracker-introspect.c:980
 msgid "Indexes"
 msgstr "Indeks"
 
-#: src/tracker/tracker-introspect.c:994
+#: src/cli/tracker-introspect.c:992
 msgid "Could not list named graphs"
 msgstr "Tidak dapat mencantumkan grafik bernama"
 
-#: src/tracker/tracker-introspect.c:1002
+#: src/cli/tracker-introspect.c:1000
 msgid "Named graphs"
 msgstr "Grafik bernama"
 
-#: src/tracker/tracker-introspect.c:1036
+#: src/cli/tracker-introspect.c:1034
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -345,72 +334,72 @@ msgstr ""
 "Argumen —list-properties hanya bisa kosong ketika dipakai dengan argumen —"
 "tree"
 
-#: src/tracker/tracker-main.c:72
+#: src/cli/tracker-main.c:69
 msgid "Get help on how to use TinySPARQL and any of these commands"
 msgstr ""
 "Dapatkan bantuan tentang cara menggunakan TinySPARQL dan salah satu perintah "
 "ini"
 
-#: src/tracker/tracker-main.c:73
+#: src/cli/tracker-main.c:70
 msgid "Create a SPARQL endpoint"
 msgstr "Buat titik akhir SPARQL"
 
-#: src/tracker/tracker-main.c:74
+#: src/cli/tracker-main.c:71
 msgid "Export data from a TinySPARQL database"
 msgstr "Mengekspor data dari basis data TinySPARQL"
 
-#: src/tracker/tracker-main.c:75
+#: src/cli/tracker-main.c:72
 msgid "Import data into a TinySPARQL database"
 msgstr "Mengimpor data ke basis data TinySPARQL"
 
-#: src/tracker/tracker-main.c:76
+#: src/cli/tracker-main.c:73
 msgid "Introspect a SPARQL endpoint"
 msgstr "Mengintrospeksi titik akhir SPARQL"
 
-#: src/tracker/tracker-main.c:77
+#: src/cli/tracker-main.c:74
 msgid "Query and update the index using SPARQL"
 msgstr "Kueri dan perbarui indeks menggunakan SPARQL"
 
-#: src/tracker/tracker-main.c:78
+#: src/cli/tracker-main.c:75
 msgid "Create a Web IDE to query local databases"
 msgstr "Membuat IDE Web untuk mengkuiri basis data lokal"
 
-#: src/tracker/tracker-main.c:95
+#: src/cli/tracker-main.c:92
 msgid "Available tinysparql commands are:"
 msgstr "Perintah tinysparql yang tersedia adalah:"
 
-#: src/tracker/tracker-main.c:114
+#: src/cli/tracker-main.c:111
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr ""
 "Lihat \"tinysparql help <perintah>\" untuk membaca tentang sub perintah "
 "tertentu."
 
-#: src/tracker/tracker-main.c:157
+#: src/cli/tracker-main.c:154
 #, c-format
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
 msgstr "\"%s\" bukan suatu perintah tinysparql. Lihat \"tinysparql --help\""
 
-#: src/tracker/tracker-query.c:64
+#: src/cli/tracker-query.c:64
 msgid "Path to use to run a query or update from file"
 msgstr "Path untuk menjalankan kueri atau pembaruan dari berkas"
 
-#: src/tracker/tracker-query.c:68
+#: src/cli/tracker-query.c:68
 msgid "SPARQL query"
 msgstr "Kueri SPARQL"
 
-#: src/tracker/tracker-query.c:69
+#: src/cli/tracker-query.c:69
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-query.c:72
+#: src/cli/tracker-query.c:72
 msgid "This is used with --query and for database updates only."
 msgstr "Ini dipakai dengan --kueri dan bagi pembaruan basis data saja."
 
-#: src/tracker/tracker-query.c:76
+#: src/cli/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
 msgstr "Menyediakan argumen untuk parameter kueri."
 
-#: src/tracker/tracker-query.c:77
+#: src/cli/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
 msgstr "PARAMETER:JENIS:NILAI"
 
@@ -418,93 +407,104 @@ msgstr "PARAMETER:JENIS:NILAI"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-query.c:214 src/tracker/tracker-query.c:262
+#: src/cli/tracker-query.c:214 src/cli/tracker-query.c:262
 msgid "None"
 msgstr "Nihil"
 
-#: src/tracker/tracker-query.c:282
+#: src/cli/tracker-query.c:282
 #, c-format
 msgid "Invalid argument string %s"
 msgstr "String argumen tidak valid %s"
 
-#: src/tracker/tracker-query.c:292
+#: src/cli/tracker-query.c:292
 #, c-format
 msgid "Invalid parameter type for argument %s"
 msgstr "Jenis parameter tidak valid untuk argumen %s"
 
-#: src/tracker/tracker-query.c:360
+#: src/cli/tracker-query.c:360
 msgid "Could not get UTF-8 path from path"
 msgstr "Tak bisa mendapat path UTF-8 dari path"
 
-#: src/tracker/tracker-query.c:372 src/tracker/tracker-sql.c:74
+#: src/cli/tracker-query.c:372 src/cli/tracker-sql.c:75
 msgid "Could not read file"
 msgstr "Tak bisa membaca berkas"
 
-#: src/tracker/tracker-query.c:403
+#: src/cli/tracker-query.c:403
 msgid "Could not run update"
 msgstr "Tak bisa menjalankan pemutakhiran"
 
-#: src/tracker/tracker-query.c:410
+#: src/cli/tracker-query.c:410
 msgid "Done"
 msgstr "Selesai"
 
-#: src/tracker/tracker-query.c:428 src/tracker/tracker-sql.c:130
-#: src/tracker/tracker-sql.c:163
+#: src/cli/tracker-query.c:428 src/cli/tracker-sql.c:131
+#: src/cli/tracker-sql.c:164
 msgid "Could not run query"
 msgstr "Tak bisa menjalankan kueri"
 
-#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
 msgid "No results found matching your query"
 msgstr "Tak ada hasil yang cocok dengan kueri Anda"
 
-#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
-#: src/tracker/tracker-sql.c:137
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+#: src/cli/tracker-sql.c:138
 msgid "Results"
 msgstr "Hasil"
 
-#: src/tracker/tracker-query.c:498 src/tracker/tracker-sql.c:249
+#: src/cli/tracker-query.c:498 src/cli/tracker-sql.c:250
 msgid "File and query can not be used together"
 msgstr "Berkas dan kueri tak dapat dipakai bersama"
 
-#: src/tracker/tracker-sql.c:48
+#: src/cli/tracker-sql.c:49
 msgid "Path to use to run a query from file"
 msgstr "Path untuk menjalankan kueri dari berkas"
 
-#: src/tracker/tracker-sql.c:52
+#: src/cli/tracker-sql.c:53
 msgid "SQL query"
 msgstr "Kueri SQL"
 
-#: src/tracker/tracker-sql.c:53
+#: src/cli/tracker-sql.c:54
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:107
+#: src/cli/tracker-sql.c:108
 msgid "Failed to initialize data manager"
 msgstr "Gagal menginisialisasi manajer data"
 
-#: src/tracker/tracker-sql.c:171
+#: src/cli/tracker-sql.c:172
 msgid "Empty result set"
 msgstr "Set hasil kosong"
 
-#: src/tracker/tracker-sql.c:247
+#: src/cli/tracker-sql.c:248
 msgid "A database path must be specified"
 msgstr "Path basis data harus ditentukan"
 
 #. Translators: this is a HTTP port
-#: src/tracker/tracker-webide.c:40
+#: src/cli/tracker-webide.c:40
 msgid "Port to listen on"
 msgstr "Port tempat mendengar"
 
 #. Translators: this is a HTTP port
-#: src/tracker/tracker-webide.c:50
+#: src/cli/tracker-webide.c:50
 msgid "Port not specified"
 msgstr "Port tidak ditentukan"
 
-#: src/tracker/tracker-webide.c:80
+#. Translators: This will point to a local HTTP address
+#: src/cli/tracker-webide.c:81
 #, c-format
-msgid "%s %s…\n"
-msgstr "%s %s…\n"
+msgid "Creating Web IDE at %s…"
+msgstr "Membuat IDE Web di %s…"
 
-#: src/tracker/tracker-webide.c:80
-msgid "Creating Web IDE at"
-msgstr "Membuat Web IDE di"
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: src/libtinysparql/core/tracker-collation.c:116
+msgid "the|a|an"
+msgstr "the|a|an"
+
+#: src/portal/tracker-main.c:51
+msgid "Version"
+msgstr "Versi"
