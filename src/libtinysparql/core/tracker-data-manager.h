@@ -97,7 +97,8 @@ gboolean             tracker_data_manager_find_graph       (TrackerDataManager *
                                                             const gchar        *name,
                                                             gboolean            in_transaction);
 
-guint                tracker_data_manager_get_generation   (TrackerDataManager *manager);
+guint                tracker_data_manager_get_generation   (TrackerDataManager *manager,
+                                                            gboolean            in_transaction);
 void                 tracker_data_manager_rollback_graphs (TrackerDataManager *manager);
 void                 tracker_data_manager_commit_graphs (TrackerDataManager *manager);
 

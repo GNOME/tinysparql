@@ -55,6 +55,7 @@ struct _TrackerDataManager {
 	guint flags;
 
 	gint select_cache_size;
+	guint transaction_generation;
 	guint generation;
 
 	TrackerDBManager *db_manager;
@@ -2724,11 +2725,15 @@ tracker_data_manager_create_graph (TrackerDataManager  *manager,
 	if (id == 0)
 		goto out;
 
-	if (!manager->transaction_graphs)
+	if (!manager->transaction_graphs) {
 		manager->transaction_graphs = copy_graphs (manager->graphs);
+		manager->transaction_generation = manager->generation;
+	}
 
 	g_hash_table_insert (manager->transaction_graphs, g_strdup (name),
 	                     tracker_rowid_copy (&id));
+	manager->transaction_generation++;
+
 	g_free (changes);
 
 	return TRUE;
@@ -2796,9 +2801,13 @@ tracker_data_manager_drop_graph (TrackerDataManager  *manager,
 	if (!tracker_data_delete_graph (manager->data_update, graph, error))
 		return FALSE;
 
-	if (!manager->transaction_graphs)
+	if (!manager->transaction_graphs) {
 		manager->transaction_graphs = copy_graphs (manager->graphs);
+		manager->transaction_generation = manager->generation;
+	}
+
 	g_hash_table_remove (manager->transaction_graphs, graph);
+	manager->transaction_generation++;
 
 	return TRUE;
 }
@@ -2992,8 +3001,12 @@ out:
 }
 
 guint
-tracker_data_manager_get_generation (TrackerDataManager *manager)
+tracker_data_manager_get_generation (TrackerDataManager *manager,
+                                     gboolean            in_transaction)
 {
+	if (in_transaction && manager->transaction_graphs)
+		return manager->transaction_generation;
+
 	return manager->generation;
 }
 
@@ -3004,9 +3017,9 @@ tracker_data_manager_commit_graphs (TrackerDataManager *manager)
 
 	if (manager->transaction_graphs) {
 		g_clear_pointer (&manager->graphs, g_hash_table_unref);
-		manager->graphs = manager->transaction_graphs;
-		manager->transaction_graphs = NULL;
-		manager->generation++;
+		manager->graphs = g_steal_pointer (&manager->transaction_graphs);
+		manager->generation = manager->transaction_generation;
+		manager->transaction_generation = 0;
 	}
 
 	g_mutex_unlock (&manager->graphs_lock);
@@ -3016,6 +3029,7 @@ void
 tracker_data_manager_rollback_graphs (TrackerDataManager *manager)
 {
 	g_clear_pointer (&manager->transaction_graphs, g_hash_table_unref);
+	manager->transaction_generation = 0;
 }
 
 void

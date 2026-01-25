@@ -9839,8 +9839,11 @@ static gboolean
 tracker_sparql_needs_update (TrackerSparql *sparql)
 {
 	guint generation;
+	gboolean in_transaction;
 
-	generation = tracker_data_manager_get_generation (sparql->data_manager);
+	in_transaction = sparql->query_type == TRACKER_SPARQL_QUERY_UPDATE;
+	generation = tracker_data_manager_get_generation (sparql->data_manager,
+	                                                  in_transaction);
 
 	if (sparql->generation != generation) {
 		sparql->generation = generation;
