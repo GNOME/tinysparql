@@ -134,21 +134,15 @@ gboolean tracker_data_delete_graph                  (TrackerData               *
                                                      GError                   **error);
 
 /* Calling back */
-void tracker_data_add_statement_callback (TrackerData              *data,
-                                          TrackerStatementCallback  callback,
-                                          gpointer                  user_data);
+void tracker_data_add_callbacks (TrackerData                *data,
+                                 TrackerStatementCallback    statement_cb,
+                                 TrackerTransactionCallback  transaction_cb,
+                                 gpointer                    user_data);
 
-void tracker_data_remove_statement_callback (TrackerData              *data,
-                                             TrackerStatementCallback  callback,
-                                             gpointer                  user_data);
-
-void tracker_data_add_transaction_callback (TrackerData                *data,
-                                            TrackerTransactionCallback  callback,
-                                            gpointer                    user_data);
-
-void tracker_data_remove_transaction_callback (TrackerData                *data,
-                                               TrackerTransactionCallback  callback,
-                                               gpointer                    user_data);
+void tracker_data_remove_callbacks (TrackerData                *data,
+                                    TrackerStatementCallback    statement_cb,
+                                    TrackerTransactionCallback  transaction_cb,
+                                    gpointer                    user_data);
 
 gboolean tracker_data_update_resource (TrackerData      *data,
                                        const gchar      *graph,

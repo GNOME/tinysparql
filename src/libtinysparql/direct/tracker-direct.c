@@ -827,12 +827,11 @@ detach_notifier (TrackerDirectConnection *conn,
 
 	tracker_notifier_stop (notifier);
 	tracker_data = tracker_data_manager_get_data (priv->data_manager);
-	tracker_data_remove_statement_callback (tracker_data,
-	                                        statement_cb,
-	                                        notifier);
-	tracker_data_remove_transaction_callback (tracker_data,
-	                                          transaction_cb,
-	                                          notifier);
+
+	tracker_data_remove_callbacks (tracker_data,
+	                               statement_cb,
+	                               transaction_cb,
+	                               notifier);
 }
 
 static void
@@ -1217,12 +1216,10 @@ tracker_direct_connection_create_notifier (TrackerSparqlConnection *self)
 				 NULL);
 
 	tracker_data = tracker_data_manager_get_data (priv->data_manager);
-	tracker_data_add_statement_callback (tracker_data,
-	                                     statement_cb,
-	                                     notifier);
-	tracker_data_add_transaction_callback (tracker_data,
-	                                       transaction_cb,
-	                                       notifier);
+	tracker_data_add_callbacks (tracker_data,
+	                            statement_cb,
+	                            transaction_cb,
+	                            notifier);
 
 	g_object_weak_ref (G_OBJECT (notifier), weak_ref_notify, self);
 	priv->notifiers = g_list_prepend (priv->notifiers, notifier);

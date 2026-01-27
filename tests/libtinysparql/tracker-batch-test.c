@@ -1151,6 +1151,78 @@ batch_mixed_rdf (TestFixture   *test_fixture,
 	g_date_time_unref (date);
 }
 
+static void
+batch_new_graph (TestFixture   *test_fixture,
+                 gconstpointer  context)
+{
+	TrackerSparqlStatement *stmt;
+	TrackerBatch *batch;
+	GError *error = NULL;
+
+	batch = tracker_sparql_connection_create_batch (test_fixture->conn);
+
+	stmt = tracker_sparql_connection_update_statement (test_fixture->conn,
+	                                                   "DELETE WHERE {"
+	                                                   "  GRAPH ?g {"
+	                                                   "    ?r nfo:fileLastModified ?t ."
+	                                                   "  }"
+	                                                   "}", NULL, &error);
+	g_assert_no_error (error);
+
+	/* Perform operations that modify the existing graphs, with update queries
+	 * with WHERE clauses interspersed in them. The WHERE clauses should adapt
+	 * to the existing graphs also within the transaction. If not, the single
+	 * valued property used for testing will fail to be deleted, and result
+	 * in constraint errors when a second different value is attempted.
+	 */
+	tracker_batch_add_statement (batch, stmt, NULL);
+	tracker_batch_add_sparql (batch,
+	                          "INSERT {"
+	                          "  GRAPH <test:new> {"
+	                          "    <test:resource> a nfo:FileDataObject ; "
+	                          "      nfo:fileLastModified '2000-01-01T01:01:01.012345Z' ."
+	                          "  }"
+	                          "}");
+
+	tracker_batch_add_statement (batch, stmt, NULL);
+	tracker_batch_add_sparql (batch,
+	                          "INSERT {"
+	                          "  GRAPH <test:new> {"
+	                          "    <test:resource> a nfo:FileDataObject ; "
+	                          "      nfo:fileLastModified '2001-01-01T01:01:01.012345Z' ."
+	                          "  }"
+	                          "}");
+	tracker_batch_add_sparql (batch,
+	                          "INSERT {"
+	                          "  GRAPH <test:new2> {"
+	                          "    <test:resource2> a nfo:FileDataObject ; "
+	                          "      nfo:fileLastModified '2000-02-01T01:01:01.012345Z' ."
+	                          "  }"
+	                          "}");
+
+	tracker_batch_add_statement (batch, stmt, NULL);
+	tracker_batch_add_sparql (batch,
+	                          "INSERT {"
+	                          "  GRAPH <test:new> {"
+	                          "    <test:resource> a nfo:FileDataObject ; "
+	                          "      nfo:fileLastModified '2026-01-01T01:01:01.123456Z' ."
+	                          "  }"
+	                          "}");
+	tracker_batch_add_sparql (batch,
+	                          "INSERT {"
+	                          "  GRAPH <test:new2> {"
+	                          "    <test:resource2> a nfo:FileDataObject ; "
+	                          "      nfo:fileLastModified '2026-02-01T01:01:01.123456Z' ."
+	                          "  }"
+	                          "}");
+
+	tracker_batch_execute (batch, NULL, &error);
+	g_assert_no_error (error);
+
+	assert_in_graph (test_fixture, "test:new", "test:resource");
+	assert_in_graph (test_fixture, "test:new2", "test:resource2");
+}
+
 typedef struct {
 	gint count;
 	GMainLoop *loop;
@@ -1500,6 +1572,7 @@ TestInfo tests[] = {
 	{ "statement/bnodes-same-batch", batch_statement_bnodes_same_batch },
 	{ "mixed/bnodes", batch_bnodes },
 	{ "mixed/rdf", batch_mixed_rdf },
+	{ "mixed/new-graph", batch_new_graph },
 	{ "async/simultaneous", batch_async_simultaneous },
 	{ "async/same-item", batch_async_same_item },
 	{ "error/transaction", batch_transaction_error },
