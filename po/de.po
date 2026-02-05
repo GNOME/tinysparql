@@ -18,13 +18,13 @@
 # Tim Sabsch <tim@sabsch.com>, 2019-2020, 2024.
 # Stephan Woidowski <swoidowski@t-online.de>, 2020.
 # Philipp Kiemle <philipp.kiemle@gmail.com>, 2020.
-# Jürgen Benvenuti <gastornis@posteo.org>, 2022-2024.
+# Jürgen Benvenuti <gastornis@posteo.org>, 2022-2024, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-09-03 20:08+0000\n"
-"PO-Revision-Date: 2024-09-04 20:23+0200\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
+"POT-Creation-Date: 2025-06-19 12:48+0000\n"
+"PO-Revision-Date: 2026-02-05 22:27+0100\n"
 "Last-Translator: Jürgen Benvenuti <gastornis@posteo.org>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "Language: de\n"
@@ -32,137 +32,126 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4.4\n"
+"X-Generator: Poedit 3.8\n"
 
-#. Translators: this is a '|' (U+007C) separated list of common
-#. * title beginnings. Meant to be skipped for sorting purposes,
-#. * case doesn't matter. Given English media is quite common, it is
-#. * advised to leave the untranslated articles in addition to
-#. * the translated ones.
-#.
-#: src/libtracker-sparql/core/tracker-collation.c:116
-msgid "the|a|an"
-msgstr "the|a|an|der|ein"
-
-#: src/portal/tracker-main.c:53
-msgid "Version"
-msgstr "Version"
-
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:606
-#: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-introspect.c:1027 src/tracker/tracker-query.c:486
-#: src/tracker/tracker-sql.c:238 src/tracker/tracker-webide.c:118
-msgid "Unrecognized options"
-msgstr "Nicht berücksichtigte Optionen"
-
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-introspect.c:98
-#: src/tracker/tracker-query.c:52 src/tracker/tracker-sql.c:44
+#: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46
+#: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
+#: src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
 msgid "Location of the database"
 msgstr "Speicherort der Datenbank"
 
-#: src/tracker/tracker-endpoint.c:59 src/tracker/tracker-endpoint.c:71
+#: src/cli/tracker-endpoint.c:59 src/cli/tracker-endpoint.c:71
 msgid "DIR"
 msgstr "ORDNER"
 
-#: src/tracker/tracker-endpoint.c:62
+#: src/cli/tracker-endpoint.c:62
 msgid "Specify the DBus name of this endpoint"
 msgstr "D-Bus-Namen dieses Endpunkts angeben"
 
-#: src/tracker/tracker-endpoint.c:63 src/tracker/tracker-endpoint.c:67
+#: src/cli/tracker-endpoint.c:63 src/cli/tracker-endpoint.c:67
 msgid "NAME"
 msgstr "NAME"
 
-#: src/tracker/tracker-endpoint.c:66
+#: src/cli/tracker-endpoint.c:66
 msgid "Specify the ontology name used in this endpoint"
 msgstr "Ontologie-Namen angeben, der in diesem Endpunkt verwendet wird"
 
-#: src/tracker/tracker-endpoint.c:70
+#: src/cli/tracker-endpoint.c:70
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr "Pfad zu einer Ontologie angeben, die in diesem Endpunkt verwendet wird"
 
-#: src/tracker/tracker-endpoint.c:74
+#: src/cli/tracker-endpoint.c:74
 msgid "HTTP port"
 msgstr "HTTP-Port"
 
-#: src/tracker/tracker-endpoint.c:78
+#: src/cli/tracker-endpoint.c:78
 msgid "Whether to only allow HTTP connections in the loopback device"
 msgstr ""
 "Legt fest, ob ausschließlich HTTP-Verbindungen im Loopback-Gerät erlaubt "
 "sein sollen"
 
-#: src/tracker/tracker-endpoint.c:82
+#: src/cli/tracker-endpoint.c:82
 msgid "Use session bus"
 msgstr "Sitzungs-Bus verwenden"
 
-#: src/tracker/tracker-endpoint.c:86
+#: src/cli/tracker-endpoint.c:86
 msgid "Use system bus"
 msgstr "System-Bus verwenden"
 
-#: src/tracker/tracker-endpoint.c:90
+#: src/cli/tracker-endpoint.c:90
 msgid "List SPARQL endpoints available in DBus"
 msgstr "In DBus verfügbare SPARQL-Endpunkte auflisten"
 
-#: src/tracker/tracker-endpoint.c:94
+#: src/cli/tracker-endpoint.c:94
 msgid "List network-local HTTP SPARQL endpoints"
 msgstr "Netzwerklokale HTTP-SPARQL-Endpunkte auflisten"
 
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:115
+#: src/cli/tracker-endpoint.c:115
 msgid "--list can only be used with --session or --system"
 msgstr ""
 "--list kann nur in Verbindung mit --session oder --system verwendet werden"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:121
+#: src/cli/tracker-endpoint.c:121
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr ""
 "Eine der Optionen »ontology« oder »ontology-path« sollte angegeben sein"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:127
+#: src/cli/tracker-endpoint.c:127
 msgid "--http-port cannot be used with --dbus-service"
 msgstr ""
 "--http-port kann nicht gleichzeitig mit --dbus-service verwendet werden"
 
-#: src/tracker/tracker-endpoint.c:198
+#: src/cli/tracker-endpoint.c:198
 #, c-format
-msgid "Creating HTTP endpoint at %s…\n"
-msgstr "HTTP-Endpunkt wird bei %s erstellt …\n"
+msgid "Creating HTTP endpoint at %s…"
+msgstr "HTTP-Endpunkt wird bei %s erstellt …"
 
-#: src/tracker/tracker-endpoint.c:217 src/tracker/tracker-endpoint.c:280
+#: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
+#: src/cli/tracker-webide.c:100
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "Es wird auf SPARQL-Befehle gehört. STRG+C drücken zum Anhalten."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:225 src/tracker/tracker-endpoint.c:295
-#: src/tracker/tracker-webide.c:101
+#: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
+#: src/cli/tracker-webide.c:105
 msgid "Closing connection…"
 msgstr "Verbindung wird geschlossen …"
 
-#: src/tracker/tracker-endpoint.c:240
+#: src/cli/tracker-endpoint.c:241
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Endpunkt wird bei %s erstellt …"
 
-#: src/tracker/tracker-endpoint.c:276
+#: src/cli/tracker-endpoint.c:277
 msgid "Could not own DBus name"
 msgstr "D-Bus-Name konnte nicht angewandt werden"
 
-#: src/tracker/tracker-endpoint.c:290
+#: src/cli/tracker-endpoint.c:291
 msgid "DBus name lost"
 msgstr "D-Bus-Name verloren"
 
-#: src/tracker/tracker-endpoint.c:650
+#: src/cli/tracker-endpoint.c:608 src/cli/tracker-export.c:214
+#: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1025
+#: src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
+#: src/cli/tracker-webide.c:122 src/portal/tracker-main.c:108
+msgid "Unrecognized options"
+msgstr "Nicht berücksichtigte Optionen"
+
+#: src/cli/tracker-endpoint.c:652
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Datenbank wird unter %s geöffnet …"
 
-#: src/tracker/tracker-endpoint.c:653
+#: src/cli/tracker-endpoint.c:655
+#, c-format
 msgid "Creating in-memory database"
 msgstr "In-Memory-Datenbank wird erstellt"
 
-#: src/tracker/tracker-endpoint.c:680
+#: src/cli/tracker-endpoint.c:683
+#, c-format
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -170,106 +159,106 @@ msgstr ""
 "Neue Datenbank erstellt. Verwenden Sie die Option »--dbus-service«, um diese "
 "Datenbank auf einem Nachrichtenbus zu teilen."
 
-#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
-#: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-introspect.c:99 src/tracker/tracker-query.c:53
-#: src/tracker/tracker-query.c:65 src/tracker/tracker-sql.c:45
-#: src/tracker/tracker-sql.c:49
+#: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
+#: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
+#: src/cli/tracker-introspect.c:99 src/cli/tracker-query.c:53
+#: src/cli/tracker-query.c:65 src/cli/tracker-sql.c:46 src/cli/tracker-sql.c:50
 msgid "FILE"
 msgstr "DATEI"
 
-#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-introspect.c:102 src/tracker/tracker-query.c:56
+#: src/cli/tracker-export.c:50 src/cli/tracker-import.c:50
+#: src/cli/tracker-introspect.c:102 src/cli/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "Mit einem D-Bus-Dienst verbinden"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-introspect.c:103 src/tracker/tracker-query.c:57
+#: src/cli/tracker-export.c:51 src/cli/tracker-import.c:51
+#: src/cli/tracker-introspect.c:103 src/cli/tracker-query.c:57
 msgid "DBus service name"
 msgstr "D-Bus-Dienst-Name"
 
-#: src/tracker/tracker-export.c:55
+#: src/cli/tracker-export.c:54
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "Ausgabeformat: »»turtle«, »trig« oder »json-ld«"
 
-#: src/tracker/tracker-export.c:56
+#: src/cli/tracker-export.c:55
 msgid "RDF_FORMAT"
 msgstr "RDF_FORMAT"
 
-#: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-introspect.c:106 src/tracker/tracker-query.c:60
+#: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54
+#: src/cli/tracker-introspect.c:106 src/cli/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "Mit einem entfernten Dienst verbinden"
 
-#: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-introspect.c:107 src/tracker/tracker-query.c:61
+#: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
+#: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "URI des entfernten Diensts"
 
-#: src/tracker/tracker-export.c:63
+#: src/cli/tracker-export.c:62
 msgid "Output TriG format which includes named graph information"
 msgstr "TriG-Format ausgeben, das benannte Graph-Informationen enthält"
 
-#: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
+#: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-introspect.c:164 src/tracker/tracker-query.c:105
+#: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
+#: src/cli/tracker-introspect.c:164 src/cli/tracker-query.c:105
+#, c-format
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Geben Sie eine der Optionen »--database«, »--dbus-service« oder »--remote-"
 "service« an"
 
-#: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-introspect.c:831
-#: src/tracker/tracker-query.c:345
+#: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137
+#: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:829
+#: src/cli/tracker-query.c:345
 msgid "No error given"
 msgstr "Kein Fehler angegeben"
 
-#: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-introspect.c:830 src/tracker/tracker-query.c:344
+#: src/cli/tracker-export.c:136 src/cli/tracker-import.c:124
+#: src/cli/tracker-introspect.c:828 src/cli/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "Es konnte keine Verbindung zu Tracker aufgebaut werden"
 
-#: src/tracker/tracker-export.c:180
+#: src/cli/tracker-export.c:179
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Nicht unterstütztes Serialisierungs-Format »%s«\n"
 
-#: src/tracker/tracker-import.c:58
+#: src/cli/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
 msgstr "TriG-Format lesen, das benannte Graph-Informationen enthält"
 
-#: src/tracker/tracker-import.c:103 src/tracker/tracker-import.c:141
+#: src/cli/tracker-import.c:103 src/cli/tracker-import.c:141
 msgid "Could not run import"
 msgstr "Import konnte nicht ausgeführt werden"
 
-#: src/tracker/tracker-introspect.c:110
+#: src/cli/tracker-introspect.c:110
 msgid "Lists all available classes"
 msgstr "Listet alle verfügbaren Klassen auf"
 
-#: src/tracker/tracker-introspect.c:114
+#: src/cli/tracker-introspect.c:114
 msgid "Lists all available prefixes"
 msgstr "Listet alle verfügbaren Präfixe auf"
 
-#: src/tracker/tracker-introspect.c:118
+#: src/cli/tracker-introspect.c:118
 msgid "Lists all classes which notify changes in the database"
 msgstr ""
 "Listet alle Klassen auf, die über Änderungen in der Datenbank benachrichtigen"
 
-#: src/tracker/tracker-introspect.c:122
+#: src/cli/tracker-introspect.c:122
 msgid "List indexes used in database to improve performance"
 msgstr ""
 "Indizes auflisten, die in der Datenbank verwendet werden, um die Leistung zu "
 "erhöhen"
 
-#: src/tracker/tracker-introspect.c:125
+#: src/cli/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "Alle benannten Graphen erlangen"
 
-#: src/tracker/tracker-introspect.c:129
+#: src/cli/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -278,87 +267,87 @@ msgstr ""
 "werden, um Teile des Baums hervorzuheben, und -p, um Eigenschaften "
 "anzuzeigen)"
 
-#: src/tracker/tracker-introspect.c:130 src/tracker/tracker-introspect.c:134
+#: src/cli/tracker-introspect.c:130 src/cli/tracker-introspect.c:134
 msgid "CLASS"
 msgstr "KLASSE"
 
-#: src/tracker/tracker-introspect.c:133
+#: src/cli/tracker-introspect.c:133
 msgid "Lists all available properties"
 msgstr "Listet alle verfügbaren Eigenschaften auf"
 
-#: src/tracker/tracker-introspect.c:137
+#: src/cli/tracker-introspect.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Nach einer Klasse oder Eigenschaft suchen und weitere Informationen anzeigen "
 "(z.B. ein Dokument)"
 
-#: src/tracker/tracker-introspect.c:138
+#: src/cli/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "KLASSE/EIGENSCHAFT"
 
-#: src/tracker/tracker-introspect.c:716
+#: src/cli/tracker-introspect.c:716
 msgid "Could not create tree: subclass query failed"
 msgstr "Baum konnte nicht angelegt werden: Anfrage der Unterklasse schlug fehl"
 
-#: src/tracker/tracker-introspect.c:766
+#: src/cli/tracker-introspect.c:765
 msgid "Could not create tree: class properties query failed"
 msgstr ""
 "Baum konnte nicht angelegt werden: Abfrage der Klasseneigenschaft schlug fehl"
 
-#: src/tracker/tracker-introspect.c:850
+#: src/cli/tracker-introspect.c:848
 msgid "Could not search classes"
 msgstr "Klassen konnten nicht gesucht werden"
 
-#: src/tracker/tracker-introspect.c:858 src/tracker/tracker-introspect.c:942
+#: src/cli/tracker-introspect.c:856 src/cli/tracker-introspect.c:940
 msgid "Classes"
 msgstr "Klassen"
 
-#: src/tracker/tracker-introspect.c:870
+#: src/cli/tracker-introspect.c:868
 msgid "Could not search properties"
 msgstr "Eigenschaften konnten nicht gesucht werden"
 
-#: src/tracker/tracker-introspect.c:878 src/tracker/tracker-introspect.c:912
+#: src/cli/tracker-introspect.c:876 src/cli/tracker-introspect.c:910
 msgid "Properties"
 msgstr "Eigenschaften"
 
-#: src/tracker/tracker-introspect.c:904
+#: src/cli/tracker-introspect.c:902
 msgid "Could not list properties"
 msgstr "Die Eigenschaften konnten nicht aufgelistet werden"
 
-#: src/tracker/tracker-introspect.c:920
+#: src/cli/tracker-introspect.c:918
 msgid "Namespaces"
 msgstr "Namensräume"
 
-#: src/tracker/tracker-introspect.c:934
+#: src/cli/tracker-introspect.c:932
 msgid "Could not list classes"
 msgstr "Klassen konnten nicht aufgelistet werden"
 
-#: src/tracker/tracker-introspect.c:954
+#: src/cli/tracker-introspect.c:952
 msgid "Could not find notify classes"
 msgstr "Klassen zur Benachrichtigung konnten nicht gefunden werden"
 
-#: src/tracker/tracker-introspect.c:962
+#: src/cli/tracker-introspect.c:960
 msgid "Notifies"
 msgstr "Benachrichtigt"
 
-#: src/tracker/tracker-introspect.c:974
+#: src/cli/tracker-introspect.c:972
 msgid "Could not find indexed properties"
 msgstr "Indizierte Eigenschaften konnten nicht gefunden werden"
 
-#: src/tracker/tracker-introspect.c:982
+#: src/cli/tracker-introspect.c:980
 msgid "Indexes"
 msgstr "Indizes"
 
-#: src/tracker/tracker-introspect.c:994
+#: src/cli/tracker-introspect.c:992
 msgid "Could not list named graphs"
 msgstr "Benannte Graphen konnten nicht aufgelistet werden"
 
-#: src/tracker/tracker-introspect.c:1002
+#: src/cli/tracker-introspect.c:1000
 msgid "Named graphs"
 msgstr "Benannte Graphen"
 
-#: src/tracker/tracker-introspect.c:1036
+#: src/cli/tracker-introspect.c:1034
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -366,72 +355,72 @@ msgstr ""
 "Das Argument --list-properties darf nur leer sein in Verbindung mit dem "
 "Argument --tree"
 
-#: src/tracker/tracker-main.c:72
+#: src/cli/tracker-main.c:69
 msgid "Get help on how to use TinySPARQL and any of these commands"
 msgstr "Hilfe erhalten für die Verwendung von TinySPARQL und diese Befehle"
 
-#: src/tracker/tracker-main.c:73
+#: src/cli/tracker-main.c:70
 msgid "Create a SPARQL endpoint"
 msgstr "SPARQL-Endpunkt erstellen"
 
-#: src/tracker/tracker-main.c:74
+#: src/cli/tracker-main.c:71
 msgid "Export data from a TinySPARQL database"
 msgstr "Daten aus einer TinySPARQL-Datenbank exportieren"
 
-#: src/tracker/tracker-main.c:75
+#: src/cli/tracker-main.c:72
 msgid "Import data into a TinySPARQL database"
 msgstr "Daten in eine TinySPARQL-Datenbank importieren"
 
-#: src/tracker/tracker-main.c:76
+#: src/cli/tracker-main.c:73
 msgid "Introspect a SPARQL endpoint"
 msgstr "Einen SPARQL-Endpunkt untersuchen"
 
-#: src/tracker/tracker-main.c:77
+#: src/cli/tracker-main.c:74
 msgid "Query and update the index using SPARQL"
 msgstr "Den Index mit SPARQL abfragen und aktualisieren"
 
-#: src/tracker/tracker-main.c:78
+#: src/cli/tracker-main.c:75
 msgid "Create a Web IDE to query local databases"
 msgstr ""
 "Eine Web-Entwicklungsumgebung erstellen, um lokale Datenbanken abzufragen"
 
-#: src/tracker/tracker-main.c:95
+#: src/cli/tracker-main.c:92
 msgid "Available tinysparql commands are:"
 msgstr "Verfügbare TinySPARQL-Befehle sind:"
 
-#: src/tracker/tracker-main.c:114
+#: src/cli/tracker-main.c:111
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr "Siehe »tinysparql help <Befehl>« für weitere spezifische Unterbefehle."
 
-#: src/tracker/tracker-main.c:157
+#: src/cli/tracker-main.c:154
 #, c-format
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
 msgstr "»%s« ist kein tinysparql-Befehl. Lesen Sie auch »tinysparql --help«"
 
-#: src/tracker/tracker-query.c:64
+#: src/cli/tracker-query.c:64
 msgid "Path to use to run a query or update from file"
 msgstr ""
 "Der zu verwendende Pfad bei Ausführung einer Anfrage oder Aktualisierung von "
 "einer Datei"
 
-#: src/tracker/tracker-query.c:68
+#: src/cli/tracker-query.c:68
 msgid "SPARQL query"
 msgstr "SPARQL-Abfrage"
 
-#: src/tracker/tracker-query.c:69
+#: src/cli/tracker-query.c:69
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-query.c:72
+#: src/cli/tracker-query.c:72
 msgid "This is used with --query and for database updates only."
 msgstr ""
 "Dies wird mit »--query« und nur zur Aktualisierung der Datenbank verwendet."
 
-#: src/tracker/tracker-query.c:76
+#: src/cli/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
 msgstr "Liefert ein Argument für einen Abfrageparameter."
 
-#: src/tracker/tracker-query.c:77
+#: src/cli/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
 msgstr "PARAMETER:TYP:WERT"
 
@@ -439,96 +428,111 @@ msgstr "PARAMETER:TYP:WERT"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-query.c:214 src/tracker/tracker-query.c:262
+#: src/cli/tracker-query.c:214 src/cli/tracker-query.c:262
 msgid "None"
 msgstr "Nichts"
 
-#: src/tracker/tracker-query.c:282
+#: src/cli/tracker-query.c:282
 #, c-format
 msgid "Invalid argument string %s"
 msgstr "Ungültige Argument-Zeichenkette %s"
 
-#: src/tracker/tracker-query.c:292
+#: src/cli/tracker-query.c:292
 #, c-format
 msgid "Invalid parameter type for argument %s"
 msgstr "Ungültiger Parametertyp für Argument %s"
 
-#: src/tracker/tracker-query.c:360
+#: src/cli/tracker-query.c:360
 msgid "Could not get UTF-8 path from path"
 msgstr "UTF-8-Pfad konnte aus dem Pfad nicht ermittelt werden"
 
-#: src/tracker/tracker-query.c:372 src/tracker/tracker-sql.c:74
+#: src/cli/tracker-query.c:372 src/cli/tracker-sql.c:75
 msgid "Could not read file"
 msgstr "Datei konnte nicht gelesen werden"
 
-#: src/tracker/tracker-query.c:403
+#: src/cli/tracker-query.c:403
 msgid "Could not run update"
 msgstr "Aktualisierung konnte nicht ausgeführt werden"
 
-#: src/tracker/tracker-query.c:410
+#: src/cli/tracker-query.c:410
 msgid "Done"
 msgstr "Abgeschlossen"
 
-#: src/tracker/tracker-query.c:428 src/tracker/tracker-sql.c:130
-#: src/tracker/tracker-sql.c:163
+#: src/cli/tracker-query.c:428 src/cli/tracker-sql.c:131
+#: src/cli/tracker-sql.c:164
 msgid "Could not run query"
 msgstr "Suche konnte nicht ausgeführt werden"
 
-#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
 msgid "No results found matching your query"
 msgstr "Es konnten keine Ergebnisse gefunden werden"
 
-#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
-#: src/tracker/tracker-sql.c:137
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+#: src/cli/tracker-sql.c:138
 msgid "Results"
 msgstr "Ergebnisse"
 
-#: src/tracker/tracker-query.c:498 src/tracker/tracker-sql.c:249
+#: src/cli/tracker-query.c:498 src/cli/tracker-sql.c:250
 msgid "File and query can not be used together"
 msgstr "Datei und Suche können nicht gemeinsam verwendet werden"
 
-#: src/tracker/tracker-sql.c:48
+#: src/cli/tracker-sql.c:49
 msgid "Path to use to run a query from file"
 msgstr "Der zu verwendende Pfad bei Ausführung einer Anfrage von einer Datei"
 
-#: src/tracker/tracker-sql.c:52
+#: src/cli/tracker-sql.c:53
 msgid "SQL query"
 msgstr "SQL-Abfrage"
 
-#: src/tracker/tracker-sql.c:53
+#: src/cli/tracker-sql.c:54
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:107
+#: src/cli/tracker-sql.c:108
 msgid "Failed to initialize data manager"
 msgstr "Datenverwaltung konnte nicht initialisiert werden"
 
-#: src/tracker/tracker-sql.c:171
+#: src/cli/tracker-sql.c:172
 msgid "Empty result set"
 msgstr "Leeres Ergebnis gesetzt"
 
-#: src/tracker/tracker-sql.c:247
+#: src/cli/tracker-sql.c:248
 msgid "A database path must be specified"
 msgstr "Es muss ein Datenbank-Pfad angegeben werden"
 
 #. Translators: this is a HTTP port
-#: src/tracker/tracker-webide.c:40
+#: src/cli/tracker-webide.c:40
 msgid "Port to listen on"
 msgstr "Zu belauschender Port"
 
 #. Translators: this is a HTTP port
-#: src/tracker/tracker-webide.c:50
+#: src/cli/tracker-webide.c:50
 msgid "Port not specified"
 msgstr "Port nicht angegeben"
 
-#: src/tracker/tracker-webide.c:80
+#. Translators: This will point to a local HTTP address
+#: src/cli/tracker-webide.c:81
 #, c-format
-msgid "%s %s…\n"
-msgstr "%s %s …\n"
+msgid "Creating Web IDE at %s…"
+msgstr "Web-Entwicklungsumgebung wird erstellt auf %s …"
 
-#: src/tracker/tracker-webide.c:80
-msgid "Creating Web IDE at"
-msgstr "Web-Entwicklungsumgebung wird erstellt auf"
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: src/libtinysparql/core/tracker-collation.c:116
+msgid "the|a|an"
+msgstr "the|a|an|der|ein"
+
+#: src/portal/tracker-main.c:51
+msgid "Version"
+msgstr "Version"
+
+#, c-format
+#~ msgid "%s %s…\n"
+#~ msgstr "%s %s …\n"
 
 #, c-format
 #~ msgid "Web IDE available at %s\n"
@@ -545,8 +549,8 @@ msgstr "Web-Entwicklungsumgebung wird erstellt auf"
 #~ msgstr "Klassen-Präfixe erhalten"
 
 #~ msgid ""
-#~ "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-#~ "Resource)"
+#~ "Retrieve properties for a class, prefixes can be used too (e.g. "
+#~ "rdfs:Resource)"
 #~ msgstr ""
 #~ "Eigenschaften für eine Klasse erhalten, Präfixe können auch verwendet "
 #~ "werden (z.B. rdfs:Resource)"
@@ -628,8 +632,8 @@ msgstr "Web-Entwicklungsumgebung wird erstellt auf"
 #~ msgstr "Präfixe"
 
 #~ msgid ""
-#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:"
-#~ "Resource”"
+#~ "Could not find property for class prefix, e.g. :Resource in "
+#~ "“rdfs:Resource”"
 #~ msgstr ""
 #~ "Die Eigenschaft des Klassen-Präfix konnte nicht gefunden werden, z.B.: "
 #~ "»Resource« in »rdfs:Resource«"
@@ -751,8 +755,8 @@ msgstr "Web-Entwicklungsumgebung wird erstellt auf"
 #~ "Simplify the words to their root to provide more results. E.g. “shelves” "
 #~ "and “shelf” to “shel”"
 #~ msgstr ""
-#~ "Wörter auf den Wortstamm verkürzen, um mehr Suchergebnisse zu liefern, z."
-#~ "B. »gehen« und »gehst« zu »geh«"
+#~ "Wörter auf den Wortstamm verkürzen, um mehr Suchergebnisse zu liefern, "
+#~ "z.B. »gehen« und »gehst« zu »geh«"
 
 #~ msgid "Enable unaccent"
 #~ msgstr "Akzente entfernen"
@@ -1895,15 +1899,15 @@ msgstr "Web-Entwicklungsumgebung wird erstellt auf"
 #~ msgstr "Rekursiv zu indizierende Ordner"
 
 #~ msgid ""
-#~ "List of directories to index recursively, Special values include: &amp;"
-#~ "DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
-#~ "PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs."
-#~ "defaults and $HOME/.config/user-dirs.default"
+#~ "List of directories to index recursively, Special values include: "
+#~ "&amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, "
+#~ "&amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
+#~ "dirs.defaults and $HOME/.config/user-dirs.default"
 #~ msgstr ""
-#~ "Liste der rekursiv zu durchsuchenden Ordner. Spezielle Werte sind &amp;"
-#~ "DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
-#~ "PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Siehe /etc/xdg/user-dirs."
-#~ "defaults und $HOME/.config/user-dirs.default"
+#~ "Liste der rekursiv zu durchsuchenden Ordner. Spezielle Werte sind "
+#~ "&amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, "
+#~ "&amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Siehe /etc/xdg/user-"
+#~ "dirs.defaults und $HOME/.config/user-dirs.default"
 
 #~ msgid "Directories to index non-recursively"
 #~ msgstr "Nicht-rekursiv zu indizierende Ordner"
@@ -1915,9 +1919,10 @@ msgstr "Web-Entwicklungsumgebung wird erstellt auf"
 #~ "xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
 #~ msgstr ""
 #~ "Liste der Ordner, die ohne ihre Unterordner durchsucht werden sollen. "
-#~ "Spezielle Werte sind: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;"
-#~ "MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. "
-#~ "Siehe /etc/xdg/user-dirs.defaults und $HOME/.config/user-dirs.default"
+#~ "Spezielle Werte sind: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, "
+#~ "&amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, "
+#~ "&amp;VIDEOS. Siehe /etc/xdg/user-dirs.defaults und $HOME/.config/user-"
+#~ "dirs.default"
 
 #~ msgid "List of file patterns to avoid"
 #~ msgstr "Liste auszulassender Dateimuster"
@@ -2102,8 +2107,8 @@ msgstr "Web-Entwicklungsumgebung wird erstellt auf"
 
 #~ msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
 #~ msgstr ""
-#~ "Die Verwendung eines Moduls zum Entpacken erzwingen (z.B. »foo« oder »foo."
-#~ "so«)"
+#~ "Die Verwendung eines Moduls zum Entpacken erzwingen (z.B. »foo« oder "
+#~ "»foo.so«)"
 
 #~ msgid "MODULE"
 #~ msgstr "MODUL"
