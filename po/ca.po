@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
 "POT-Creation-Date: 2025-08-26 17:35+0000\n"
-"PO-Revision-Date: 2025-09-05 18:30+0200\n"
+"PO-Revision-Date: 2026-02-14 18:30+0200\n"
 "Last-Translator: Jordi Mas i Hernàndez <jmas@softcatala.org>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
 "Language: ca\n"
@@ -480,7 +480,7 @@ msgstr "Cal especificar un camí a la base de dades"
 #. Translators: this is a HTTP port
 #: src/cli/tracker-webide.c:40
 msgid "Port to listen on"
-msgstr "Ports on escoltar"
+msgstr "Port on escoltar"
 
 #. Translators: this is a HTTP port
 #: src/cli/tracker-webide.c:50
