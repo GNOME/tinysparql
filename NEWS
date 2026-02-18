@@ -1,3 +1,12 @@
+NEW in 3.11.beta - 2026-02-18
+=============================
+  * Fixes to handling of graph creation and updates to data in the
+    graph within the same batch/transaction
+  * Fix possible TrackerNotifier crashes around the SPARQL connection
+    being closed
+
+Translations: ca, de, id, kk, kw
+
 NEW in 3.11.alpha - 2026-01-05
 ==============================
   * Added TrackerSparqlConnectionFlags values to disable legacy and
