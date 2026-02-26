@@ -1222,10 +1222,10 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 
 		table_name = tracker_property_get_table_name (entry->table.prop_clear_refcount.property);
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "INSERT INTO \"%s%sRefcount\" (ROWID, Refcount) "
+		                                               "INSERT INTO \"%s%sRefcount\" (ID, Refcount) "
 		                                               "SELECT \"%s\", ?1 FROM \"%s%s%s\" WHERE \"%s\" IS NOT NULL AND ID = ?2 "
-		                                               "ON CONFLICT(ROWID) DO "
-		                                               "UPDATE SET Refcount = Refcount + excluded.Refcount WHERE ROWID = excluded.ROWID",
+		                                               "ON CONFLICT(ID) DO "
+		                                               "UPDATE SET Refcount = Refcount + excluded.Refcount WHERE ID = excluded.ID",
 		                                               entry->graph->graph ? entry->graph->graph : "",
 		                                               entry->graph->graph ? "_" : "",
 		                                               tracker_property_get_name (entry->table.prop_clear_refcount.property),
@@ -1240,7 +1240,7 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 		                                               "UPDATE \"%s%sRefcount\" "
 		                                               "SET Refcount = Refcount + (?1 * (SELECT COUNT (*) FROM \"%s%s%s\" WHERE ID = ?2)) "
-		                                               "WHERE ROWID = ?2",
+		                                               "WHERE ID = ?2",
 		                                               entry->graph->graph ? entry->graph->graph : "",
 		                                               entry->graph->graph ? "_" : "",
 		                                               entry->graph->graph ? entry->graph->graph : "",
@@ -1251,10 +1251,10 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 
 		table_name = tracker_property_get_table_name (entry->table.prop_refcount.property);
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "INSERT INTO \"%s%sRefcount\" (ROWID, Refcount) "
+		                                               "INSERT INTO \"%s%sRefcount\" (ID, Refcount) "
 		                                               "SELECT \"%s\", ?1 FROM \"%s%s%s\" WHERE \"%s\" = ?2 AND ID = ?3 "
-		                                               "ON CONFLICT(ROWID) DO "
-		                                               "UPDATE SET Refcount = Refcount + excluded.Refcount WHERE ROWID = excluded.ROWID",
+		                                               "ON CONFLICT(ID) DO "
+		                                               "UPDATE SET Refcount = Refcount + excluded.Refcount WHERE ID = excluded.ID",
 		                                               entry->graph->graph ? entry->graph->graph : "",
 		                                               entry->graph->graph ? "_" : "",
 		                                               tracker_property_get_name (entry->table.prop_refcount.property),
@@ -1269,7 +1269,7 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 		                                               "UPDATE \"%s%sRefcount\" "
 		                                               "SET Refcount = Refcount + (?1 * (SELECT COUNT (*) FROM \"%s%s%s\" WHERE \"%s\" = ?2 AND ID = ?3)) "
-		                                               "WHERE ROWID = ?3",
+		                                               "WHERE ID = ?3",
 		                                               entry->graph->graph ? entry->graph->graph : "",
 		                                               entry->graph->graph ? "_" : "",
 		                                               entry->graph->graph ? entry->graph->graph : "",
@@ -1278,15 +1278,15 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 		                                               tracker_property_get_name (entry->table.prop_refcount.property));
 	} else if (entry->type == TRACKER_LOG_REF_INC) {
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "INSERT INTO \"%s%sRefcount\" (ROWID, Refcount) "
+		                                               "INSERT INTO \"%s%sRefcount\" (ID, Refcount) "
 		                                               "VALUES ($1, $2) "
-		                                               "ON CONFLICT(ROWID) DO "
-		                                               "UPDATE SET Refcount = Refcount + excluded.Refcount WHERE ROWID = excluded.ROWID",
+		                                               "ON CONFLICT(ID) DO "
+		                                               "UPDATE SET Refcount = Refcount + excluded.Refcount WHERE ID = excluded.ID",
 		                                               entry->graph->graph ? entry->graph->graph : "",
 		                                               entry->graph->graph ? "_" : "");
 	} else if (entry->type == TRACKER_LOG_REF_DEC) {
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "UPDATE \"%s%sRefcount\" SET Refcount = Refcount + $1 WHERE ROWID = ?2",
+		                                               "UPDATE \"%s%sRefcount\" SET Refcount = Refcount + $1 WHERE ID = ?2",
 		                                               entry->graph->graph ? entry->graph->graph : "",
 		                                               entry->graph->graph ? "_" : "");
 	} else if (entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_INSERT) {
@@ -1297,7 +1297,7 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 		                                               "INSERT OR IGNORE INTO \"%s%s%s\" (ID, \"%s\") "
-		                                               "SELECT ROWID, \"%s\" FROM \"%s%s%s\" WHERE ROWID = $1",
+		                                               "SELECT ID, \"%s\" FROM \"%s%s%s\" WHERE ID = $1",
 		                                               entry->graph->graph ? entry->graph->graph : "",
 		                                               entry->graph->graph ? "_" : "",
 		                                               dest_table,
@@ -1313,8 +1313,8 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 		dest_table = tracker_property_get_table_name (entry->table.propagation.dest);
 
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "DELETE FROM \"%s%s%s\" WHERE ROWID = $1 AND \"%s\" IN ("
-		                                               "SELECT \"%s\" FROM \"%s%s%s\" WHERE ROWID = $1)",
+		                                               "DELETE FROM \"%s%s%s\" WHERE ID = $1 AND \"%s\" IN ("
+		                                               "SELECT \"%s\" FROM \"%s%s%s\" WHERE ID = $1)",
 		                                               entry->graph->graph ? entry->graph->graph : "",
 		                                               entry->graph->graph ? "_" : "",
 		                                               dest_table,
@@ -1332,8 +1332,8 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 		                                               "UPDATE \"%s%s%s\" "
-		                                               "SET \"%s\" = SparqlUpdateValue('%s', $1, \"%s\", (SELECT \"%s\" FROM \"%s%s%s\" WHERE ROWID = $2))"
-		                                               "WHERE ROWID = $2",
+		                                               "SET \"%s\" = SparqlUpdateValue('%s', $1, \"%s\", (SELECT \"%s\" FROM \"%s%s%s\" WHERE ID = $2))"
+		                                               "WHERE ID = $2",
 		                                               entry->graph->graph ? entry->graph->graph : "",
 		                                               entry->graph->graph ? "_" : "",
 		                                               dest_table,
@@ -1348,8 +1348,8 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 	           entry->type == TRACKER_LOG_DOMAIN_INDEX_PROPAGATE_DELETE) {
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 		                                               "UPDATE \"%s%s%s\" "
-		                                               "SET \"%s\" = SparqlUpdateValue('%s', $1, \"%s\", (SELECT \"%s\" FROM \"%s%s%s\" WHERE ROWID = $2)) "
-		                                               "WHERE ROWID = $2",
+		                                               "SET \"%s\" = SparqlUpdateValue('%s', $1, \"%s\", (SELECT \"%s\" FROM \"%s%s%s\" WHERE ID = $2)) "
+		                                               "WHERE ID = $2",
 		                                               entry->graph->graph ? entry->graph->graph : "",
 		                                               entry->graph->graph ? "_" : "",
 		                                               tracker_class_get_name (entry->table.domain_index.dest_class),
