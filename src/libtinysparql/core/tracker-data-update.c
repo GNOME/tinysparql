@@ -2573,6 +2573,17 @@ delete_all_helper (TrackerData      *data,
 {
 	TrackerProperty **super_properties;
 
+	/* delete super property values */
+	super_properties = tracker_property_get_super_properties (property);
+	while (*super_properties) {
+		if (!delete_all_helper (data, graph, subject,
+		                        subproperty, *super_properties,
+		                        error))
+			return FALSE;
+
+		super_properties++;
+	}
+
 	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 		if (tracker_property_get_multiple_values (property)) {
 			log_entry_for_resource_property_clear_refcount (data,
@@ -2606,17 +2617,6 @@ delete_all_helper (TrackerData      *data,
 		                                    TRACKER_LOG_PROPERTY_PROPAGATE_DELETE,
 		                                    subproperty,
 		                                    property);
-	}
-
-	/* also delete super property values */
-	super_properties = tracker_property_get_super_properties (property);
-	while (*super_properties) {
-		if (!delete_all_helper (data, graph, subject,
-		                        subproperty, *super_properties,
-		                        error))
-			return FALSE;
-
-		super_properties++;
 	}
 
 	return TRUE;
