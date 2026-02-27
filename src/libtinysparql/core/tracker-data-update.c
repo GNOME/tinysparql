@@ -752,7 +752,8 @@ log_entry_for_single_value_property (TrackerData       *data,
 	if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE)
 		entry_ptr = g_hash_table_lookup (data->update_buffer.class_updates, &entry);
 
-	if (!entry_ptr || tracker_data_log_entry_has_property (entry_ptr, property)) {
+	if (!entry_ptr || tracker_data_log_entry_has_property (entry_ptr, property) ||
+	    tracker_property_get_super_properties (property)) {
 		if (entry_ptr)
 			g_hash_table_remove (data->update_buffer.class_updates, entry_ptr);
 		entry_ptr = append_to_update_log (data, entry);
