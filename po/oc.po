@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
 "POT-Creation-Date: 2025-06-19 12:48+0000\n"
-"PO-Revision-Date: 2026-02-28 07:34+0100\n"
+"PO-Revision-Date: 2026-02-28 11:52+0100\n"
 "Last-Translator: Quentin PAGÈS\n"
 "Language-Team: Tot En Òc\n"
 "Language: oc\n"
@@ -95,7 +95,7 @@ msgstr "Creacion del ponch de terminason HTTP a %s…"
 #: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
 #: src/cli/tracker-webide.c:100
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
-msgstr ""
+msgstr "A l’escota de comandas SPARQL. Quichar Ctrl-C per arrestar."
 
 #. Carriage return, so we paper over the ^C
 #: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
@@ -109,14 +109,12 @@ msgid "Creating endpoint at %s…"
 msgstr "Creacion del ponch de terminason a %s…"
 
 #: src/cli/tracker-endpoint.c:277
-#, fuzzy
-#| msgid "Could not run update"
 msgid "Could not own DBus name"
-msgstr "Impossible d'aviar la mesa a jorn"
+msgstr "Impossible d'obténer lo nom DBus"
 
 #: src/cli/tracker-endpoint.c:291
 msgid "DBus name lost"
-msgstr ""
+msgstr "Nom DBus perdut"
 
 #: src/cli/tracker-endpoint.c:608 src/cli/tracker-export.c:214
 #: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1025
@@ -128,13 +126,12 @@ msgstr "Opcions pas reconegudas"
 #: src/cli/tracker-endpoint.c:652
 #, c-format
 msgid "Opening database at %s…"
-msgstr ""
+msgstr "Dobertura de la basa de donadas a %s…"
 
 #: src/cli/tracker-endpoint.c:655
-#, fuzzy, c-format
-#| msgid "Backing up database"
+#, c-format
 msgid "Creating in-memory database"
-msgstr "Salvament de la basa de donadas"
+msgstr "Creacion de la basa de donadas en memòria"
 
 #: src/cli/tracker-endpoint.c:683
 #, c-format
@@ -142,6 +139,8 @@ msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
 msgstr ""
+"Basa de donadas novèla creada. Utilizatz l’opcion « --dbus-service » per "
+"partejar aquesta basa de donadas sus un bus de messatges."
 
 #: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
 #: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
@@ -161,7 +160,6 @@ msgid "DBus service name"
 msgstr "nom del servici DBus"
 
 #: src/cli/tracker-export.c:54
-#, fuzzy
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "Format de sortida dels resultats : « turtle », « trig » o « json-ld »"
 
@@ -181,11 +179,11 @@ msgstr "URI del servici distant"
 
 #: src/cli/tracker-export.c:62
 msgid "Output TriG format which includes named graph information"
-msgstr ""
+msgstr "Format de sortida TriG qu'inclutz d'informacions suls grafics nomenats"
 
 #: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
 msgid "IRI"
-msgstr ""
+msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
 #: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
@@ -193,6 +191,7 @@ msgstr ""
 #, c-format
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
+"Especificatz una opcion “--database”, “--dbus-service” o “--remote-service”"
 
 #: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137
 #: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:829
@@ -206,54 +205,40 @@ msgid "Could not establish a connection to Tracker"
 msgstr "Impossible d'establir una connexion cap a Tracker"
 
 #: src/cli/tracker-export.c:179
-#, fuzzy, c-format
+#, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Format de serializacion « %s » pas pres en carga\n"
 
 #: src/cli/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
-msgstr ""
+msgstr "Legir lo format TriG qu'inclutz d'informacions suls grafics nomenats"
 
 #: src/cli/tracker-import.c:103 src/cli/tracker-import.c:141
 msgid "Could not run import"
 msgstr "Impossible d'aviar l'import"
 
 #: src/cli/tracker-introspect.c:110
-#, fuzzy
-#| msgid "List all Tracker processes"
 msgid "Lists all available classes"
-msgstr "Aficha la lista de totes los processus de Tracker"
+msgstr "Lista totas las classas disponiblas"
 
 #: src/cli/tracker-introspect.c:114
-#, fuzzy
-#| msgid "List all Tracker processes"
 msgid "Lists all available prefixes"
-msgstr "Aficha la lista de totes los processus de Tracker"
+msgstr "Lista totes los prefixes disponibles"
 
 #: src/cli/tracker-introspect.c:118
-#, fuzzy
-#| msgid ""
-#| "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgid "Lists all classes which notify changes in the database"
 msgstr ""
-"Recupèra las classas qu'avertisson dels cambiaments dins la basa de donadas "
-"(CLASSA es facultatiu)"
+"Lista las classas qu'avertisson de las modificacions en basa de donadas"
 
 #: src/cli/tracker-introspect.c:122
-#, fuzzy
-#| msgid ""
-#| "Retrieve indexes used in database to improve performance (PROPERTY is "
-#| "optional)"
 msgid "List indexes used in database to improve performance"
 msgstr ""
-"Recupèra los indèxes utilizats dins la basa de donadas per melhorar la "
-"performància (PROPRIETAT es facultatiu)"
+"Lista los indèxes utilizats dins la basa de donadas per melhorar la "
+"performança"
 
 #: src/cli/tracker-introspect.c:125
-#, fuzzy
-#| msgid "Retrieve classes"
 msgid "Retrieve all named graphs"
-msgstr "Recupèra las classas"
+msgstr "Recuperar totes los grafics nomenats"
 
 #: src/cli/tracker-introspect.c:129
 msgid ""
@@ -269,10 +254,8 @@ msgid "CLASS"
 msgstr "CLASSA"
 
 #: src/cli/tracker-introspect.c:133
-#, fuzzy
-#| msgid "List all Tracker processes"
 msgid "Lists all available properties"
-msgstr "Aficha la lista de totes los processus de Tracker"
+msgstr "Lista totas las proprietats disponiblas"
 
 #: src/cli/tracker-introspect.c:137
 msgid ""
@@ -318,7 +301,6 @@ msgid "Could not list properties"
 msgstr "Impossible d'enumerar las proprietats"
 
 #: src/cli/tracker-introspect.c:918
-#, fuzzy
 msgid "Namespaces"
 msgstr "Espacis de noms"
 
@@ -343,14 +325,12 @@ msgid "Indexes"
 msgstr "Indèxes"
 
 #: src/cli/tracker-introspect.c:992
-#, fuzzy
-#| msgid "Could not list classes"
 msgid "Could not list named graphs"
-msgstr "Impossible d'enumerar las classas"
+msgstr "Impossible de listar los grafics nomenats"
 
 #: src/cli/tracker-introspect.c:1000
 msgid "Named graphs"
-msgstr ""
+msgstr "Grafics nomenats"
 
 #: src/cli/tracker-introspect.c:1034
 msgid ""
@@ -361,62 +341,48 @@ msgstr ""
 "meteis temps que l'argument --tree"
 
 #: src/cli/tracker-main.c:69
-#, fuzzy
-#| msgid "Get help on how to use Tracker and any of these commands"
 msgid "Get help on how to use TinySPARQL and any of these commands"
-msgstr "Obténer d'ajuda sus l'utilizacion de Tracker e una d'aquestas comandas"
+msgstr ""
+"Obténer d'ajuda sus l'utilizacion de TinySPARQL e una d'aquestas comandas"
 
 #: src/cli/tracker-main.c:70
 msgid "Create a SPARQL endpoint"
 msgstr "Crear un punt SPARQL"
 
 #: src/cli/tracker-main.c:71
-#, fuzzy
-#| msgid "Could not backup database"
 msgid "Export data from a TinySPARQL database"
-msgstr "Impossible de salvagardar la basa de donadas"
+msgstr "Exportar de donadas de la basa de donadas de TinySPARQL"
 
 #: src/cli/tracker-main.c:72
-#, fuzzy
-#| msgid "Could not backup database"
 msgid "Import data into a TinySPARQL database"
-msgstr "Impossible de salvagardar la basa de donadas"
+msgstr "Importar de donadas dins la basa de donadas de TinySPARQL"
 
 #: src/cli/tracker-main.c:73
-#, fuzzy
-#| msgid "Create a SPARQL endpoint"
 msgid "Introspect a SPARQL endpoint"
-msgstr "Crear un punt SPARQL"
+msgstr "Introspectar un ponch de terminason SPARQL"
 
 #: src/cli/tracker-main.c:74
-#, fuzzy
-#| msgid "- Query or update using SPARQL"
 msgid "Query and update the index using SPARQL"
-msgstr "- Efectua de requèstas o de mesas a jorn amb SPARQL"
+msgstr "Efectuar de requèstas o de mesas a jorn amb SPARQL"
 
 #: src/cli/tracker-main.c:75
 msgid "Create a Web IDE to query local databases"
-msgstr ""
+msgstr "Crear un IDE Web per consultar la basa de donadas locala"
 
 #: src/cli/tracker-main.c:92
-#, fuzzy
-#| msgid "Available tracker commands are:"
 msgid "Available tinysparql commands are:"
-msgstr "Las comandas tracker disponiblas son  :"
+msgstr "Las comandas de tinysparql disponiblas son  :"
 
 #: src/cli/tracker-main.c:111
-#, fuzzy
-#| msgid "See 'tracker help <command>' to read about a specific subcommand."
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr ""
-"Consultatz « tracker help <command> » per d'informacions sus una soscomanda "
-"especifica."
+"Consultatz « tinysparql help <command> » per d'informacions sus una "
+"soscomanda especifica."
 
 #: src/cli/tracker-main.c:154
-#, fuzzy, c-format
-#| msgid "'%s' is not a tracker command. See 'tracker --help'"
+#, c-format
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
-msgstr "« %s » es pas una comanda tracker. Consultatz « tracker --help »"
+msgstr "« %s » es pas una comanda tinysparql. Consultatz « tinysparql --help »"
 
 #: src/cli/tracker-query.c:64
 msgid "Path to use to run a query or update from file"
@@ -440,7 +406,7 @@ msgstr ""
 
 #: src/cli/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
-msgstr ""
+msgstr "Provesís un paramètre per un paramètre de requèsta."
 
 #: src/cli/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
@@ -462,7 +428,7 @@ msgstr "Cadena de tèxte en paramètres invalida %s"
 #: src/cli/tracker-query.c:292
 #, c-format
 msgid "Invalid parameter type for argument %s"
-msgstr ""
+msgstr "Tipe de paramètre invalid per l’argument %s"
 
 #: src/cli/tracker-query.c:360
 msgid "Could not get UTF-8 path from path"
@@ -536,7 +502,7 @@ msgstr "Pòrt non especificat"
 #: src/cli/tracker-webide.c:81
 #, c-format
 msgid "Creating Web IDE at %s…"
-msgstr ""
+msgstr "Creacion d’un IDE Web a %s…"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -546,7 +512,7 @@ msgstr ""
 #.
 #: src/libtinysparql/core/tracker-collation.c:116
 msgid "the|a|an"
-msgstr ""
+msgstr "the|a|an|lo|la|los|las|li|lis|lu|un|una|dels"
 
 #: src/portal/tracker-main.c:51
 msgid "Version"
