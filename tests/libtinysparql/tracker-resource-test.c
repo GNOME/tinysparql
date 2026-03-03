@@ -460,6 +460,117 @@ test_resource_load (void)
 	g_object_unref (connection);
 }
 
+static GStrv
+get_stored_property_values (TrackerSparqlConnection *conn,
+                            const char              *uri,
+                            const char              *prop)
+{
+	TrackerSparqlStatement *stmt;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+	GArray *res;
+
+	stmt = tracker_sparql_connection_query_statement (conn,
+	                                                  "SELECT ?v { ~uri ?p ?v . FILTER (STR(?p) = ~prop ) } ORDER BY ?v",
+	                                                  NULL, &error);
+	g_assert_no_error (error);
+
+	tracker_sparql_statement_bind_string (stmt, "uri", uri);
+	tracker_sparql_statement_bind_string (stmt, "prop", prop);
+
+	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+	g_assert_no_error (error);
+
+	res = g_array_new (TRUE, FALSE, sizeof (char*));
+
+	while (tracker_sparql_cursor_next (cursor, NULL, &error)) {
+		char *str = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
+		g_array_append_val (res, str);
+	}
+
+	g_assert_no_error (error);
+
+	return (GStrv) g_array_free (res, FALSE);
+}
+
+static void
+test_resource_superproperty_update (void)
+{
+	TrackerResource *resource;
+	TrackerSparqlConnection *connection;
+	TrackerBatch *batch;
+	GDateTime *datetime;
+	GFile *nepomuk;
+	GError *error = NULL;
+	const char *values1[] = { "2020-01-01T01:01:01.123456Z", "2020-01-01T01:01:02.123456Z", NULL };
+	const char *values2[] = { "2021-01-01T01:01:01.234567Z", "2021-01-01T01:01:02.123456Z", NULL };
+	GStrv res1, res2;
+
+	/* Check that a superproperty implicitly changed by TrackerResource
+	 * updates is correctly updated.
+	 */
+
+	/* nfo:fileLastModified is a subproperty of dc:date */
+	resource = tracker_resource_new ("file:///");
+	tracker_resource_set_uri (resource, "rdf:type", "nfo:FileDataObject");
+	datetime = g_date_time_new_utc (2020, 1, 1, 1, 1, 1.123456);
+	tracker_resource_set_datetime (resource, "nfo:fileLastModified", datetime);
+	g_clear_pointer (&datetime, g_date_time_unref);
+	datetime = g_date_time_new_utc (2020, 1, 1, 1, 1, 2.123456);
+	tracker_resource_set_datetime (resource, "nfo:fileLastAccessed", datetime);
+	g_clear_pointer (&datetime, g_date_time_unref);
+
+	/* Create connection */
+	nepomuk = tracker_sparql_get_ontology_nepomuk ();
+	connection = tracker_sparql_connection_new (0, NULL, nepomuk, NULL, &error);
+	g_assert_no_error (error);
+	g_clear_object (&nepomuk);
+
+	tracker_sparql_connection_update_resource (connection,
+	                                           NULL,
+	                                           resource,
+	                                           NULL,
+	                                           &error);
+	g_assert_no_error (error);
+	g_clear_object (&resource);
+
+	res1 = get_stored_property_values (connection, "file:///", TRACKER_PREFIX_DC "date");
+	g_assert_cmpstrv (res1, values1);
+	g_strfreev (res1);
+
+	batch = tracker_sparql_connection_create_batch (connection);
+
+	/* The new nfo:fileLastModified date should overwrite the old inherited dc:date value */
+	resource = tracker_resource_new ("file:///");
+	tracker_resource_set_uri (resource, "rdf:type", "nfo:FileDataObject");
+	datetime = g_date_time_new_utc (2021, 1, 1, 1, 1, 1.234567);
+	tracker_resource_set_datetime (resource, "nfo:fileLastModified", datetime);
+	g_clear_pointer (&datetime, g_date_time_unref);
+
+	tracker_batch_add_resource (batch, NULL, resource);
+	g_clear_object (&resource);
+
+	resource = tracker_resource_new ("file:///");
+	tracker_resource_set_uri (resource, "rdf:type", "nfo:FileDataObject");
+	datetime = g_date_time_new_utc (2021, 1, 1, 1, 1, 2.123456);
+	tracker_resource_set_datetime (resource, "nfo:fileLastAccessed", datetime);
+	g_clear_pointer (&datetime, g_date_time_unref);
+
+	tracker_batch_add_resource (batch, NULL, resource);
+	g_clear_object (&resource);
+
+	tracker_batch_execute (batch, NULL, &error);
+	g_assert_no_error (error);
+	g_clear_object (&batch);
+
+	res2 = get_stored_property_values (connection, "file:///", TRACKER_PREFIX_DC "date");
+	g_assert_cmpstrv (res2, values2);
+	g_strfreev (res2);
+
+	tracker_sparql_connection_close (connection);
+	g_object_unref (connection);
+}
+
 int
 main (int    argc,
       char **argv)
@@ -486,6 +597,8 @@ main (int    argc,
 	                 test_resource_compare);
 	g_test_add_func ("/libtracker-sparql/tracker-resource/load",
 	                 test_resource_load);
+	g_test_add_func ("/libtracker-sparql/tracker-resource/superproperty-update",
+	                 test_resource_superproperty_update);
 
 	return g_test_run ();
 }
