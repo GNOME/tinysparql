@@ -1,3 +1,10 @@
+NEW in 3.11.rc - 2026-03-03
+===========================
+  * Fixes to implicit trimming of superproperty values through
+    TrackerResource-based database updates.
+
+Translations: bg, ne, oc
+
 NEW in 3.11.beta - 2026-02-18
 =============================
   * Fixes to handling of graph creation and updates to data in the
