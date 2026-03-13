@@ -1471,6 +1471,7 @@ create_dbus_connection (GDBusConnection  *dbus_conn,
 				"endpoint-data",
 				endpoint_data,
 				(GDestroyNotify) finish_endpoint);
+	g_free (data);
 
 	return dbus;
 }
