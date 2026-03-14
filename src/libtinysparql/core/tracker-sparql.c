@@ -7585,7 +7585,7 @@ static gboolean
 translate_Expression (TrackerSparql  *sparql,
                       GError        **error)
 {
-	TrackerStringBuilder *str, *old;
+	TrackerStringBuilder *str, *old = NULL;
 	gboolean convert_to_string;
 
 	/* Expression ::= ConditionalOrExpression
