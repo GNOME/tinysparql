@@ -68,7 +68,7 @@ G_DEFINE_TYPE_WITH_CODE (TrackerWebide,
 static const gchar *
 get_mimetype_from_path (const gchar *path)
 {
-	gchar *extension;
+	const char *extension;
 	guint i;
 
 	extension = strrchr (path, '.');

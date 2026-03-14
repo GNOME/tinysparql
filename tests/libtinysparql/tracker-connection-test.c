@@ -169,6 +169,7 @@ assert_operations_after_close (TrackerSparqlConnection *conn)
 	TrackerResource *resource;
 	GError *error = NULL;
 	GMainLoop *main_loop;
+	TrackerNotifier *notifier;
 
 	resource = tracker_resource_new ("file:///");
 	tracker_resource_set_uri (resource, "rdf:type", "rdfs:Resource");
@@ -201,6 +202,10 @@ assert_operations_after_close (TrackerSparqlConnection *conn)
 
 		tracker_sparql_connection_update_async (conn, "", NULL, update_closed_cb, main_loop);
 		g_main_loop_run (main_loop);
+
+		notifier = tracker_sparql_connection_create_notifier (conn);
+		g_assert_nonnull (notifier);
+		g_object_unref (notifier);
 	}
 
 	g_clear_object (&resource);

@@ -49,6 +49,7 @@ struct _TrackerDirectConnectionPrivate
 	GThreadPool *select_pool;
 
 	GList *notifiers;
+	GMutex notifiers_mutex;
 
 	gint64 timestamp;
 	gint64 cleanup_timestamp;
@@ -839,8 +840,12 @@ weak_ref_notify (gpointer  data,
                  GObject  *prev_location)
 {
 	TrackerDirectConnection *conn = data;
+	TrackerDirectConnectionPrivate *priv =
+		tracker_direct_connection_get_instance_private (conn);
 
+	g_mutex_lock (&priv->notifiers_mutex);
 	detach_notifier (conn, (TrackerNotifier *) prev_location);
+	g_mutex_unlock (&priv->notifiers_mutex);
 }
 
 static void
@@ -859,6 +864,8 @@ tracker_direct_connection_finalize (GObject *object)
 	g_clear_object (&priv->ontology);
 	g_clear_object (&priv->namespace_manager);
 	g_clear_object (&priv->ontology_rdf);
+	g_mutex_clear (&priv->update_mutex);
+	g_mutex_clear (&priv->notifiers_mutex);
 
 	G_OBJECT_CLASS (tracker_direct_connection_parent_class)->finalize (object);
 }
@@ -1215,14 +1222,20 @@ tracker_direct_connection_create_notifier (TrackerSparqlConnection *self)
 	                         "connection", self,
 				 NULL);
 
-	tracker_data = tracker_data_manager_get_data (priv->data_manager);
-	tracker_data_add_callbacks (tracker_data,
-	                            statement_cb,
-	                            transaction_cb,
-	                            notifier);
+	g_mutex_lock (&priv->notifiers_mutex);
 
-	g_object_weak_ref (G_OBJECT (notifier), weak_ref_notify, self);
-	priv->notifiers = g_list_prepend (priv->notifiers, notifier);
+	if (!priv->closing) {
+		tracker_data = tracker_data_manager_get_data (priv->data_manager);
+		tracker_data_add_callbacks (tracker_data,
+		                            statement_cb,
+		                            transaction_cb,
+		                            notifier);
+
+		g_object_weak_ref (G_OBJECT (notifier), weak_ref_notify, self);
+		priv->notifiers = g_list_prepend (priv->notifiers, notifier);
+	}
+
+	g_mutex_unlock (&priv->notifiers_mutex);
 
 	return notifier;
 }
@@ -1252,6 +1265,8 @@ tracker_direct_connection_close (TrackerSparqlConnection *self)
 		priv->select_pool = NULL;
 	}
 
+	g_mutex_lock (&priv->notifiers_mutex);
+
 	while (priv->notifiers) {
 		TrackerNotifier *notifier = priv->notifiers->data;
 
@@ -1260,6 +1275,8 @@ tracker_direct_connection_close (TrackerSparqlConnection *self)
 		                     conn);
 		detach_notifier (conn, notifier);
 	}
+
+	g_mutex_unlock (&priv->notifiers_mutex);
 
 	if (priv->data_manager) {
 		tracker_data_manager_shutdown (priv->data_manager);

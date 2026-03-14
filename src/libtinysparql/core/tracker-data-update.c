@@ -623,11 +623,12 @@ tracker_data_finalize (GObject *object)
 	g_clear_object (&data->update_buffer.insert_resource);
 	tracker_db_statement_mru_finish (&data->update_buffer.stmt_mru);
 
-	g_clear_pointer (&data->statement_callbacks, g_ptr_array_unref);
-	g_clear_pointer (&data->transaction_callbacks, g_ptr_array_unref);
-
 	g_clear_pointer (&data->tz, g_time_zone_unref);
 
+	g_mutex_lock (&data->callbacks_lock);
+	g_clear_pointer (&data->statement_callbacks, g_ptr_array_unref);
+	g_clear_pointer (&data->transaction_callbacks, g_ptr_array_unref);
+	g_mutex_unlock (&data->callbacks_lock);
 	g_mutex_clear (&data->callbacks_lock);
 
 	G_OBJECT_CLASS (tracker_data_parent_class)->finalize (object);
