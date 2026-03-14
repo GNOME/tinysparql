@@ -470,16 +470,22 @@ load_ontology_rdf (TrackerOntologies    *ontologies,
 
 static gboolean
 has_superclass (TrackerClass *class,
-                TrackerClass *superclass)
+                TrackerClass *superclass,
+                GPtrArray    *visited)
 {
 	TrackerClass **super;
+
+	if (g_ptr_array_find (visited, class, NULL))
+		return FALSE;
+
+	g_ptr_array_add (visited, class);
 
 	if (class == superclass)
 		return TRUE;
 
 	super = tracker_class_get_super_classes (class);
 	while (super && *super) {
-		if (superclass == *super || has_superclass (*super, superclass))
+		if (superclass == *super || has_superclass (*super, superclass, visited))
 			return TRUE;
 		super++;
 	}
@@ -500,10 +506,12 @@ check_property_inheritance (TrackerProperty *property,
 
 	while (super && *super) {
 		TrackerClass *super_domain;
+		GPtrArray *visited;
 
 		super_domain = tracker_property_get_domain (*super);
+		visited = g_ptr_array_new ();
 
-		if (!domain || (super_domain && !has_superclass (domain, super_domain))) {
+		if (!domain || (super_domain && !has_superclass (domain, super_domain, visited))) {
 			g_printerr ("%s: Property %s is not in the domain of a subclass of %s, to be a subproperty of %s\n",
 			            error_prefix, tracker_property_get_name (property),
 			            tracker_class_get_name (super_domain),
@@ -511,6 +519,7 @@ check_property_inheritance (TrackerProperty *property,
 			had_errors |= TRUE;
 		}
 
+		g_clear_pointer (&visited, g_ptr_array_unref);
 		super++;
 	}
 
@@ -559,9 +568,12 @@ check_class_domain_indexes (TrackerClass *class,
 
 	while (domain_indexes && *domain_indexes) {
 		TrackerClass *domain;
+		GPtrArray *visited;
 
 		domain = tracker_property_get_domain (*domain_indexes);
-		if (domain && !has_superclass (class, domain)) {
+		visited = g_ptr_array_new ();
+
+		if (domain && !has_superclass (class, domain, visited)) {
 			g_printerr ("%s: Class %s wants domain index on property %s, but is not a subclass of %s\n",
 			            error_prefix, tracker_class_get_name (class),
 			            tracker_property_get_name (*domain_indexes),
@@ -569,6 +581,7 @@ check_class_domain_indexes (TrackerClass *class,
 			had_errors |= TRUE;
 		}
 
+		g_clear_pointer (&visited, g_ptr_array_unref);
 		domain_indexes++;
 	}
 
