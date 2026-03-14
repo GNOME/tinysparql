@@ -262,10 +262,9 @@ tracker_namespace_manager_expand_uri (TrackerNamespaceManager *self,
                                       const char              *compact_uri)
 {
 	TrackerNamespaceManagerPrivate *priv;
-
 	char prefix[MAX_PREFIX_LENGTH + 1] = { 0 };
-	char *colon;
 	char *namespace = NULL;
+	const char *colon;
 
 	g_return_val_if_fail (TRACKER_IS_NAMESPACE_MANAGER (self), NULL);
 	g_return_val_if_fail (compact_uri != NULL, NULL);
