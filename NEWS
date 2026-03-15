@@ -1,3 +1,14 @@
+NEW in 3.11.0 - 2026-03-15
+==========================
+  * Fixes to issues spotted by Coverity and OSS Fuzz
+
+Translations: en_GB
+
+Notable changes since 3.10:
+  * Added tracker_sparql_connection_new_from_rdf() family of constructors
+    to specify the defining ontology as an input stream, instead of a set
+    of files
+
 NEW in 3.11.rc - 2026-03-03
 ===========================
   * Fixes to implicit trimming of superproperty values through
