@@ -699,6 +699,11 @@ tracker_direct_connection_async_initable_iface_init (GAsyncInitableIface *iface)
 static void
 tracker_direct_connection_init (TrackerDirectConnection *conn)
 {
+	TrackerDirectConnectionPrivate *priv =
+		tracker_direct_connection_get_instance_private (conn);
+
+	g_mutex_init (&priv->update_mutex);
+	g_mutex_init (&priv->notifiers_mutex);
 }
 
 static GHashTable *
