@@ -2075,6 +2075,8 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 
 	g_clear_object (&db_interface->user_data);
 
+	g_mutex_clear (&db_interface->mutex);
+
 	G_OBJECT_CLASS (tracker_db_interface_parent_class)->finalize (object);
 }
 
@@ -2106,6 +2108,7 @@ tracker_db_interface_class_init (TrackerDBInterfaceClass *class)
 static void
 tracker_db_interface_init (TrackerDBInterface *db_interface)
 {
+	g_mutex_init (&db_interface->mutex);
 	tracker_db_statement_mru_init (&db_interface->select_stmt_mru, 100,
 	                               g_str_hash, g_str_equal, NULL);
 }
