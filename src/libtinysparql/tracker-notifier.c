@@ -737,6 +737,7 @@ tracker_notifier_finalize (GObject *object)
 	g_clear_object (&priv->cancellable);
 	g_clear_object (&priv->local_statement);
 	g_async_queue_unref (priv->queue);
+	g_mutex_clear (&priv->mutex);
 
 	if (priv->connection)
 		g_object_unref (priv->connection);
@@ -803,6 +804,7 @@ tracker_notifier_init (TrackerNotifier *notifier)
 	priv->cancellable = g_cancellable_new ();
 	priv->queue = g_async_queue_new ();
 	priv->main_context = g_main_context_get_thread_default ();
+	g_mutex_init (&priv->mutex);
 }
 
 /**
