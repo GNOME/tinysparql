@@ -1878,6 +1878,7 @@ tracker_sparql_add_fts_subquery (TrackerSparql          *sparql,
 				                       graph_name ? "_" : "");
 
 				if (!_append_fts_snippet (sparql, fts_snippet_node, graph_name, error)) {
+					g_hash_table_unref (graphs);
 					g_free (table_name);
 					return FALSE;
 				}
@@ -5523,6 +5524,7 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 		}
 
 		if (!found) {
+			tracker_token_unset (&service);
 			_raise (PARSE, "Access to service is disallowed", "SERVICE");
 		}
 	}
@@ -5550,8 +5552,10 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 							      var_str);
 		referenced = tracker_context_lookup_variable_ref (parent, var);
 
-		if (g_list_find (variables, var))
+		if (g_list_find (variables, var)) {
+			g_free (var_str);
 			continue;
+		}
 
 		if (i > 0)
 			_append_string (sparql, ", ");
@@ -5636,6 +5640,7 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 		                       "AND valuename%d = '%s' AND value%d = ",
 		                       i, name, i);
 		_append_literal_sql (sparql, TRACKER_LITERAL_BINDING (binding));
+		g_object_unref (binding);
 		g_free (name);
 		i++;
 	}
@@ -10050,6 +10055,7 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 		sparql->current_state = &state;
 		tracker_sparql_state_init (&state, sparql);
 		retval = _call_rule_func (sparql, NAMED_RULE_Query, error);
+		g_clear_pointer (&sparql->sql_string, g_free);
 		sparql->sql_string = tracker_string_builder_to_string (state.result);
 
 		select_context = TRACKER_SELECT_CONTEXT (sparql->current_state->top_context);
