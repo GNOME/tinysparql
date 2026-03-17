@@ -225,7 +225,7 @@ ttl_generate_dot_files (TrackerOntologyDescription *description,
                         const gchar                *prefix,
                         GFile                      *output_location)
 {
-	g_autoptr(GList) classes = NULL;
+	GList *classes = NULL;
 	GList *l;
 
 	classes = tracker_ontology_model_list_classes (model, prefix);
@@ -238,4 +238,6 @@ ttl_generate_dot_files (TrackerOntologyDescription *description,
 		ttl_generate_class_hierarchy_dot (description, model, klass, output_location);
 		ttl_generate_rdf_diagram_dot (description, model, klass, output_location);
 	}
+
+	g_list_free_full (classes, g_free);
 }
