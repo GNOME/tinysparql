@@ -212,6 +212,7 @@ test_tracker_sparql_connection_new_async (void)
 	                                     new_async_cb,
 	                                     loop);
 	g_main_loop_run (loop);
+	g_main_loop_unref (loop);
 
 	g_object_unref (ontology);
 }
@@ -261,6 +262,7 @@ test_tracker_sparql_connection_new_rdf_error (void)
 	                                               NULL, &error);
 	g_assert_null (conn);
 	g_assert_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_PARSE);
+	g_clear_error (&error);
 
 	g_object_unref (ontology);
 }
@@ -304,6 +306,7 @@ test_tracker_sparql_connection_new_rdf_async (void)
 	                                              new_from_rdf_async_cb,
 	                                              loop);
 	g_main_loop_run (loop);
+	g_main_loop_unref (loop);
 
 	g_object_unref (ontology);
 }
@@ -319,6 +322,7 @@ new_from_rdf_async_error_cb (GObject      *source,
 	conn = tracker_sparql_connection_new_from_rdf_finish (res, &error);
 	g_assert_null (conn);
 	g_assert_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_PARSE);
+	g_clear_error (&error);
 
 	g_main_loop_quit (user_data);
 }
@@ -342,6 +346,7 @@ test_tracker_sparql_connection_new_rdf_async_error (void)
 	                                              new_from_rdf_async_error_cb,
 	                                              loop);
 	g_main_loop_run (loop);
+	g_main_loop_unref (loop);
 
 	g_object_unref (ontology);
 }
@@ -358,6 +363,7 @@ test_tracker_sparql_connection_bus_new_unknown (void)
 	                                          &error);
 	g_assert_error (error, G_DBUS_ERROR, G_DBUS_ERROR_SERVICE_UNKNOWN);
 	g_assert_null (conn);
+	g_clear_error (&error);
 }
 
 static void
@@ -371,6 +377,7 @@ bus_new_unknown_cb (GObject      *source,
 	conn = tracker_sparql_connection_bus_new_finish (res, &error);
 	g_assert_error (error, G_DBUS_ERROR, G_DBUS_ERROR_SERVICE_UNKNOWN);
 	g_assert_null (conn);
+	g_clear_error (&error);
 
 	g_main_loop_quit (user_data);
 }
@@ -390,6 +397,7 @@ test_tracker_sparql_connection_bus_new_async_unknown (void)
 	                                         loop);
 
 	g_main_loop_run (loop);
+	g_main_loop_unref (loop);
 }
 
 static void

@@ -104,20 +104,25 @@ check_result (TrackerSparqlCursor *cursor,
 		GString *row_str = g_string_new (NULL);
 
 		for (col = 0; col < tracker_sparql_cursor_get_n_columns (cursor); col++) {
-			const gchar *str;
+			gchar *str, *basename;
 			GDateTime *date_time;
 
 			if (col > 0) {
 				g_string_append (row_str, "\t");
 			}
-			if (g_strcmp0 (g_path_get_basename (results_filename), "datetime.out") == 0) {
+
+			basename = g_path_get_basename (results_filename);
+
+			if (g_strcmp0 (basename, "datetime.out") == 0) {
 
 				date_time = tracker_sparql_cursor_get_datetime (cursor, col);
 				str = g_date_time_format_iso8601 (date_time);
 				g_date_time_unref (date_time);
 
 			} else
-				str = tracker_sparql_cursor_get_string (cursor, col, NULL);
+				str = g_strdup (tracker_sparql_cursor_get_string (cursor, col, NULL));
+
+			g_free (basename);
 
 			/* Hack to avoid misc properties that might tamper with
 			 * test reproduceability in DESCRIBE and other unrestricted
@@ -126,6 +131,7 @@ check_result (TrackerSparqlCursor *cursor,
 			if (g_strcmp0 (str, TRACKER_PREFIX_NRL "modified") == 0 ||
 			    g_strcmp0 (str, TRACKER_PREFIX_NRL "added") == 0) {
 				g_string_free (row_str, TRUE);
+				g_free (str);
 				row_str = NULL;
 				break;
 			}
@@ -134,6 +140,8 @@ check_result (TrackerSparqlCursor *cursor,
 				/* bound variable */
 				g_string_append_printf (row_str, "\"%s\"", str);
 			}
+
+			g_free (str);
 		}
 
 		if (row_str) {
@@ -175,17 +183,17 @@ check_result (TrackerSparqlCursor *cursor,
 
 static void
 setup (TestFixture   *fixture,
-       gconstpointer  context)
+       gconstpointer  data)
 {
-	const TestFixture *test = context;
+	TrackerSparqlConnection *conn = (gpointer) data;
 
-	*fixture = *test;
+	fixture->conn = conn;
 }
 
 static void
-query_statement (TestFixture   *test_fixture,
-                 gconstpointer  context)
+query_statement (gconstpointer data)
 {
+	const TestFixture *test_fixture = data;
 	TrackerSparqlStatement *stmt;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
@@ -249,12 +257,13 @@ query_statement (TestFixture   *test_fixture,
 		path = g_build_filename (TEST_SRCDIR, test_info->output_file, NULL);
 		check_result (cursor, path);
 		g_free (path);
-		g_object_unref (cursor);
 	} else {
 		g_assert_nonnull (error);
 	}
 
-	g_object_unref (stmt);
+	g_clear_object (&cursor);
+	g_clear_object (&stmt);
+	g_clear_error (&error);
 }
 
 static void
@@ -265,7 +274,7 @@ rdf_types (TestFixture   *test_fixture,
 	TrackerSparqlCursor *cursor;
 	TrackerSparqlConnection *c;
 	GError *error = NULL;
-	GDateTime *datetime;
+	GDateTime *datetime, *res_datetime;
 	const gchar *langtag, *query;
 	gboolean retval;
 	glong len;
@@ -314,7 +323,9 @@ rdf_types (TestFixture   *test_fixture,
 	g_assert_cmpint (tracker_sparql_cursor_get_integer (cursor, 1), ==, 42);
 	g_assert_cmpfloat_with_epsilon (tracker_sparql_cursor_get_double (cursor, 2), 42.2, DBL_EPSILON);
 	g_assert_cmpint (tracker_sparql_cursor_get_boolean (cursor, 3), ==, TRUE);
-	g_assert_true (g_date_time_equal (tracker_sparql_cursor_get_datetime (cursor, 4), datetime));
+	res_datetime = tracker_sparql_cursor_get_datetime (cursor, 4);
+	g_assert_true (g_date_time_equal (res_datetime, datetime));
+	g_clear_pointer (&res_datetime, g_date_time_unref);
 	g_assert_cmpstr (tracker_sparql_cursor_get_langstring (cursor, 5, &langtag, &len), ==, "Hola");
 	g_assert_cmpstr (langtag, ==, "es");
 	g_assert_cmpint (len, ==, strlen ("Hola"));
@@ -348,6 +359,8 @@ execute_async_cb (GObject      *source,
 	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, "Hello");
 
 	g_main_loop_quit (user_data);
+
+	g_clear_object (&cursor);
 }
 
 static void
@@ -374,6 +387,7 @@ execute_async (TestFixture   *test_fixture,
 
 	g_main_loop_run (loop);
 	g_main_loop_unref (loop);
+	g_clear_object (&stmt);
 }
 
 static void
@@ -394,6 +408,7 @@ stmt_update (TestFixture   *test_fixture,
 	if (strstr (G_OBJECT_TYPE_NAME (test_fixture->conn), "Remote") != NULL) {
 		/* HTTP connections do not implement updates on purpose */
 		g_assert_null (stmt);
+		g_clear_error (&error);
 		return;
 	}
 
@@ -478,6 +493,7 @@ stmt_update_async (TestFixture   *test_fixture,
 	if (strstr (G_OBJECT_TYPE_NAME (test_fixture->conn), "Remote") != NULL) {
 		/* HTTP connections do not implement updates on purpose */
 		g_assert_null (stmt);
+		g_clear_error (&error);
 		return;
 	}
 
@@ -656,7 +672,6 @@ add_tests (TrackerSparqlConnection *conn,
 	guint i;
 
 	for (i = 0; i < G_N_ELEMENTS (tests); i++) {
-
 		if (tests[i].service && !run_service_tests)
 			continue;
 
@@ -664,15 +679,13 @@ add_tests (TrackerSparqlConnection *conn,
 		fixture->conn = conn;
 		fixture->test = &tests[i];
 		testpath = g_strconcat ("/libtracker-sparql/statement/", name, "/", tests[i].test_name, NULL);
-		g_test_add (testpath, TestFixture, fixture, setup, query_statement, NULL);
+		g_test_add_data_func_full (testpath, fixture, query_statement, g_free);
 		g_free (testpath);
 	}
 
 	for (i = 0; i < G_N_ELEMENTS (test_funcs); i++) {
-		fixture = g_new0 (TestFixture, 1);
-		fixture->conn = conn;
 		testpath = g_strconcat ("/libtracker-sparql/statement/", name, "/", test_funcs[i].name, NULL);
-		g_test_add (testpath, TestFixture, fixture, setup, test_funcs[i].func, NULL);
+		g_test_add (testpath, TestFixture, conn, setup, test_funcs[i].func, NULL);
 		g_free (testpath);
 	}
 }
@@ -682,6 +695,7 @@ main (gint argc, gchar **argv)
 {
 	TrackerSparqlConnection *dbus = NULL, *direct = NULL, *remote = NULL;
 	GError *error = NULL;
+	int retval;
 
 	g_test_init (&argc, &argv, NULL);
 
@@ -692,5 +706,11 @@ main (gint argc, gchar **argv)
 	add_tests (dbus, "dbus", FALSE);
 	add_tests (remote, "http", FALSE);
 
-	return g_test_run ();
+	retval = g_test_run ();
+
+	g_clear_object (&dbus);
+	g_clear_object (&direct);
+	g_clear_object (&remote);
+
+	return retval;
 }

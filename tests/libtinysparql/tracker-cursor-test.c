@@ -317,6 +317,7 @@ cancel_query_cb (GObject      *source_object,
 
 	/* An error should be returned (cancelled!) */
 	g_assert_true (error);
+	g_clear_error (&error);
 }
 
 static void
@@ -341,6 +342,7 @@ test_tracker_sparql_query_iterate_async_cancel (gpointer      fixture,
 	g_main_loop_run (main_loop);
 
 	g_main_loop_unref (main_loop);
+	g_clear_object (&cancellable);
 }
 
 TrackerSparqlConnection *
@@ -570,6 +572,8 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 		g_assert_no_error (error);
 	}
 
+	g_clear_error (&error);
+
 	cursor = TRACKER_SPARQL_CURSOR (source);
 	conn = tracker_sparql_cursor_get_connection (cursor);
 	g_assert_true (cursor != NULL);
@@ -630,6 +634,8 @@ test_tracker_sparql_cursor_next_async_query (TrackerSparqlConnection *conn,
 	                                  cancellable,
 	                                  test_tracker_sparql_cursor_next_async_cb,
 	                                  GINT_TO_POINTER(query));
+
+	g_clear_object (&cancellable);
 }
 
 static void
@@ -647,6 +653,7 @@ test_tracker_sparql_cursor_next_async (gpointer      fixture,
 	 */
 	test_tracker_sparql_cursor_next_async_query (conn, 0);
 	g_main_loop_run (main_loop);
+	g_clear_pointer (&main_loop, g_main_loop_unref);
 }
 
 static void
@@ -688,6 +695,7 @@ test_tracker_sparql_cursor_get_variable_name (gpointer      fixture,
 			 "unbound");
 
 	tracker_sparql_cursor_close (cursor);
+	g_object_unref (cursor);
 }
 
 static void
@@ -741,6 +749,7 @@ test_tracker_sparql_cursor_get_value_type (gpointer      fixture,
 			 TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE);
 
 	tracker_sparql_cursor_close (cursor);
+	g_object_unref (cursor);
 }
 
 static void
@@ -780,6 +789,7 @@ test_tracker_sparql_cursor_get_langstring (gpointer      fixture,
 	g_assert_cmpint (len, ==, 4);
 
 	tracker_sparql_cursor_close (cursor);
+	g_object_unref (cursor);
 }
 
 static void

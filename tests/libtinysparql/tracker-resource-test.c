@@ -84,6 +84,7 @@ test_resource_get_set_gvalue (void)
 
 	list = tracker_resource_get_values (resource, "http://example.com/0");
 	g_assert_cmpint (g_list_length (list), ==, 1);
+	g_list_free (list);
 
 	g_object_unref (resource);
 }
@@ -195,8 +196,9 @@ test_resource_serialization (void)
 	tracker_resource_add_int (res, "nie:usageCounter", 5);
 	tracker_resource_add_int64 (res, "nie:contentSize", 420);
 
-	tracker_resource_add_relation (child, "nie:interpretedAs", g_object_ref (child2));
+	tracker_resource_add_relation (child, "nie:interpretedAs", child2);
 	tracker_resource_add_relation (child, "nie:interpretedAs", child3);
+	g_object_unref (child3);
 
 	/* Ensure multiple serialize calls produce the same variant */
 	variant = tracker_resource_serialize (res);
@@ -397,6 +399,7 @@ test_resource_load (void)
 	nepomuk = tracker_sparql_get_ontology_nepomuk ();
 	connection = tracker_sparql_connection_new (0, NULL, nepomuk, NULL, &error);
 	g_assert_no_error (error);
+	g_clear_object (&nepomuk);
 	namespaces = tracker_sparql_connection_get_namespace_manager (connection);
 
 	/* Get RDF/SPARQL output for the resource */
@@ -458,6 +461,9 @@ test_resource_load (void)
 
 	tracker_sparql_connection_close (connection);
 	g_object_unref (connection);
+
+	g_object_run_dispose (G_OBJECT (resource));
+	g_object_unref (resource);
 }
 
 static GStrv
@@ -480,6 +486,7 @@ get_stored_property_values (TrackerSparqlConnection *conn,
 
 	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
 	g_assert_no_error (error);
+	g_clear_object (&stmt);
 
 	res = g_array_new (TRUE, FALSE, sizeof (char*));
 
@@ -489,6 +496,7 @@ get_stored_property_values (TrackerSparqlConnection *conn,
 	}
 
 	g_assert_no_error (error);
+	g_clear_object (&cursor);
 
 	return (GStrv) g_array_free (res, FALSE);
 }

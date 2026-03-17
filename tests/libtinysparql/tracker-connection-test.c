@@ -77,6 +77,7 @@ thread_func (gpointer user_data)
 	started = TRUE;
 	g_main_loop_run (main_loop);
 
+	g_main_loop_unref (main_loop);
 	g_main_context_pop_thread_default (context);
 	g_main_context_unref (context);
 
@@ -308,6 +309,8 @@ test_connection_update_resource (gpointer      fixture,
 		/* HTTP connections cannot perform udpates */
 		g_assert_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNSUPPORTED);
 		g_assert_false (retval);
+		g_clear_object (&resource);
+		g_clear_error (&error);
 		return;
 	} else {
 		g_assert_no_error (error);
@@ -333,6 +336,7 @@ test_connection_update_resource (gpointer      fixture,
 	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
 	g_assert_no_error (error);
 	g_assert_true (tracker_sparql_cursor_get_boolean (cursor, 0));
+	g_clear_object (&cursor);
 
 	cursor = tracker_sparql_connection_query (conn,
 	                                          "ASK {"
@@ -347,6 +351,7 @@ test_connection_update_resource (gpointer      fixture,
 	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
 	g_assert_no_error (error);
 	g_assert_true (tracker_sparql_cursor_get_boolean (cursor, 0));
+	g_clear_object (&cursor);
 
 	/* Check that update errors work */
 	g_clear_object (&resource);
@@ -358,6 +363,8 @@ test_connection_update_resource (gpointer      fixture,
 	                                                    &error);
 	g_assert_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY);
 	g_assert_false (retval);
+	g_clear_error (&error);
+	g_clear_object (&resource);
 }
 
 typedef struct {
@@ -405,6 +412,9 @@ test_connection_update_resource_async (gpointer      fixture,
 		/* HTTP connections cannot perform updates */
 		g_assert_error (data.error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNSUPPORTED);
 		g_assert_false (data.retval);
+		g_clear_error (&data.error);
+		g_clear_pointer (&data.loop, g_main_loop_unref);
+		g_clear_object (&resource);
 		return;
 	} else {
 		g_assert_no_error (data.error);
@@ -433,6 +443,7 @@ test_connection_update_resource_async (gpointer      fixture,
 	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
 	g_assert_no_error (error);
 	g_assert_true (tracker_sparql_cursor_get_boolean (cursor, 0));
+	g_clear_object (&cursor);
 
 	cursor = tracker_sparql_connection_query (conn,
 	                                          "ASK {"
@@ -447,6 +458,7 @@ test_connection_update_resource_async (gpointer      fixture,
 	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
 	g_assert_no_error (error);
 	g_assert_true (tracker_sparql_cursor_get_boolean (cursor, 0));
+	g_clear_object (&cursor);
 
 	/* Check that update errors work */
 	g_clear_object (&resource);
@@ -461,6 +473,9 @@ test_connection_update_resource_async (gpointer      fixture,
 
 	g_assert_error (data.error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY);
 	g_assert_false (data.retval);
+	g_clear_error (&data.error);
+	g_clear_pointer (&data.loop, g_main_loop_unref);
+	g_clear_object (&resource);
 }
 
 static void
@@ -498,11 +513,13 @@ test_connection_update_array_async (gpointer      fixture,
 	                                              update_array_cb,
 	                                              &data);
 	g_main_loop_run (data.loop);
+	g_clear_pointer (&data.loop, g_main_loop_unref);
 
 	if (g_strcmp0 (G_OBJECT_TYPE_NAME (conn), "TrackerRemoteConnection") == 0) {
 		/* HTTP connections cannot perform updates */
 		g_assert_error (data.error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNSUPPORTED);
 		g_assert_false (data.retval);
+		g_clear_error (&data.error);
 		return;
 	} else {
 		g_assert_no_error (data.error);
@@ -520,6 +537,7 @@ test_connection_update_array_async (gpointer      fixture,
 	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
 	g_assert_no_error (error);
 	g_assert_true (tracker_sparql_cursor_get_boolean (cursor, 0));
+	g_clear_object (&cursor);
 }
 
 typedef struct {
@@ -558,11 +576,19 @@ add_tests (const gchar              *conn_name,
 gint
 main (gint argc, gchar **argv)
 {
+	int retval;
+
 	g_test_init (&argc, &argv, NULL);
 
 	add_tests ("direct", &direct);
 	add_tests ("dbus", &dbus);
 	add_tests ("http", &http);
 
-	return g_test_run ();
+	retval = g_test_run ();
+
+	g_clear_object (&direct);
+	g_clear_object (&dbus);
+	g_clear_object (&http);
+
+	return retval;
 }

@@ -141,8 +141,9 @@ test_insert_or_replace (void)
 	g_mkdtemp (test_data_dir);
 
 	cache = g_file_new_for_path (test_data_dir);
-	ontology = tracker_sparql_get_ontology_nepomuk ();
+	g_free (test_data_dir);
 
+	ontology = tracker_sparql_get_ontology_nepomuk ();
 	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
 	                                      cache,
 	                                      ontology,

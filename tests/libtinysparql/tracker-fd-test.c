@@ -128,6 +128,8 @@ async_update_array_callback (GObject      *source_object,
 	g_assert_true (error != NULL);
 
 	g_main_loop_quit (data->main_loop);
+
+	g_clear_error (&error);
 }
 
 
@@ -236,8 +238,7 @@ test_tracker_sparql_update_blank_fast_small (gpointer      *fixture,
 
 	g_assert_no_error (error);
 	g_assert_true (results);
-
-	/* FIXME: Properly test once we get update_blank implemented */
+	g_clear_pointer (&results, g_variant_unref);
 }
 
 static void
@@ -264,8 +265,7 @@ test_tracker_sparql_update_blank_fast_large (gpointer      *fixture,
 
 	g_assert_no_error (error);
 	g_assert_true (results);
-
-	/* FIXME: Properly test once we get update_blank implemented */
+	g_clear_pointer (&results, g_variant_unref);
 }
 
 static void
@@ -302,6 +302,7 @@ test_tracker_sparql_update_blank_fast_no_blanks (gpointer      *fixture,
 
 	g_assert_no_error (error);
 	g_assert_true (results);
+	g_clear_pointer (&results, g_variant_unref);
 }
 
 static void
@@ -370,7 +371,8 @@ cancel_update_cb (GObject      *source_object,
 	tracker_sparql_connection_update_finish (connection, result, &error);
 
 	/* An error should be returned (cancelled!) */
-	g_assert_true (error);
+	g_assert_error (error, G_IO_ERROR, G_IO_ERROR_CANCELLED);
+	g_clear_error (&error);
 }
 
 static void
@@ -412,6 +414,7 @@ async_update_blank_callback (GObject      *source_object,
 
 	g_assert_no_error (error);
 	g_assert_true (results != NULL);
+	g_clear_pointer (&results, g_variant_unref);
 }
 
 static void
@@ -520,6 +523,8 @@ create_dbus_connection (GError **error)
 gint
 main (gint argc, gchar **argv)
 {
+	int retval;
+
 	g_test_init (&argc, &argv, NULL);
 
 	connection = create_dbus_connection (NULL);
@@ -551,5 +556,9 @@ main (gint argc, gchar **argv)
 	g_test_add ("/steroids/tracker/tracker_sparql_update_array_async_empty", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_update_array_async_empty, delete_test_data);
 
-	return g_test_run ();
+	retval = g_test_run ();
+
+	g_clear_object (&connection);
+
+	return retval;
 }

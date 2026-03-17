@@ -219,7 +219,7 @@ test_ontology_error (void)
 		gchar *error_path = g_build_path (G_DIR_SEPARATOR_S, prefix, error_filename, NULL);
 		gchar *errors_path = g_build_path (G_DIR_SEPARATOR_S, prefix, errors_filename, NULL);
 		gchar *from, *to;
-		gchar *expected_error_msgs = "", *printed_error_msgs;
+		gchar *expected_error_msgs, *printed_error_msgs;
 		gboolean copy_result;
 
 		source_ontology_file = g_file_new_for_path (source_ontology_path);
@@ -239,6 +239,8 @@ test_ontology_error (void)
 		 * So, it needs the ontology path to prefix the expected error messages with it */
 		if (g_file_test (errors_path, G_FILE_TEST_EXISTS))
 			expected_error_msgs = load_error_msgs (errors_path, to);
+		else
+			expected_error_msgs = g_strdup ("");
 
 		record_printed_errors ();
 		ontology_error_helper (test_schemas, error_path);
@@ -253,6 +255,8 @@ test_ontology_error (void)
 		g_free (errors_filename);
 		g_free (error_path);
 		g_free (errors_path);
+		g_free (printed_error_msgs);
+		g_free (expected_error_msgs);
 		g_object_unref (source_ontology_file);
 	}
 
