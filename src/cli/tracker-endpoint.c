@@ -336,7 +336,7 @@ run_list_endpoints (void)
 	}
 
 	variant = g_dbus_message_get_body (reply);
-	g_variant_get (variant, "(^a&s)", &names);
+	g_variant_get (variant, "(^as)", &names);
 
 	for (i = 0; names[i]; i++) {
 		GDBusMessage *check;
@@ -378,6 +378,7 @@ run_list_endpoints (void)
 	}
 
 	g_object_unref (reply);
+	g_strfreev (names);
 
 	return EXIT_SUCCESS;
 }
@@ -621,6 +622,8 @@ tracker_endpoint (int argc, const char **argv)
 		return EXIT_FAILURE;
 	}
 
+	g_option_context_free (context);
+
 	if (list) {
 		return run_list_endpoints ();
 	} else if (list_http) {
@@ -657,10 +660,12 @@ tracker_endpoint (int argc, const char **argv)
 	}
 
 	connection = tracker_sparql_connection_new (0, database, ontology, NULL, &error);
+	g_object_unref (ontology);
+	g_object_unref (database);
+
 	if (!connection) {
 		g_printerr ("%s\n", error->message);
 		g_error_free (error);
-		g_option_context_free (context);
 		return EXIT_FAILURE;
 	}
 
@@ -689,8 +694,6 @@ tracker_endpoint (int argc, const char **argv)
 		tracker_sparql_connection_close (connection);
 		g_clear_object (&connection);
 	}
-
-	g_option_context_free (context);
 
 	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
