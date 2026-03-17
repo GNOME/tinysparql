@@ -342,6 +342,7 @@ write_sparql_queries_in_thread (GTask        *task,
 			goto error;
 
 		g_task_return_boolean (task, TRUE);
+		g_object_unref (data);
 		return;
 	}
 

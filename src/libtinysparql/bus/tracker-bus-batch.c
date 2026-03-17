@@ -388,6 +388,8 @@ batch_op_clear (TrackerBusOp *op)
 	} else if (op->type == TRACKER_BUS_OP_RDF) {
 		g_free (op->d.rdf.default_graph);
 		g_clear_object (&op->d.rdf.stream);
+	} else if (op->type == TRACKER_BUS_OP_DBUS_FD) {
+		g_clear_object (&op->d.fd.stream);
 	}
 }
 
