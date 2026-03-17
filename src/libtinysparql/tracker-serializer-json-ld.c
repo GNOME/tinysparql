@@ -451,6 +451,7 @@ tracker_serializer_json_ld_close (GInputStream  *istream,
 	g_clear_object (&serializer_json_ld->builder);
 	serializer_json_ld->stream_closed = TRUE;
 	g_clear_pointer (&serializer_json_ld->vars, g_ptr_array_unref);
+	g_clear_pointer (&serializer_json_ld->resources, g_hash_table_unref);
 
 	return TRUE;
 }

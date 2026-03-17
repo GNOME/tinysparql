@@ -1382,6 +1382,8 @@ new_async_cb (GObject      *source,
 		g_task_return_pointer (task, conn, g_object_unref);
 	else
 		g_task_return_error (task, error);
+
+	g_object_unref (task);
 }
 
 /**
@@ -1499,6 +1501,8 @@ new_from_rdf_async_cb (GObject      *source,
 		g_task_return_pointer (task, conn, g_object_unref);
 	else
 		g_task_return_error (task, error);
+
+	g_object_unref (task);
 }
 
 /**

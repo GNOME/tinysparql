@@ -52,7 +52,11 @@ G_DEFINE_TYPE (TrackerSerializerXml, tracker_serializer_xml,
 static void
 tracker_serializer_xml_finalize (GObject *object)
 {
+	TrackerSerializerXml *serializer_xml = TRACKER_SERIALIZER_XML (object);
+
 	g_input_stream_close (G_INPUT_STREAM (object), NULL, NULL);
+
+	g_clear_pointer (&serializer_xml->vars, g_ptr_array_unref);
 
 	G_OBJECT_CLASS (tracker_serializer_xml_parent_class)->finalize (object);
 }
