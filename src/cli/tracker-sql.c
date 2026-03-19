@@ -102,12 +102,14 @@ sql_by_query (void)
 	data_manager = tracker_data_manager_new (TRACKER_DB_MANAGER_READONLY,
 	                                         db_location, NULL,
 	                                         100);
+	g_clear_object (&db_location);
 
 	if (!g_initable_init (G_INITABLE (data_manager), NULL, &error)) {
 		g_printerr ("%s: %s\n",
 		            _("Failed to initialize data manager"),
 		            error->message);
 		g_error_free (error);
+		g_clear_object (&data_manager);
 		return EXIT_FAILURE;
 	}
 
@@ -124,6 +126,7 @@ sql_by_query (void)
 
 	if (stmt) {
 		cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &error));
+		g_clear_object (&stmt);
 	}
 
 	if (error) {
@@ -159,6 +162,8 @@ sql_by_query (void)
 		n_rows++;
 	}
 
+	g_clear_object (&cursor);
+
 	if (error) {
 		g_printerr ("%s: %s\n",
 		            _("Could not run query"),
@@ -174,6 +179,9 @@ sql_by_query (void)
 
 out:
 	tracker_term_pager_close ();
+
+	tracker_data_manager_shutdown (data_manager);
+	g_object_unref (data_manager);
 
 	return retval;
 }

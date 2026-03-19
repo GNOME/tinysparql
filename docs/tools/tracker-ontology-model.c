@@ -356,10 +356,12 @@ tracker_ontology_model_new (GFile   *ontology_location,
 		g_free (query);
 	}
 
+	g_clear_object (&enumerator);
+
 	model = g_new0 (TrackerOntologyModel, 1);
 	model->ontology_conn = ontology_conn;
 	model->desc_conn = desc_conn;
-	model->stmts = g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
+	model->stmts = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
 						(GDestroyNotify) g_object_unref);
 	model->classes = g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
 						(GDestroyNotify) ttl_model_class_free);
@@ -384,14 +386,16 @@ error:
 void
 tracker_ontology_model_free (TrackerOntologyModel *model)
 {
-	g_object_unref (model->ontology_conn);
-	g_object_unref (model->desc_conn);
 	g_clear_object (&model->classes_stmt);
 	g_clear_object (&model->props_stmt);
 	g_hash_table_unref (model->stmts);
 	g_hash_table_unref (model->classes);
 	g_hash_table_unref (model->properties);
 	g_hash_table_unref (model->descriptions);
+
+	g_object_unref (model->ontology_conn);
+	g_object_unref (model->desc_conn);
+
 	g_free (model);
 }
 
@@ -428,14 +432,15 @@ TrackerOntologyDescription *
 tracker_ontology_model_get_description (TrackerOntologyModel *model,
                                         const gchar          *prefix)
 {
-	TrackerSparqlStatement *stmt;
-	TrackerSparqlCursor *cursor;
 	TrackerOntologyDescription *desc;
-	GError *error = NULL;
 
 	desc = g_hash_table_lookup (model->descriptions, prefix);
 
 	if (!desc) {
+		g_autoptr (TrackerSparqlStatement) stmt = NULL;
+		g_autoptr (TrackerSparqlCursor) cursor = NULL;
+		g_autoptr (GError) error = NULL;
+
 		stmt = tracker_sparql_connection_query_statement (model->desc_conn,
 		                                                  "SELECT "
 		                                                  "  dsc:title(?d) "
@@ -456,7 +461,6 @@ tracker_ontology_model_get_description (TrackerOntologyModel *model,
 
 		tracker_sparql_statement_bind_string (stmt, "prefix", prefix);
 		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
-		g_object_unref (stmt);
 		g_assert_no_error (error);
 
 		if (!tracker_sparql_cursor_next (cursor, NULL, &error))
@@ -471,8 +475,6 @@ tracker_ontology_model_get_description (TrackerOntologyModel *model,
 		desc->relativePath = g_strdup (tracker_sparql_cursor_get_string (cursor, 5, NULL));
 		desc->copyright = g_strdup (tracker_sparql_cursor_get_string (cursor, 6, NULL));
 		desc->upstream = g_strdup (tracker_sparql_cursor_get_string (cursor, 7, NULL));
-
-		g_object_unref (cursor);
 
 		fill_in_list (model->desc_conn, model, &desc->authors, prefix,
 			      "SELECT ?author {"

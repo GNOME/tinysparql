@@ -1658,6 +1658,7 @@ tracker_resource_print_rdf (TrackerResource         *self,
 		                                   NULL,
 		                                   NULL)) {
 			g_object_unref (parser);
+			g_object_unref (serializer);
 			return g_string_free (str, FALSE);
 		}
 
@@ -1668,6 +1669,7 @@ tracker_resource_print_rdf (TrackerResource         *self,
 		json_generator_to_gstring (generator, str);
 		g_object_unref (generator);
 		g_object_unref (parser);
+		g_object_unref (serializer);
 
 		return g_string_free (str, FALSE);
 	}
@@ -1828,7 +1830,7 @@ tracker_resource_deserialize (GVariant *variant)
 
 	g_variant_iter_init (&iter, variant);
 
-	while (g_variant_iter_next (&iter, "{sv}", &pred, &obj)) {
+	while (g_variant_iter_loop (&iter, "{sv}", &pred, &obj)) {
 		/* Special case, "@id" for the resource identifier */
 		if (g_strcmp0 (pred, "@id") == 0 &&
 		    g_variant_is_of_type (obj, G_VARIANT_TYPE_STRING)) {
@@ -1863,10 +1865,12 @@ tracker_resource_deserialize (GVariant *variant)
 			child = tracker_resource_deserialize (obj);
 			if (!child) {
 				g_object_unref (resource);
+				g_variant_unref (obj);
 				return NULL;
 			}
 
 			tracker_resource_set_relation (resource, pred, child);
+			g_object_unref (child);
 		} else if (g_variant_is_of_type (obj, G_VARIANT_TYPE_ARRAY)) {
 			GVariant *elem;
 			GVariantIter iter2;
@@ -1902,21 +1906,28 @@ tracker_resource_deserialize (GVariant *variant)
 					child = tracker_resource_deserialize (elem);
 					if (!child) {
 						g_object_unref (resource);
+						g_variant_unref (elem);
 						return NULL;
 					}
 
 					tracker_resource_add_relation (resource, pred, child);
+					g_object_unref (child);
 				} else {
 					g_warning ("Unhandled GVariant signature '%s'",
 					           g_variant_get_type_string (elem));
 					g_object_unref (resource);
+					g_variant_unref (elem);
+					g_variant_unref (obj);
 					return NULL;
 				}
+
+				g_variant_unref (elem);
 			}
 		} else {
 			g_warning ("Unhandled GVariant signature '%s'",
 			           g_variant_get_type_string (obj));
 			g_object_unref (resource);
+			g_variant_unref (obj);
 			return NULL;
 		}
 	}

@@ -92,7 +92,7 @@ check_result (TrackerSparqlCursor *cursor,
 	if (cursor) {
 		gint col;
 
-		while (tracker_sparql_cursor_next (cursor, NULL, &error)) {
+		while (tracker_sparql_cursor_next (cursor, NULL, &nerror)) {
 			GString *row_str = g_string_new (NULL);
 
 			for (col = 0; col < tracker_sparql_cursor_get_n_columns (cursor); col++) {
@@ -130,12 +130,15 @@ check_result (TrackerSparqlCursor *cursor,
 	}
 
 	if (test_info->expect_query_error) {
-		g_assert_true (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
+		GError *e = nerror ? nerror : error;
+		g_assert_true (e != NULL && e->domain == TRACKER_SPARQL_ERROR);
 		g_string_free (test_results, TRUE);
+		g_clear_error (&nerror);
 		g_free (results);
 		return;
 	}
 
+	g_assert_no_error (nerror);
 	g_assert_no_error (error);
 
 	if (strcmp (results, test_results->str) != 0) {
@@ -251,6 +254,7 @@ test_sparql_query (TestInfo      *test_info,
 	check_result (cursor, test_info, results_filename, error);
 	g_free (results_filename);
 	g_clear_object (&cursor);
+	g_clear_error (&error);
 
 	/* cleanup */
 	g_main_loop_quit (endpoint_loop);

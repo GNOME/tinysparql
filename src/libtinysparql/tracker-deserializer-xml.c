@@ -81,6 +81,7 @@ tracker_deserializer_xml_finalize (GObject *object)
 
 	g_clear_pointer (&deserializer->reader, xmlFreeTextReader);
 	g_ptr_array_unref (deserializer->columns);
+	g_ptr_array_unref (deserializer->column_names);
 
 	G_OBJECT_CLASS (tracker_deserializer_xml_parent_class)->finalize (object);
 }
@@ -307,6 +308,7 @@ parse_binding_type (TrackerDeserializerXml  *deserializer,
 
 		if (!datatype ||
 		    !g_str_has_prefix ((const gchar *) datatype, TRACKER_PREFIX_XSD)) {
+			g_clear_pointer (&datatype, xmlFree);
 			*type = TRACKER_SPARQL_VALUE_TYPE_STRING;
 			return TRUE;
 		}
@@ -438,12 +440,17 @@ parse_result (TrackerDeserializerXml  *deserializer,
 
 	for (i = 0; i < n_columns; i++) {
 		ColumnData *col;
+		gpointer key, value;
 
 		var_name = tracker_sparql_cursor_get_variable_name (cursor, i);
-		col = g_hash_table_lookup (ht, var_name);
-		g_hash_table_steal (ht, var_name);
-		if (!col)
+
+		if (g_hash_table_lookup_extended (ht, var_name, &key, &value)) {
+			col = value;
+			g_hash_table_steal (ht, var_name);
+			xmlFree (key);
+		} else {
 			col = column_new (TRACKER_SPARQL_VALUE_TYPE_UNBOUND, NULL, NULL);
+		}
 
 		g_ptr_array_add (deserializer->columns, col);
 	}
@@ -454,8 +461,10 @@ parse_result (TrackerDeserializerXml  *deserializer,
 		             TRACKER_SPARQL_ERROR,
 		             TRACKER_SPARQL_ERROR_PARSE,
 		             "Wrong XML format, unexpected additional bindings");
-		return FALSE;
+		goto error_already_set;
 	}
+
+	g_clear_pointer (&ht, g_hash_table_unref);
 
 	return TRUE;
 

@@ -112,6 +112,7 @@ serialize_up_to_position (TrackerSerializerJson  *serializer_json,
 		                        ",\"results\":{\"bindings\":[");
 
 		serializer_json->head_printed = TRUE;
+		json_node_free (node);
 	}
 
 	while (!serializer_json->cursor_finished &&
@@ -205,6 +206,7 @@ serialize_up_to_position (TrackerSerializerJson  *serializer_json,
 		json_generator_set_root (serializer_json->generator, node);
 		json_generator_to_gstring (serializer_json->generator,
 		                           serializer_json->data);
+		json_node_free (node);
 	}
 
 	g_clear_object (&builder);

@@ -68,6 +68,7 @@ resource_exists (TrackerSparqlConnection *conn,
 	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
 	g_assert_no_error (error);
 	g_assert_nonnull (cursor);
+	g_free (query);
 
 	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
 	g_assert_no_error (error);

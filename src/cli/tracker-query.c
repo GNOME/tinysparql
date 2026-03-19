@@ -82,14 +82,17 @@ static GOptionEntry entries[] = {
 static TrackerSparqlConnection *
 create_connection (GError **error)
 {
+	TrackerSparqlConnection *conn = NULL;
+
 	if (database_path && !dbus_service && !remote_service) {
 		GFile *file;
 
 		file = g_file_new_for_commandline_arg (database_path);
-		return tracker_sparql_connection_new (update ?
-						      TRACKER_SPARQL_CONNECTION_FLAGS_NONE :
+		conn = tracker_sparql_connection_new (update ?
+		                                      TRACKER_SPARQL_CONNECTION_FLAGS_NONE :
 						      TRACKER_SPARQL_CONNECTION_FLAGS_READONLY,
 		                                      file, NULL, NULL, error);
+		g_clear_object (&file);
 	} else if (dbus_service && !database_path && !remote_service) {
 		GDBusConnection *dbus_conn;
 
@@ -97,14 +100,16 @@ create_connection (GError **error)
 		if (!dbus_conn)
 			return NULL;
 
-		return tracker_sparql_connection_bus_new (dbus_service, NULL, dbus_conn, error);
+		conn = tracker_sparql_connection_bus_new (dbus_service, NULL, dbus_conn, error);
 	} else if (remote_service && !database_path && !dbus_service) {
-		return tracker_sparql_connection_remote_new (remote_service);
+		conn = tracker_sparql_connection_remote_new (remote_service);
 	} else {
 		/* TRANSLATORS: Those are commandline arguments */
 		g_printerr ("%s\n", _("Specify one “--database”, “--dbus-service” or “--remote-service” option"));
 		exit (EXIT_FAILURE);
 	}
+
+	return conn;
 }
 
 static gchar *
@@ -361,7 +366,6 @@ sparql_run (void)
 			            file,
 			            error->message);
 			g_error_free (error);
-			g_object_unref (connection);
 			retval = EXIT_FAILURE;
 			goto out;
 		}
@@ -374,7 +378,6 @@ sparql_run (void)
 			            error->message);
 			g_error_free (error);
 			g_free (path_in_utf8);
-			g_object_unref (connection);
 			retval = EXIT_FAILURE;
 			goto out;
 		}
@@ -396,6 +399,7 @@ sparql_run (void)
 				}
 
 				tracker_sparql_statement_update (stmt, NULL, &error);
+				g_clear_object (&stmt);
 			}
 
 			if (error) {
@@ -421,6 +425,7 @@ sparql_run (void)
 				}
 
 				cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+				g_clear_object (&stmt);
 			}
 
 			if (error) {
@@ -440,10 +445,9 @@ sparql_run (void)
 		}
 	}
 
-	g_object_unref (connection);
-
 out:
 	tracker_term_pager_close ();
+	g_clear_object (&connection);
 
 	return retval;
 }

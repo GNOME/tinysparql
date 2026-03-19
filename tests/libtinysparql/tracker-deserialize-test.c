@@ -65,7 +65,7 @@ TestInfo tests[] = {
 };
 
 typedef struct {
-	TestInfo *test;
+	const TestInfo *test;
 	TrackerSparqlConnection *direct;
 	TrackerSparqlConnection *dbus;
 	GMainLoop *loop;
@@ -176,13 +176,13 @@ check_result (TrackerSparqlCursor *cursor,
 
 static void
 setup (TestFixture   *fixture,
-       gconstpointer  context)
+       gconstpointer  data)
 {
 	TrackerSparqlConnection *dbus = NULL, *direct = NULL;
-	const TestFixture *test = context;
+	const TestInfo *info = data;
 	GError *error = NULL;
 
-	*fixture = *test;
+	fixture->test = info;
 
 	g_assert_true (create_connections (&dbus, &direct, &error));
 	g_assert_no_error (error);
@@ -199,6 +199,7 @@ teardown (TestFixture   *fixture,
 	tracker_sparql_connection_close (fixture->dbus);
 	g_clear_object (&fixture->dbus);
 	g_clear_object (&fixture->direct);
+	g_clear_pointer (&fixture->loop, g_main_loop_unref);
 }
 
 static void
@@ -258,6 +259,7 @@ deserialize_direct_cb (GObject      *source,
 	if (test_fixture->test->expect_error) {
 		g_assert_nonnull (error);
 		g_assert_false (retval);
+		g_clear_error (&error);
 		/* We can stop here */
 		g_main_loop_quit (test_fixture->loop);
 		return;
@@ -282,7 +284,7 @@ test (TestFixture   *test_fixture,
 {
 	GError *error = NULL;
 	gchar *path, *query_path, *query;
-	TestInfo *test_info = test_fixture->test;
+	const TestInfo *test_info = test_fixture->test;
 	TrackerSparqlCursor *cursor;
 	GInputStream *istream;
 	GFile *file;
@@ -308,6 +310,7 @@ test (TestFixture   *test_fixture,
 	                                             test_fixture);
 
 	g_main_loop_run (test_fixture->loop);
+	g_clear_object (&istream);
 
 	query_path = g_build_filename (TEST_SRCDIR, test_info->query_file, NULL);
 	path = g_build_filename (TEST_SRCDIR, test_info->output_file, NULL);
@@ -449,13 +452,10 @@ main (gint argc, gchar **argv)
 	g_test_init (&argc, &argv, NULL);
 
 	for (i = 0; i < G_N_ELEMENTS (tests); i++) {
-		TestFixture *fixture;
 		gchar *testpath;
 
-		fixture = g_new0 (TestFixture, 1);
-		fixture->test = &tests[i];
 		testpath = g_strconcat ("/libtracker-sparql/deserialize/", tests[i].test_name, NULL);
-		g_test_add (testpath, TestFixture, fixture, setup, test, teardown);
+		g_test_add (testpath, TestFixture, &tests[i], setup, test, teardown);
 		g_free (testpath);
 	}
 

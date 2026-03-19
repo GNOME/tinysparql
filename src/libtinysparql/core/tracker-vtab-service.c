@@ -395,6 +395,9 @@ service_filter (sqlite3_vtab_cursor  *vtab_cursor,
 	if (error)
 		goto fail;
 
+	g_clear_pointer (&names, g_hash_table_unref);
+	g_clear_pointer (&values, g_hash_table_unref);
+
 	return SQLITE_OK;
 
 fail:

@@ -106,15 +106,6 @@ check_result (GInputStream *istream,
 }
 
 static void
-setup (TestFixture   *fixture,
-       gconstpointer  context)
-{
-	const TestFixture *test = context;
-
-	*fixture = *test;
-}
-
-static void
 serialize_stmt_cb (GObject      *source,
                    GAsyncResult *res,
                    gpointer      user_data)
@@ -146,9 +137,9 @@ serialize_cb (GObject      *source,
 }
 
 static void
-serialize (TestFixture   *test_fixture,
-           gconstpointer  context)
+serialize (gconstpointer data)
 {
+	TestFixture *test_fixture = (gpointer) data;
 	TrackerSparqlStatement *stmt;
 	GError *error = NULL;
 	gchar *path, *query;
@@ -325,7 +316,7 @@ add_tests (TrackerSparqlConnection *conn,
 		fixture->conn = conn;
 		fixture->test = &tests[i];
 		testpath = g_strconcat ("/libtracker-sparql/serialize/", name, "/", tests[i].test_name, NULL);
-		g_test_add (testpath, TestFixture, fixture, setup, serialize, NULL);
+		g_test_add_data_func_full (testpath, fixture, serialize, g_free);
 		g_free (testpath);
 	}
 }
@@ -335,6 +326,7 @@ main (gint argc, gchar **argv)
 {
 	TrackerSparqlConnection *dbus = NULL, *direct = NULL, *remote = NULL;
 	GError *error = NULL;
+	int retval;
 
 	g_test_init (&argc, &argv, NULL);
 
@@ -345,5 +337,11 @@ main (gint argc, gchar **argv)
 	add_tests (dbus, "dbus", FALSE);
 	add_tests (remote, "http", FALSE);
 
-	return g_test_run ();
+	retval = g_test_run ();
+
+	g_clear_object (&dbus);
+	g_clear_object (&direct);
+	g_clear_object (&remote);
+
+	return retval;
 }

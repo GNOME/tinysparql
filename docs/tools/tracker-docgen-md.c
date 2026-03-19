@@ -422,11 +422,9 @@ get_extra_properties (TrackerOntologyModel *model,
 {
 	GList *l, *c;
 	GHashTable *extra_properties;
-	GHashTableIter iter;
-	gchar *classname;
-	GList *properties_for_class;
 
-	extra_properties = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+	extra_properties = g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
+	                                          (GDestroyNotify) g_list_free);
 
 	for (l = properties; l; l = l->next) {
 		TrackerOntologyProperty *prop;
@@ -456,16 +454,11 @@ get_extra_properties (TrackerOntologyModel *model,
 
 				classname = c->data;
 				list = g_hash_table_lookup (extra_properties, classname);
-				list = g_list_append (list, prop->propertyname);
-				g_hash_table_insert (extra_properties, g_strdup (classname), list);
+				g_hash_table_steal (extra_properties, classname);
+				list = g_list_insert_sorted (list, prop->propertyname, (GCompareFunc) strcmp);
+				g_hash_table_insert (extra_properties, (gpointer) classname, list);
 			}
 		}
-	}
-
-	g_hash_table_iter_init (&iter, extra_properties);
-	while (g_hash_table_iter_next (&iter, (gpointer *)&classname, (gpointer *)&properties_for_class)) {
-		properties_for_class = g_list_sort (properties_for_class, (GCompareFunc) strcmp);
-		g_hash_table_iter_replace (&iter, properties_for_class);
 	}
 
 	return extra_properties;
@@ -649,7 +642,8 @@ ttl_md_print (TrackerOntologyDescription *description,
               const gchar                *description_dir)
 {
 	gchar *upper_name, *path, *introduction, *basename, *filename;
-	g_autoptr(GList) classes = NULL, properties = NULL, extra_classes = NULL;
+	GList *classes = NULL, *properties = NULL;
+	g_autoptr(GList) extra_classes = NULL;
 	g_autoptr(GHashTable) extra_properties = NULL;
 	GFile *file;
 	GList *l;
@@ -721,6 +715,8 @@ ttl_md_print (TrackerOntologyDescription *description,
 	generate_devhelp_keywords (model, description, output_location, classes, properties);
 	generate_search_terms (model, description, output_location, classes, properties);
 
+	g_list_free_full (classes, g_free);
+	g_list_free_full (properties, g_free);
 	g_free (upper_name);
 	g_free (introduction);
 	g_object_unref (file);

@@ -34,7 +34,7 @@ typedef struct {
 } TestInfo;
 
 struct _TestFixture {
-	TestInfo *test;
+	const TestInfo *test;
 	TrackerSparqlConnection *conn;
 };
 
@@ -49,6 +49,7 @@ typedef struct {
 typedef struct {
 	GThread *thread;
 	GMainLoop *loop;
+	StartupData *thread_data;
 } EndpointData;
 
 static const gchar *bus_name = NULL;
@@ -452,6 +453,7 @@ batch_rdf_turtle (TestFixture   *test_fixture,
 	date = g_date_time_new_from_iso8601 ("2023-07-07T01:01:01Z", NULL);
 	assert_photo (test_fixture, "http://example.com/turtle", "png", date, TRUE, 321, 3.456789012);
 	g_date_time_unref (date);
+	g_clear_object (&istream);
 }
 
 static void
@@ -483,6 +485,7 @@ batch_rdf_turtle_graph (TestFixture   *test_fixture,
 	assert_photo (test_fixture, "http://example.com/turtle", "png", date, TRUE, 321, 3.456789012);
 	assert_in_graph (test_fixture, TRACKER_PREFIX_NRL "TestGraph", "http://example.com/turtle");
 	g_date_time_unref (date);
+	g_clear_object (&istream);
 }
 
 static void
@@ -513,6 +516,7 @@ batch_rdf_trig (TestFixture   *test_fixture,
 	assert_photo (test_fixture, "http://example.com/trig", "png", date, TRUE, 321, 3.456789012);
 	assert_in_graph (test_fixture, "http://example.com/test", "http://example.com/trig");
 	g_date_time_unref (date);
+	g_clear_object (&istream);
 }
 
 static void
@@ -546,6 +550,7 @@ batch_rdf_trig_graph (TestFixture   *test_fixture,
 	assert_photo (test_fixture, "http://example.com/trig", "png", date, TRUE, 321, 3.456789012);
 	assert_in_graph (test_fixture, "http://example.com/test", "http://example.com/trig");
 	g_date_time_unref (date);
+	g_clear_object (&istream);
 }
 
 static void
@@ -575,6 +580,7 @@ batch_rdf_jsonld (TestFixture   *test_fixture,
 	date = g_date_time_new_from_iso8601 ("2023-07-07T01:01:01Z", NULL);
 	assert_photo (test_fixture, "http://example.com/jsonld", "png", date, TRUE, 321, 3.456789012);
 	g_date_time_unref (date);
+	g_clear_object (&istream);
 }
 
 static void
@@ -606,6 +612,7 @@ batch_rdf_jsonld_graph (TestFixture   *test_fixture,
 	assert_photo (test_fixture, "http://example.com/jsonld", "png", date, TRUE, 321, 3.456789012);
 	assert_in_graph (test_fixture, TRACKER_PREFIX_NRL "TestGraph", "http://example.com/jsonld");
 	g_date_time_unref (date);
+	g_clear_object (&istream);
 }
 
 static void
@@ -1221,6 +1228,9 @@ batch_new_graph (TestFixture   *test_fixture,
 
 	assert_in_graph (test_fixture, "test:new", "test:resource");
 	assert_in_graph (test_fixture, "test:new2", "test:resource2");
+
+	g_clear_object (&batch);
+	g_clear_object (&stmt);
 }
 
 typedef struct {
@@ -1420,7 +1430,6 @@ thread_func (gpointer user_data)
 
 	g_object_unref (endpoint);
 	g_object_unref (data->sparql_conn);
-	g_free (data);
 
 	return NULL;
 }
@@ -1430,6 +1439,7 @@ finish_endpoint (EndpointData *endpoint_data)
 {
 	g_main_loop_quit (endpoint_data->loop);
 	g_thread_join (endpoint_data->thread);
+	g_free (endpoint_data->thread_data);
 	g_free (endpoint_data);
 }
 
@@ -1460,6 +1470,7 @@ create_dbus_connection (GDBusConnection  *dbus_conn,
 	endpoint_data = g_new0 (EndpointData, 1);
 	endpoint_data->thread = thread;
 	endpoint_data->loop = data->thread_loop;
+	endpoint_data->thread_data = data;
 
 	bus_name = g_dbus_connection_get_unique_name (data->dbus_conn);
 	dbus = tracker_sparql_connection_bus_new (bus_name,
@@ -1471,7 +1482,6 @@ create_dbus_connection (GDBusConnection  *dbus_conn,
 				"endpoint-data",
 				endpoint_data,
 				(GDestroyNotify) finish_endpoint);
-	g_free (data);
 
 	return dbus;
 }
@@ -1504,6 +1514,7 @@ create_dbus_over_dbus_connection (GDBusConnection  *dbus_conn,
 	endpoint_data = g_new0 (EndpointData, 1);
 	endpoint_data->thread = thread;
 	endpoint_data->loop = data->thread_loop;
+	endpoint_data->thread_data = data;
 
 	bus_name = g_dbus_connection_get_unique_name (data->dbus_conn);
 	dbus_over_dbus = tracker_sparql_connection_bus_new (bus_name,
@@ -1522,11 +1533,36 @@ static void
 setup (TestFixture   *fixture,
        gconstpointer  context)
 {
-	const TestFixture *test = context;
+	const TestInfo *info = context;
 	GError *error = NULL;
 
-	*fixture = *test;
+	//*fixture = *test;
 
+	fixture->test = info;
+
+	if (strstr (g_test_get_path (), "/direct")) {
+		fixture->conn = create_local_connection (&error);
+		g_assert_no_error (error);
+	} else {
+		GDBusConnection *dbus_conn;
+
+		dbus_conn = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+		g_assert_no_error (error);
+
+		if (strstr (g_test_get_path (), "/dbus-over-dbus")) {
+			fixture->conn = create_dbus_over_dbus_connection (dbus_conn, &error);
+			g_assert_no_error (error);
+		} else if (strstr (g_test_get_path (), "/dbus")) {
+			fixture->conn = create_dbus_connection (dbus_conn, "/org/test/object3", &error);
+			g_assert_no_error (error);
+		}
+
+		g_clear_object (&dbus_conn);
+	}
+
+	g_assert_nonnull (fixture->conn);
+
+#if 0
 	tracker_sparql_connection_update (fixture->conn,
 	                                  "DELETE {"
 	                                  "  ?u a rdfs:Resource ."
@@ -1537,13 +1573,14 @@ setup (TestFixture   *fixture,
 	                                  "CLEAR SILENT GRAPH <http://example.com/test>",
 	                                  NULL, &error);
 	g_assert_no_error (error);
+#endif
 }
 
 static void
 teardown (TestFixture   *fixture,
           gconstpointer  context)
 {
-	g_object_unref (fixture->conn);
+	g_clear_object (&fixture->conn);
 }
 
 TestInfo tests[] = {
@@ -1580,21 +1617,15 @@ TestInfo tests[] = {
 };
 
 static void
-add_tests (TrackerSparqlConnection *conn,
-           const gchar             *name,
-           gboolean                 run_service_tests)
+add_tests (const gchar *name)
 {
 	guint i;
 
 	for (i = 0; i < G_N_ELEMENTS (tests); i++) {
-		TestFixture *fixture;
 		gchar *testpath;
 
-		fixture = g_new0 (TestFixture, 1);
-		fixture->conn = g_object_ref (conn);
-		fixture->test = &tests[i];
 		testpath = g_strconcat ("/libtracker-sparql/batch/", name, "/", tests[i].test_name, NULL);
-		g_test_add (testpath, TestFixture, fixture, setup, tests[i].func, teardown);
+		g_test_add (testpath, TestFixture, &tests[i], setup, tests[i].func, teardown);
 		g_free (testpath);
 	}
 }
@@ -1602,29 +1633,11 @@ add_tests (TrackerSparqlConnection *conn,
 gint
 main (gint argc, gchar **argv)
 {
-	TrackerSparqlConnection *dbus_over_dbus = NULL, *dbus = NULL, *direct = NULL;
-	GDBusConnection *dbus_conn;
-	GError *error = NULL;
-
 	g_test_init (&argc, &argv, NULL);
 
-	dbus_conn = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
-	g_assert_no_error (error);
-
-	direct = create_local_connection (&error);
-	g_assert_no_error (error);
-	dbus = create_dbus_connection (dbus_conn, "/org/test/object3", &error);
-	g_assert_no_error (error);
-	dbus_over_dbus = create_dbus_over_dbus_connection (dbus_conn, &error);
-	g_assert_no_error (error);
-
-	add_tests (direct, "direct", TRUE);
-	add_tests (dbus, "dbus", FALSE);
-	add_tests (dbus_over_dbus, "dbus-over-dbus", FALSE);
-
-	g_clear_object (&dbus_over_dbus);
-	g_clear_object (&dbus);
-	g_clear_object (&direct);
+	add_tests ("direct");
+	add_tests ("dbus");
+	add_tests ("dbus-over-dbus");
 
 	return g_test_run ();
 }

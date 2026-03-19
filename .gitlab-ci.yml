@@ -610,6 +610,22 @@ static-scan:
       - _scan_build/meson-logs
   allow_failure: true
 
+asan:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:latest@x86_64
+  stage: analysis
+  needs:
+    - build-fedora-container@x86_64
+  script:
+    - meson --buildtype=debug build -Dsystemd_user_services=false -Db_sanitize=address
+    - ninja -C build
+    # Add verify_asan_link_order=0 over asan defaults, for functional tests with python interpreter
+    - LOCALSEARCH_DEBUG=tests ASAN_OPTIONS=verify_asan_link_order=0:halt_on_error=1:abort_on_error=1:print_summary=1 dbus-run-session meson test -C build -t $MESON_TEST_TIMEOUT_MULTIPLIER --print-errorlogs
+  artifacts:
+    paths:
+      - build/meson-logs
+
 pages:
   extends:
     - .fdo.distribution-image@fedora

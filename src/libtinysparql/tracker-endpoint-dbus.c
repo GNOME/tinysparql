@@ -618,6 +618,7 @@ read_update_cb (GObject      *object,
 	if (!g_task_propagate_boolean (G_TASK (res), &error)) {
 		g_dbus_method_invocation_return_gerror (request->invocation, error);
 		update_request_free (request);
+		g_clear_error (&error);
 		return;
 	}
 
@@ -650,8 +651,10 @@ update_blank_cb (GObject      *object,
 		g_variant_builder_add_value (&builder, results);
 		g_dbus_method_invocation_return_value (request->invocation,
 		                                       g_variant_builder_end (&builder));
+		g_variant_unref (results);
 	} else {
 		g_dbus_method_invocation_return_gerror (request->invocation, error);
+		g_clear_error (&error);
 	}
 
 	update_request_free (request);
@@ -669,6 +672,7 @@ read_update_blank_cb (GObject      *object,
 	if (!g_task_propagate_boolean (G_TASK (res), &error)) {
 		g_dbus_method_invocation_return_gerror (request->invocation, error);
 		update_request_free (request);
+		g_clear_error (&error);
 		return;
 	}
 
@@ -710,6 +714,7 @@ deserialize_cb (GObject      *object,
 	if (!tracker_sparql_connection_deserialize_finish (TRACKER_SPARQL_CONNECTION (object),
 	                                                   res, &error)) {
 		g_dbus_method_invocation_return_gerror (invocation, error);
+		g_clear_error (&error);
 		return;
 	}
 
@@ -821,6 +826,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 				query_request_free (request);
 				g_dbus_method_invocation_return_gerror (invocation,
 				                                        error);
+				g_clear_error (&error);
 			}
 		}
 
@@ -865,6 +871,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 				query_request_free (request);
 				g_dbus_method_invocation_return_gerror (invocation,
 				                                        error);
+				g_clear_error (&error);
 			}
 		}
 

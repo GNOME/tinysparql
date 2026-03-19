@@ -408,7 +408,7 @@ portal_iface_method_call (GDBusConnection       *connection,
 
 		for (i = 0; i < portal->sessions->len; i++) {
 			TrackerSession *session;
-			gchar *peer;
+			g_autofree gchar *peer = NULL;
 
 			session = &g_array_index (portal->sessions, TrackerSession, i);
 

@@ -67,12 +67,15 @@ static GOptionEntry entries[] = {
 static TrackerSparqlConnection *
 create_connection (GError **error)
 {
+	TrackerSparqlConnection *conn = NULL;
+
 	if (database_path && !dbus_service && !remote_service) {
 		GFile *file;
 
 		file = g_file_new_for_commandline_arg (database_path);
-		return tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+		conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
 		                                      file, NULL, NULL, error);
+		g_clear_object (&file);
 	} else if (dbus_service && !database_path && !remote_service) {
 		GDBusConnection *dbus_conn;
 
@@ -80,14 +83,16 @@ create_connection (GError **error)
 		if (!dbus_conn)
 			return NULL;
 
-		return tracker_sparql_connection_bus_new (dbus_service, NULL, dbus_conn, error);
+		conn = tracker_sparql_connection_bus_new (dbus_service, NULL, dbus_conn, error);
 	} else if (remote_service && !database_path && !dbus_service) {
-		return tracker_sparql_connection_remote_new (remote_service);
+		conn = tracker_sparql_connection_remote_new (remote_service);
 	} else {
 		/* TRANSLATORS: Those are commandline arguments */
 		g_printerr (_("Specify one “--database”, “--dbus-service” or “--remote-service” option"));
 		exit (EXIT_FAILURE);
 	}
+
+	return conn;
 }
 
 static void
