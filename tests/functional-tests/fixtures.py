@@ -35,7 +35,6 @@ import logging
 import os
 import pathlib
 import multiprocessing
-import threading
 import shutil
 import subprocess
 import tempfile
@@ -180,7 +179,7 @@ class TrackerPortalTest(ut.TestCase):
         # This runs in a separate process and provides a clean Tracker database
         # exported over D-Bus to the main test process.
 
-        log.info("Started database thread")
+        log.info("Started database process")
 
         bus = Gio.DBusConnection.new_for_address_sync(
             dbus_address,
@@ -249,6 +248,11 @@ class TrackerPortalTest(ut.TestCase):
         os.environ["DBUS_SESSION_BUS_ADDRESS"] = self.dbus_address
 
         try:
+            multiprocessing.set_start_method('spawn')
+        except:
+            pass
+
+        try:
             log.info("Starting portal")
             self._portal_proxy = Gio.DBusProxy.new_sync(
                 self.bus,
@@ -274,11 +278,11 @@ class TrackerPortalTest(ut.TestCase):
     def start_service(self, service_name):
         in_queue = multiprocessing.Queue()
         out_queue = multiprocessing.Queue()
-        thread = threading.Thread(
+        process = multiprocessing.Process(
             target=self.database_process_fn,
             args=(service_name, out_queue, in_queue, self.dbus_address),
         )
-        thread.start()
+        process.start()
         in_queue.get()
         self.message_queues[service_name] = [in_queue, out_queue]
 
