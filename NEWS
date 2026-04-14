@@ -1,3 +1,8 @@
+NEW in 3.11.1 - 2026-04-14
+==========================
+  * Fixes to memory leaks and issues spotted by ASAN
+  * Make lifetime of some mutexes explicit
+
 NEW in 3.11.0 - 2026-03-15
 ==========================
   * Fixes to issues spotted by Coverity and OSS Fuzz
