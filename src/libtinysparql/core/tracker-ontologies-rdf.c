@@ -385,7 +385,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 			}
 
 			if (!had_error)
-			    tracker_property_set_secondary_index (property, secondary_index);
+				tracker_property_set_secondary_index (property, secondary_index);
 		}
 	} else if (g_strcmp0 (predicate, NRL_FULL_TEXT_INDEXED) == 0) {
 		TrackerProperty *property;
