@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TinySPARQL main\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
-"POT-Creation-Date: 2025-06-19 12:48+0000\n"
-"PO-Revision-Date: 2026-02-01 12:05+0000\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/issues/\n"
+"POT-Creation-Date: 2026-03-17 13:27+0000\n"
+"PO-Revision-Date: 2026-05-04 19:04+0100\n"
 "Last-Translator: Flynn Peck <cirilla@tuta.io>\n"
 "Language-Team: kw\n"
 "Language: kw\n"
@@ -23,7 +23,7 @@ msgstr ""
 "X-DL-Domain: po\n"
 "X-DL-State: Translating\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 49.0\n"
+"X-Generator: Gtranslator 50.0\n"
 
 #: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46
 #: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
@@ -37,7 +37,7 @@ msgstr "RESTRENVA"
 
 #: src/cli/tracker-endpoint.c:62
 msgid "Specify the DBus name of this endpoint"
-msgstr "Ragnotya an hanow DBus a'n darn ma"
+msgstr "Ragnotya an hanow DBus a'n dhiwedhva ma"
 
 #: src/cli/tracker-endpoint.c:63 src/cli/tracker-endpoint.c:67
 msgid "NAME"
@@ -45,11 +45,11 @@ msgstr "HANOW"
 
 #: src/cli/tracker-endpoint.c:66
 msgid "Specify the ontology name used in this endpoint"
-msgstr "Ragnotya an hanow devnydhys y'n diwedhva ma"
+msgstr "Ragnotya an hanow devnydhys y'n dhiwedhva ma"
 
 #: src/cli/tracker-endpoint.c:70
 msgid "Specify a path to an ontology to be used in this endpoint"
-msgstr "Ragnotya tyller dhe'n ontoloji rag devnydh y'n diwedhva ma"
+msgstr "Ragnotya tyller dhe'n ontologieth rag devnydhya y'n dhiwedhva ma"
 
 #: src/cli/tracker-endpoint.c:74
 msgid "HTTP port"
@@ -57,7 +57,7 @@ msgstr "Porth HTTP"
 
 #: src/cli/tracker-endpoint.c:78
 msgid "Whether to only allow HTTP connections in the loopback device"
-msgstr "Mar gasa junyansow HTTP hepken y'n devis kabester"
+msgstr "Mar gasa junyansow HTTP yn unnik y'n devis kabester"
 
 #: src/cli/tracker-endpoint.c:82
 msgid "Use session bus"
@@ -78,38 +78,38 @@ msgstr "Rolya diwedhvaow SPARQL HTTP rosweyth-leel"
 #. TRANSLATORS: these are commandline arguments
 #: src/cli/tracker-endpoint.c:115
 msgid "--list can only be used with --session or --system"
-msgstr "--list a yll bos devnydhys hepken gans --session po --system"
+msgstr "--list a yll bos devnydhys yn unnik gans --session po --system"
 
 #. TRANSLATORS: those are commandline arguments
 #: src/cli/tracker-endpoint.c:121
 msgid "One “ontology” or “ontology-path” option should be provided"
-msgstr "Unn dewis “ontology” po “ontology-path” kodh bos provys"
+msgstr "Unn dewis “ontology” po “ontology-path” a kodh bos provys"
 
 #. TRANSLATORS: those are commandline arguments
 #: src/cli/tracker-endpoint.c:127
 msgid "--http-port cannot be used with --dbus-service"
-msgstr "--http-port ny yllir bos devnydhys gans --dbus-service"
+msgstr "--http-port ny allas bos devnydhys gans --dbus-service"
 
 #: src/cli/tracker-endpoint.c:198
 #, c-format
 msgid "Creating HTTP endpoint at %s…"
-msgstr "Ow gul diwedhva HTTP yn %s…"
+msgstr "Ow kwruthyl diwedhva HTTP yn %s…"
 
 #: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
 #: src/cli/tracker-webide.c:100
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
-msgstr "Ow goslowes orth arghadowyow SPARQL. Tava Ctrl-C rag astel."
+msgstr "Ow koslowes orth arghadowyow SPARQL. Tavewgh Ctrl-C rag astel."
 
 #. Carriage return, so we paper over the ^C
 #: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
 #: src/cli/tracker-webide.c:105
 msgid "Closing connection…"
-msgstr "Ow degea junyans…"
+msgstr "Ow tegea junyans…"
 
 #: src/cli/tracker-endpoint.c:241
 #, c-format
 msgid "Creating endpoint at %s…"
-msgstr "Ow gul diwedhva yn %s…"
+msgstr "Ow kwruthyl diwedhva yn %s…"
 
 #: src/cli/tracker-endpoint.c:277
 msgid "Could not own DBus name"
@@ -119,30 +119,30 @@ msgstr "Ny yllir perghenna hanow DBus"
 msgid "DBus name lost"
 msgstr "Hanow DBus kellys"
 
-#: src/cli/tracker-endpoint.c:608 src/cli/tracker-export.c:214
-#: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1025
-#: src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
+#: src/cli/tracker-endpoint.c:609 src/cli/tracker-export.c:219
+#: src/cli/tracker-import.c:201 src/cli/tracker-introspect.c:1030
+#: src/cli/tracker-query.c:490 src/cli/tracker-sql.c:247
 #: src/cli/tracker-webide.c:122 src/portal/tracker-main.c:108
 msgid "Unrecognized options"
 msgstr "Dewisyow anaswonys"
 
-#: src/cli/tracker-endpoint.c:652
+#: src/cli/tracker-endpoint.c:655
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Owth ygeri sel dherivasow yn %s…"
 
-#: src/cli/tracker-endpoint.c:655
+#: src/cli/tracker-endpoint.c:658
 #, c-format
 msgid "Creating in-memory database"
-msgstr "Ow gul sel dherivasow yn-kov"
+msgstr "Ow kwruthyl sel dherivasow yn-kov"
 
-#: src/cli/tracker-endpoint.c:683
+#: src/cli/tracker-endpoint.c:688
 #, c-format
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
 msgstr ""
-"Sel dherivasow nowydh gwrys. Devnydhya an dewis “--dbus-service” rag "
+"Sel dherivasow nowydh gwrys. Devnydhyewgh an dewis “--dbus-service” rag "
 "kevrenna an sel dherivasow ma war'n kyttrin messach."
 
 #: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
@@ -173,7 +173,7 @@ msgstr "FURVAS_RDF"
 #: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54
 #: src/cli/tracker-introspect.c:106 src/cli/tracker-query.c:60
 msgid "Connects to a remote service"
-msgstr "Junya dhe'n gonis pell"
+msgstr "A jun dhe'n gonis pell"
 
 #: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
 #: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
@@ -182,48 +182,47 @@ msgstr "URI gonis pell"
 
 #: src/cli/tracker-export.c:62
 msgid "Output TriG format which includes named graph information"
-msgstr "Furvas eskorrans TriG ow komprehendya kedhlow tresen henwys"
+msgstr "Furvas eskorrans TriG ow synsi kedhlow tresen henwys"
 
 #: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
-#: src/cli/tracker-introspect.c:164 src/cli/tracker-query.c:105
+#: src/cli/tracker-export.c:95 src/cli/tracker-import.c:91
+#: src/cli/tracker-introspect.c:167 src/cli/tracker-query.c:108
 #, c-format
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
-"Ragnotya unn dewis “--database”, “--dbus-service” or “--remote-service” "
-"option"
+"Ragnotya unn dewis “--database”, “--dbus-service” or “--remote-service”"
 
-#: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137
-#: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:829
-#: src/cli/tracker-query.c:345
+#: src/cli/tracker-export.c:121 src/cli/tracker-export.c:142
+#: src/cli/tracker-import.c:130 src/cli/tracker-introspect.c:834
+#: src/cli/tracker-query.c:350
 msgid "No error given"
-msgstr "Error vyth"
+msgstr "Nyns eus error provys"
 
-#: src/cli/tracker-export.c:136 src/cli/tracker-import.c:124
-#: src/cli/tracker-introspect.c:828 src/cli/tracker-query.c:344
+#: src/cli/tracker-export.c:141 src/cli/tracker-import.c:129
+#: src/cli/tracker-introspect.c:833 src/cli/tracker-query.c:349
 msgid "Could not establish a connection to Tracker"
 msgstr "Ny yllir selya junyans dhe Tracker"
 
-#: src/cli/tracker-export.c:179
+#: src/cli/tracker-export.c:184
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Furvas kesresek anskoodhys “%s”\n"
 
 #: src/cli/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
-msgstr "Redya furvas TriG ow komprehendya kedhlow tresen henwys"
+msgstr "Redya furvas TriG ow synsi kedhlow tresen henwys"
 
-#: src/cli/tracker-import.c:103 src/cli/tracker-import.c:141
+#: src/cli/tracker-import.c:108 src/cli/tracker-import.c:146
 msgid "Could not run import"
 msgstr "Ny yllir eksekutya ynporth"
 
 #: src/cli/tracker-introspect.c:110
 msgid "Lists all available classes"
-msgstr "Rolya oll klassys kavadow"
+msgstr "Rolya oll klassys gavadow"
 
 #: src/cli/tracker-introspect.c:114
 msgid "Lists all available prefixes"
@@ -231,7 +230,7 @@ msgstr "Rolya oll ragelvennow kavadow"
 
 #: src/cli/tracker-introspect.c:118
 msgid "Lists all classes which notify changes in the database"
-msgstr "Rolya oll klassys may gwarnya chanjyow y'n sel dherivasow"
+msgstr "Rolya oll klassys ow kwarnya dhywgh a janjyow y'n sel dherivasow"
 
 #: src/cli/tracker-introspect.c:122
 msgid "List indexes used in database to improve performance"
@@ -247,7 +246,7 @@ msgid ""
 "the tree and -p to show properties)"
 msgstr ""
 "Deskrifa isklassys, gorklassys (a yll bos devnydhys gans -s rag golowboyntya "
-"darnow a'n gwedhen ha -p rag diskwedhes teythiennow)"
+"darnow a'n wedhen ha -p rag diskwedhes teythiennow)"
 
 #: src/cli/tracker-introspect.c:130 src/cli/tracker-introspect.c:134
 msgid "CLASS"
@@ -260,88 +259,89 @@ msgstr "Rolya oll teythiennow kavadow"
 #: src/cli/tracker-introspect.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
-msgstr "Hwilas klass po teythien ha diskwedhes kedhlow moy (r.e. Skrif)"
+msgstr "Hwilas klass po teythien ha diskwedhes moy kedhlow (r.e. Skrif)"
 
 #: src/cli/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "KLASS/TEYTHIEN"
 
-#: src/cli/tracker-introspect.c:716
+#: src/cli/tracker-introspect.c:721
 msgid "Could not create tree: subclass query failed"
-msgstr "Ny yllir gul gwedhen: govyn isklass fyllis"
+msgstr "Ny yllir gwruthyl gwedhen: govyn isklass fyllis"
 
-#: src/cli/tracker-introspect.c:765
+#: src/cli/tracker-introspect.c:770
 msgid "Could not create tree: class properties query failed"
-msgstr "Ny yllir gul gwedhen: govyn teythiennow klass fyllis"
+msgstr "Ny yllir gwruthyl gwedhen: govyn teythiennow klass fyllis"
 
-#: src/cli/tracker-introspect.c:848
+#: src/cli/tracker-introspect.c:853
 msgid "Could not search classes"
 msgstr "Ny yllir hwilas klassys"
 
-#: src/cli/tracker-introspect.c:856 src/cli/tracker-introspect.c:940
+#: src/cli/tracker-introspect.c:861 src/cli/tracker-introspect.c:945
 msgid "Classes"
 msgstr "Klassys"
 
-#: src/cli/tracker-introspect.c:868
+#: src/cli/tracker-introspect.c:873
 msgid "Could not search properties"
 msgstr "Ny yllir hwilas teythiennow"
 
-#: src/cli/tracker-introspect.c:876 src/cli/tracker-introspect.c:910
+#: src/cli/tracker-introspect.c:881 src/cli/tracker-introspect.c:915
 msgid "Properties"
 msgstr "Teythiennow"
 
-#: src/cli/tracker-introspect.c:902
+#: src/cli/tracker-introspect.c:907
 msgid "Could not list properties"
 msgstr "Ny yllir rolya teythiennow"
 
-#: src/cli/tracker-introspect.c:918
+#: src/cli/tracker-introspect.c:923
 msgid "Namespaces"
 msgstr "Spassow Hanow"
 
-#: src/cli/tracker-introspect.c:932
+#: src/cli/tracker-introspect.c:937
 msgid "Could not list classes"
 msgstr "Ny yllir rolya klassys"
 
-#: src/cli/tracker-introspect.c:952
+#: src/cli/tracker-introspect.c:957
 msgid "Could not find notify classes"
-msgstr "Ny yllir kavos klassys gwarnya"
+msgstr "Ny yllir kavos klassys warnya"
 
-#: src/cli/tracker-introspect.c:960
+#: src/cli/tracker-introspect.c:965
 msgid "Notifies"
-msgstr "Gwarnya"
+msgstr "A Warn"
 
-#: src/cli/tracker-introspect.c:972
+#: src/cli/tracker-introspect.c:977
 msgid "Could not find indexed properties"
 msgstr "Ny yllir kavos teythiennow menegys"
 
-#: src/cli/tracker-introspect.c:980
+#: src/cli/tracker-introspect.c:985
 msgid "Indexes"
 msgstr "Menegennow"
 
-#: src/cli/tracker-introspect.c:992
+#: src/cli/tracker-introspect.c:997
 msgid "Could not list named graphs"
 msgstr "Ny yllir rolya tresennow henwys"
 
-#: src/cli/tracker-introspect.c:1000
+#: src/cli/tracker-introspect.c:1005
 msgid "Named graphs"
 msgstr "Tresennow henwys"
 
-#: src/cli/tracker-introspect.c:1034
+#: src/cli/tracker-introspect.c:1039
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
 msgstr ""
-"An oberadow --list-properties a yll bos gwag pan devnydhys gans an oberadow "
+"An oberadow --list-properties a yll bos gwag mar devnydhys gans an oberadow "
 "--tree"
 
 #: src/cli/tracker-main.c:69
 msgid "Get help on how to use TinySPARQL and any of these commands"
 msgstr ""
-"Kavos gweres gans fatel yllir devnydhya TinySPARQL ha neb a'n arghadowyow ma"
+"Kevewgh gweres gans fatel yllowgh devnydhya TinySPARQL ha neb a'n "
+"arghadowyow ma"
 
 #: src/cli/tracker-main.c:70
 msgid "Create a SPARQL endpoint"
-msgstr "Gul diwedhva SPARQL"
+msgstr "Gwruthyl diwedhva SPARQL"
 
 #: src/cli/tracker-main.c:71
 msgid "Export data from a TinySPARQL database"
@@ -357,11 +357,11 @@ msgstr "Isgweles diwedhva SPARQL"
 
 #: src/cli/tracker-main.c:74
 msgid "Query and update the index using SPARQL"
-msgstr "Govyn ha nowedhi an menegva ow devnydhya SPARQL"
+msgstr "Govyn ha nowedhi an venegva ow tevnydhya SPARQL"
 
 #: src/cli/tracker-main.c:75
 msgid "Create a Web IDE to query local databases"
-msgstr "Gul IDE Gwi rag govyn selyow dherivasow leel"
+msgstr "Gwruthyl IDE Gwi rag govyn selyow dherivasow leel"
 
 #: src/cli/tracker-main.c:92
 msgid "Available tinysparql commands are:"
@@ -370,16 +370,16 @@ msgstr "Arghadowyow tinysparql kavadow yw:"
 #: src/cli/tracker-main.c:111
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr ""
-"Gweles “tinysparql help <command>” rag redya a-dro isarghadow komparek."
+"Gweles “tinysparql help <arghadow>” rag redya a-dro dhe isarghadow komparek."
 
 #: src/cli/tracker-main.c:154
 #, c-format
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
-msgstr "“%s” na yw arghadow tinysparql. Gweles “tinysparql --help”"
+msgstr "“%s” nyns yw arghadow tinysparql. Gwelewgh “tinysparql --help”"
 
 #: src/cli/tracker-query.c:64
 msgid "Path to use to run a query or update from file"
-msgstr "Tyller rag devnydh rag eksekutya govyn op nowedhi dhyworth restren"
+msgstr "Tyller dhe dhevnydh rag eksekutya govyn po nowedhi dhyworth restren"
 
 #: src/cli/tracker-query.c:68
 msgid "SPARQL query"
@@ -392,11 +392,11 @@ msgstr "SPARQL"
 #: src/cli/tracker-query.c:72
 msgid "This is used with --query and for database updates only."
 msgstr ""
-"Hemma yw devnydhys gans --query ha rag nowedhyansow sel dherivasow hepken."
+"Hemm yw devnydhys gans --query ha rag nowedhyansow sel dherivasow yn unnik."
 
 #: src/cli/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
-msgstr "Provia arghadow rag parameter govyn."
+msgstr "Hemm a brov arghadow rag parameter govyn."
 
 #: src/cli/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
@@ -406,53 +406,53 @@ msgstr "PARAMETER:EGHEN:DALGH"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/cli/tracker-query.c:214 src/cli/tracker-query.c:262
+#: src/cli/tracker-query.c:219 src/cli/tracker-query.c:267
 msgid "None"
 msgstr "Vyth"
 
-#: src/cli/tracker-query.c:282
+#: src/cli/tracker-query.c:287
 #, c-format
 msgid "Invalid argument string %s"
 msgstr "Arghadow anewn %s"
 
-#: src/cli/tracker-query.c:292
+#: src/cli/tracker-query.c:297
 #, c-format
 msgid "Invalid parameter type for argument %s"
-msgstr "Eghen parameter anewn rag arghadow %s"
+msgstr "Eghen barameter anewn rag arghadow %s"
 
-#: src/cli/tracker-query.c:360
+#: src/cli/tracker-query.c:365
 msgid "Could not get UTF-8 path from path"
 msgstr "Ny yllir kavos tyller UTF-8 dhyworth tyller"
 
-#: src/cli/tracker-query.c:372 src/cli/tracker-sql.c:75
+#: src/cli/tracker-query.c:376 src/cli/tracker-sql.c:75
 msgid "Could not read file"
 msgstr "Ny yllir redya restren"
 
-#: src/cli/tracker-query.c:403
+#: src/cli/tracker-query.c:407
 msgid "Could not run update"
 msgstr "Ny yllir nowedhi"
 
-#: src/cli/tracker-query.c:410
+#: src/cli/tracker-query.c:414
 msgid "Done"
 msgstr "Deu"
 
-#: src/cli/tracker-query.c:428 src/cli/tracker-sql.c:131
-#: src/cli/tracker-sql.c:164
+#: src/cli/tracker-query.c:433 src/cli/tracker-sql.c:134
+#: src/cli/tracker-sql.c:169
 msgid "Could not run query"
 msgstr "Ny yllir govyn"
 
-#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+#: src/cli/tracker-query.c:442 src/cli/tracker-query.c:444
 msgid "No results found matching your query"
-msgstr "Sewyansow vyth kavas owth omdhesedha dha govyn"
+msgstr "Nyns eus sewyansow kevys owth omdhesedha agas govyn"
 
-#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
-#: src/cli/tracker-sql.c:138
+#: src/cli/tracker-query.c:442 src/cli/tracker-query.c:444
+#: src/cli/tracker-sql.c:141
 msgid "Results"
 msgstr "Sewyansow"
 
-#: src/cli/tracker-query.c:498 src/cli/tracker-sql.c:250
+#: src/cli/tracker-query.c:502 src/cli/tracker-sql.c:258
 msgid "File and query can not be used together"
-msgstr "Restren ha govyn ny yllir bos devnydhys war-barth"
+msgstr "Restren ha govyn ny allas bos devnydhys war-barth"
 
 #: src/cli/tracker-sql.c:49
 msgid "Path to use to run a query from file"
@@ -466,33 +466,33 @@ msgstr "Govyn SQL"
 msgid "SQL"
 msgstr "SQL"
 
-#: src/cli/tracker-sql.c:108
+#: src/cli/tracker-sql.c:109
 msgid "Failed to initialize data manager"
 msgstr "Ny yllir dalleth dyghtyer data"
 
-#: src/cli/tracker-sql.c:172
+#: src/cli/tracker-sql.c:177
 msgid "Empty result set"
 msgstr "Sett sewyans gwag"
 
-#: src/cli/tracker-sql.c:248
+#: src/cli/tracker-sql.c:256
 msgid "A database path must be specified"
 msgstr "Tyller sel dherivasow a res"
 
 #. Translators: this is a HTTP port
 #: src/cli/tracker-webide.c:40
 msgid "Port to listen on"
-msgstr "Porth rag goslowes orth"
+msgstr "Porth dhe woslowes orth"
 
 #. Translators: this is a HTTP port
 #: src/cli/tracker-webide.c:50
 msgid "Port not specified"
-msgstr "Porth anragnotys"
+msgstr "Porth nyns yw ragnotys"
 
 #. Translators: This will point to a local HTTP address
 #: src/cli/tracker-webide.c:81
 #, c-format
 msgid "Creating Web IDE at %s…"
-msgstr "Ow gul IDE Gwi yn %s…"
+msgstr "Ow kwruthyl IDE Gwi yn %s…"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -502,8 +502,8 @@ msgstr "Ow gul IDE Gwi yn %s…"
 #.
 #: src/libtinysparql/core/tracker-collation.c:116
 msgid "the|a|an"
-msgstr "the|a|an|an|unn|a'n|dhe'n|war'n"
+msgstr "the|a|an|an|unn|a'n|dhe'n|war'n|ha'n"
 
 #: src/portal/tracker-main.c:51
 msgid "Version"
-msgstr "Versyon"
+msgstr "Dyllans"
