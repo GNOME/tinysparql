@@ -137,10 +137,6 @@ property_finalize (GObject *object)
 		g_free (priv->ontology_path);
 	}
 
-	if (priv->secondary_index) {
-		g_object_unref (priv->secondary_index);
-	}
-
 	g_array_free (priv->super_properties, TRUE);
 	g_array_free (priv->domain_indexes, TRUE);
 
@@ -467,14 +463,7 @@ tracker_property_set_secondary_index (TrackerProperty *property,
 
 	priv = tracker_property_get_instance_private (property);
 
-	if (priv->secondary_index) {
-		g_object_unref (priv->secondary_index);
-		priv->secondary_index = NULL;
-	}
-
-	if (value) {
-		priv->secondary_index = g_object_ref (value);
-	}
+	priv->secondary_index = value;
 }
 
 void
