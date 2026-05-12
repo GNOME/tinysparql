@@ -1,4 +1,4 @@
 PREFIX : <http://example/> 
 
-SELECT AVG(?w) AVG(DISTINCT ?w) 
+SELECT (SUBSTR(STR(AVG(?w)), 0, 15) AS $avg1) (SUBSTR(STR(AVG(DISTINCT ?w)), 0, 15) AS ?avg2)
 { ?_x :i2 ?w }
