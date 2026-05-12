@@ -102,7 +102,7 @@ check-commit-log:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2025-09-14.0'
+    BASE_TAG: '2026-05-12.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       avahi-gobject-devel
