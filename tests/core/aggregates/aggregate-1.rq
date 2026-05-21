@@ -1,5 +1,5 @@
 PREFIX : <http://example/> 
 
-SELECT SUM(?v) AVG(?w) MAX(?v) MIN(?v)
+SELECT SUM(?v) (SUBSTR(STR(AVG(?w)), 0, 15) AS $avg) MAX(?v) MIN(?v)
 { ?_x :i1 ?v ;
       :i2 ?w }
