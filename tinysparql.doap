@@ -9,7 +9,7 @@
   <description>The TinySPARQL library offers a complete RDF triplestore with SPARQL 1.1
 interface and a minimal footprint. It allows creating local databases in memory
 or the filesystem, and accessing/creating endpoints for federated queries.</description>
-  <homepage rdf:resource="https://wiki.gnome.org/Projects/Tracker" />
+  <homepage rdf:resource="https://tinysparql.org/" />
   <developer-forum rdf:resource="https://discourse.gnome.org/tag/tracker" />
   <download-page rdf:resource="http://download.gnome.org/sources/tinysparql/" />
   <bug-database rdf:resource="https://gitlab.gnome.org/GNOME/tinysparql/issues/" />
