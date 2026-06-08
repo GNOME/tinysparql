@@ -579,7 +579,6 @@ tracker_parser_reset (TrackerParser *parser,
 
 	parser->word[0] = '\0';
 	parser->word_length = 0;
-	g_clear_pointer (&parser->bi, ubrk_close);
 	g_clear_pointer (&parser->utxt, g_free);
 	g_clear_pointer (&parser->offsets, g_free);
 
@@ -621,12 +620,21 @@ tracker_parser_reset (TrackerParser *parser,
 		/* Proper UChar array size is now given by 'last_uchar' */
 		parser->utxt_size = last_uchar - parser->utxt;
 
-		/* Open word-break iterator */
-		parser->bi = ubrk_open(UBRK_WORD,
-		                       setlocale (LC_CTYPE, NULL),
-		                       parser->utxt,
-		                       parser->utxt_size,
-		                       &error);
+		/* Open the word-break iterator once and reuse it across
+		 * resets, just like the converter above. */
+		if (!parser->bi) {
+			parser->bi = ubrk_open (UBRK_WORD,
+			                        setlocale (LC_CTYPE, NULL),
+			                        parser->utxt,
+			                        parser->utxt_size,
+			                        &error);
+		} else {
+			ubrk_setText (parser->bi,
+			              parser->utxt,
+			              parser->utxt_size,
+			              &error);
+		}
+
 		if (U_SUCCESS (error)) {
 			/* Find FIRST word in the UChar array */
 			parser->cursor = ubrk_first (parser->bi);
