@@ -1,3 +1,9 @@
+NEW in 3.12.alpha - 2026-06-29
+==============================
+  * Performance improvements to ICU full-text search tokenizer
+  * Fix potential leaks with malformed ontology definitions
+  * Test suite changes to cater for SQLite >= 3.53.1
+
 NEW in 3.11.1 - 2026-04-14
 ==========================
   * Fixes to memory leaks and issues spotted by ASAN
