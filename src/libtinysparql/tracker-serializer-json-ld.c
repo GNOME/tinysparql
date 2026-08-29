@@ -380,20 +380,21 @@ serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
 
 			if (!prev) {
 				json_object_set_member (serializer_json_ld->cur_resource,
-				                        prop, value);
+				                        prop, g_steal_pointer (&value));
 			} else if (JSON_NODE_HOLDS_ARRAY (prev)) {
 				array = json_node_get_array (prev);
-				json_array_add_element (array, value);
+				json_array_add_element (array, g_steal_pointer (&value));
 			} else if (!json_node_equal (prev, value)) {
 				array = json_array_new ();
 				json_array_add_element (array, json_node_ref (prev));
-				json_array_add_element (array, value);
+				json_array_add_element (array, g_steal_pointer (&value));
 
 				json_object_set_array_member (serializer_json_ld->cur_resource,
 				                              prop, array);
 			}
 		}
 
+		g_clear_pointer (&value, json_node_unref);
 		g_free (prop);
 		serializer_json_ld->cursor_started = TRUE;
 
