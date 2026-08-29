@@ -340,6 +340,9 @@ tracker_sparql_state_clear (TrackerSparqlState *state)
 	g_clear_pointer (&state->parameters, g_hash_table_unref);
 	g_clear_pointer (&state->anon_graphs, g_ptr_array_unref);
 	g_clear_pointer (&state->named_graphs, g_ptr_array_unref);
+	g_clear_pointer (&state->update_where_clause_sql, g_free);
+	g_clear_pointer (&state->update_where_clause_literals,
+	                 g_ptr_array_unref);
 	g_clear_pointer (&state->base, g_free);
 	g_clear_pointer (&state->result, tracker_string_builder_free);
 	g_clear_object (&state->top_context);
@@ -10060,6 +10063,7 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 
 		select_context = TRACKER_SELECT_CONTEXT (sparql->current_state->top_context);
 		sparql->n_columns = select_context->n_columns;
+		g_clear_pointer (&sparql->literal_bindings, g_ptr_array_unref);
 		sparql->literal_bindings =
 			select_context->literal_bindings ?
 			g_ptr_array_ref (select_context->literal_bindings) :
