@@ -626,6 +626,21 @@ asan:
     paths:
       - build/meson-logs
 
+ubsan:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:latest@x86_64
+  stage: analysis
+  needs:
+    - build-fedora-container@x86_64
+  script:
+    - meson --buildtype=debug build -Dsystemd_user_services=false -Db_sanitize=undefined
+    - ninja -C build
+    - TINYSPARQL_DEBUG=tests dbus-run-session meson test -C build -t $MESON_TEST_TIMEOUT_MULTIPLIER --print-errorlogs
+  artifacts:
+    paths:
+      - build/meson-logs
+
 pages:
   extends:
     - .fdo.distribution-image@fedora
