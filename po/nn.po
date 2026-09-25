@@ -1,0 +1,498 @@
+# Norsk nynorsk translation of TinySPARQL
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the TinySPARQL package.
+# Roy-Magne Mo <rmo@sunnmore.net>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: TinySPARQL main\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/issues/\n"
+"POT-Creation-Date: 2026-03-17 13:27+0000\n"
+"PO-Revision-Date: 2026-09-18 23:20+0200\n"
+"Last-Translator: Roy-Magne Mo <rmo@sunnmore.net>\n"
+"Language-Team: Norwegian Nynorsk <nn@li.org>\n"
+"Language: nn\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46
+#: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
+#: src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
+msgid "Location of the database"
+msgstr "Plasseringa til databasen"
+
+#: src/cli/tracker-endpoint.c:59 src/cli/tracker-endpoint.c:71
+msgid "DIR"
+msgstr "MAPPE"
+
+#: src/cli/tracker-endpoint.c:62
+msgid "Specify the DBus name of this endpoint"
+msgstr "Oppgje DBus-namnet til dette endepunktet"
+
+#: src/cli/tracker-endpoint.c:63 src/cli/tracker-endpoint.c:67
+msgid "NAME"
+msgstr "NAMN"
+
+#: src/cli/tracker-endpoint.c:66
+msgid "Specify the ontology name used in this endpoint"
+msgstr "Oppgje ontologinamnet som vert nytta i dette endepunktet"
+
+#: src/cli/tracker-endpoint.c:70
+msgid "Specify a path to an ontology to be used in this endpoint"
+msgstr "Oppgje ein sti til ein ontologi som skal brukast i dette endepunktet"
+
+#: src/cli/tracker-endpoint.c:74
+msgid "HTTP port"
+msgstr "HTTP-port"
+
+#: src/cli/tracker-endpoint.c:78
+msgid "Whether to only allow HTTP connections in the loopback device"
+msgstr "Om berre HTTP-tilkoplingar skal vere tillatne i loopback-eininga"
+
+#: src/cli/tracker-endpoint.c:82
+msgid "Use session bus"
+msgstr "Bruk øktbuss"
+
+#: src/cli/tracker-endpoint.c:86
+msgid "Use system bus"
+msgstr "Bruk systembuss"
+
+#: src/cli/tracker-endpoint.c:90
+msgid "List SPARQL endpoints available in DBus"
+msgstr "List opp SPARQL-endepunkt som er tilgjengelege i DBus"
+
+#: src/cli/tracker-endpoint.c:94
+msgid "List network-local HTTP SPARQL endpoints"
+msgstr "List opp HTTP-SPARQL-endepunkt i det lokale nettverket"
+
+#. TRANSLATORS: these are commandline arguments
+#: src/cli/tracker-endpoint.c:115
+msgid "--list can only be used with --session or --system"
+msgstr "--list kan berre brukast saman med --session eller --system"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/cli/tracker-endpoint.c:121
+msgid "One “ontology” or “ontology-path” option should be provided"
+msgstr "Du må gje eitt av vala «ontology» eller «ontology-path»"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/cli/tracker-endpoint.c:127
+msgid "--http-port cannot be used with --dbus-service"
+msgstr "--http-port kan ikkje brukast saman med --dbus-service"
+
+#: src/cli/tracker-endpoint.c:198
+#, c-format
+msgid "Creating HTTP endpoint at %s…"
+msgstr "Opprettar HTTP-endepunkt på %s …"
+
+#: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
+#: src/cli/tracker-webide.c:100
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "Lyttar etter SPARQL-kommandoar. Trykk Ctrl-C for å stoppe."
+
+#. Carriage return, so we paper over the ^C
+#: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
+#: src/cli/tracker-webide.c:105
+msgid "Closing connection…"
+msgstr "Avsluttar tilkoplinga …"
+
+#: src/cli/tracker-endpoint.c:241
+#, c-format
+msgid "Creating endpoint at %s…"
+msgstr "Opprettar endepunkt på %s …"
+
+#: src/cli/tracker-endpoint.c:277
+msgid "Could not own DBus name"
+msgstr "Klarte ikkje ta eigarskap til DBus-namnet"
+
+#: src/cli/tracker-endpoint.c:291
+msgid "DBus name lost"
+msgstr "Mista DBus-namnet"
+
+#: src/cli/tracker-endpoint.c:609 src/cli/tracker-export.c:219
+#: src/cli/tracker-import.c:201 src/cli/tracker-introspect.c:1030
+#: src/cli/tracker-query.c:490 src/cli/tracker-sql.c:247
+#: src/cli/tracker-webide.c:122 src/portal/tracker-main.c:108
+msgid "Unrecognized options"
+msgstr "Ukjende val"
+
+#: src/cli/tracker-endpoint.c:655
+#, c-format
+msgid "Opening database at %s…"
+msgstr "Opnar databasen på %s …"
+
+#: src/cli/tracker-endpoint.c:658
+#, c-format
+msgid "Creating in-memory database"
+msgstr "Opprettar database i minnet"
+
+#: src/cli/tracker-endpoint.c:688
+#, c-format
+msgid ""
+"New database created. Use the “--dbus-service” option to share this database "
+"on a message bus."
+msgstr ""
+"Ny database oppretta. Bruk valet «--dbus-service» for å dele databasen på "
+"ein meldingsbuss."
+
+#: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
+#: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
+#: src/cli/tracker-introspect.c:99 src/cli/tracker-query.c:53
+#: src/cli/tracker-query.c:65 src/cli/tracker-sql.c:46 src/cli/tracker-sql.c:50
+msgid "FILE"
+msgstr "FIL"
+
+#: src/cli/tracker-export.c:50 src/cli/tracker-import.c:50
+#: src/cli/tracker-introspect.c:102 src/cli/tracker-query.c:56
+msgid "Connects to a DBus service"
+msgstr "Koplar til ei DBus-teneste"
+
+#: src/cli/tracker-export.c:51 src/cli/tracker-import.c:51
+#: src/cli/tracker-introspect.c:103 src/cli/tracker-query.c:57
+msgid "DBus service name"
+msgstr "DBus-tenestenamn"
+
+#: src/cli/tracker-export.c:54
+msgid "Output results format: “turtle”, “trig” or “json-ld”"
+msgstr "Resultatformat: «turtle», «trig» eller «json-ld»"
+
+#: src/cli/tracker-export.c:55
+msgid "RDF_FORMAT"
+msgstr "RDF_FORMAT"
+
+#: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54
+#: src/cli/tracker-introspect.c:106 src/cli/tracker-query.c:60
+msgid "Connects to a remote service"
+msgstr "Koplar til ei fjernteneste"
+
+#: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
+#: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
+msgid "Remote service URI"
+msgstr "URI til fjerntenesta"
+
+#: src/cli/tracker-export.c:62
+msgid "Output TriG format which includes named graph information"
+msgstr "Skriv ut i TriG-format, som tek med informasjon om namngjevne grafar"
+
+#: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
+msgid "IRI"
+msgstr "IRI"
+
+#. TRANSLATORS: Those are commandline arguments
+#: src/cli/tracker-export.c:95 src/cli/tracker-import.c:91
+#: src/cli/tracker-introspect.c:167 src/cli/tracker-query.c:108
+#, c-format
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
+msgstr ""
+"Oppgje eitt av vala «--database», «--dbus-service» eller «--remote-service»"
+
+#: src/cli/tracker-export.c:121 src/cli/tracker-export.c:142
+#: src/cli/tracker-import.c:130 src/cli/tracker-introspect.c:834
+#: src/cli/tracker-query.c:350
+msgid "No error given"
+msgstr "Ingen feil oppgjeven"
+
+#: src/cli/tracker-export.c:141 src/cli/tracker-import.c:129
+#: src/cli/tracker-introspect.c:833 src/cli/tracker-query.c:349
+msgid "Could not establish a connection to Tracker"
+msgstr "Klarte ikkje opprette tilkopling til Tracker"
+
+#: src/cli/tracker-export.c:184
+#, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr "Ustøtta serialiseringsformat «%s»\n"
+
+#: src/cli/tracker-import.c:58
+msgid "Read TriG format which includes named graph information"
+msgstr "Les TriG-format, som tek med informasjon om namngjevne grafar"
+
+#: src/cli/tracker-import.c:108 src/cli/tracker-import.c:146
+msgid "Could not run import"
+msgstr "Klarte ikkje køyre import"
+
+#: src/cli/tracker-introspect.c:110
+msgid "Lists all available classes"
+msgstr "List opp alle tilgjengelege klassar"
+
+#: src/cli/tracker-introspect.c:114
+msgid "Lists all available prefixes"
+msgstr "List opp alle tilgjengelege prefiks"
+
+#: src/cli/tracker-introspect.c:118
+msgid "Lists all classes which notify changes in the database"
+msgstr "List opp alle klassar som varslar om endringar i databasen"
+
+#: src/cli/tracker-introspect.c:122
+msgid "List indexes used in database to improve performance"
+msgstr "List opp indeksar som databasen brukar for å betre ytinga"
+
+#: src/cli/tracker-introspect.c:125
+msgid "Retrieve all named graphs"
+msgstr "Hent alle namngjevne grafar"
+
+#: src/cli/tracker-introspect.c:129
+msgid ""
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
+msgstr ""
+"Vis underklassar og overklassar (kan brukast med -s for å framheve delar av "
+"treet og -p for å vise eigenskapar)"
+
+#: src/cli/tracker-introspect.c:130 src/cli/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "KLASSE"
+
+#: src/cli/tracker-introspect.c:133
+msgid "Lists all available properties"
+msgstr "List opp alle tilgjengelege eigenskapar"
+
+#: src/cli/tracker-introspect.c:137
+msgid ""
+"Search for a class or property and display more information (e.g. Document)"
+msgstr ""
+"Søk etter ein klasse eller eigenskap og vis meir informasjon (t.d. Document)"
+
+#: src/cli/tracker-introspect.c:138
+msgid "CLASS/PROPERTY"
+msgstr "KLASSE/EIGENSKAP"
+
+#: src/cli/tracker-introspect.c:721
+msgid "Could not create tree: subclass query failed"
+msgstr "Klarte ikkje lage tre: spørjinga etter underklassar mislukkast"
+
+#: src/cli/tracker-introspect.c:770
+msgid "Could not create tree: class properties query failed"
+msgstr "Klarte ikkje lage tre: spørjinga etter klasseeigenskapar mislukkast"
+
+#: src/cli/tracker-introspect.c:853
+msgid "Could not search classes"
+msgstr "Klarte ikkje søkje i klassar"
+
+#: src/cli/tracker-introspect.c:861 src/cli/tracker-introspect.c:945
+msgid "Classes"
+msgstr "Klassar"
+
+#: src/cli/tracker-introspect.c:873
+msgid "Could not search properties"
+msgstr "Klarte ikkje søkje i eigenskapar"
+
+#: src/cli/tracker-introspect.c:881 src/cli/tracker-introspect.c:915
+msgid "Properties"
+msgstr "Eigenskapar"
+
+#: src/cli/tracker-introspect.c:907
+msgid "Could not list properties"
+msgstr "Klarte ikkje liste opp eigenskapar"
+
+#: src/cli/tracker-introspect.c:923
+msgid "Namespaces"
+msgstr "Namnerom"
+
+#: src/cli/tracker-introspect.c:937
+msgid "Could not list classes"
+msgstr "Klarte ikkje liste opp klassar"
+
+#: src/cli/tracker-introspect.c:957
+msgid "Could not find notify classes"
+msgstr "Fann ikkje varslingsklassar"
+
+#: src/cli/tracker-introspect.c:965
+msgid "Notifies"
+msgstr "Varslar"
+
+#: src/cli/tracker-introspect.c:977
+msgid "Could not find indexed properties"
+msgstr "Fann ikkje indekserte eigenskapar"
+
+#: src/cli/tracker-introspect.c:985
+msgid "Indexes"
+msgstr "Indeksar"
+
+#: src/cli/tracker-introspect.c:997
+msgid "Could not list named graphs"
+msgstr "Klarte ikkje liste opp namngjevne grafar"
+
+#: src/cli/tracker-introspect.c:1005
+msgid "Named graphs"
+msgstr "Namngjevne grafar"
+
+#: src/cli/tracker-introspect.c:1039
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"Argumentet --list-properties kan berre vere tomt når det vert brukt saman "
+"med argumentet --tree"
+
+#: src/cli/tracker-main.c:69
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr "Få hjelp til korleis du brukar TinySPARQL og alle desse kommandoane"
+
+#: src/cli/tracker-main.c:70
+msgid "Create a SPARQL endpoint"
+msgstr "Opprett eit SPARQL-endepunkt"
+
+#: src/cli/tracker-main.c:71
+msgid "Export data from a TinySPARQL database"
+msgstr "Eksporter data frå ein TinySPARQL-database"
+
+#: src/cli/tracker-main.c:72
+msgid "Import data into a TinySPARQL database"
+msgstr "Importer data til ein TinySPARQL-database"
+
+#: src/cli/tracker-main.c:73
+msgid "Introspect a SPARQL endpoint"
+msgstr "Inspiser eit SPARQL-endepunkt"
+
+#: src/cli/tracker-main.c:74
+msgid "Query and update the index using SPARQL"
+msgstr "Spør og oppdater indeksen med SPARQL"
+
+#: src/cli/tracker-main.c:75
+msgid "Create a Web IDE to query local databases"
+msgstr "Opprett eit nettbasert IDE for å spørje lokale databasar"
+
+#: src/cli/tracker-main.c:92
+msgid "Available tinysparql commands are:"
+msgstr "Tilgjengelege tinysparql-kommandoar er:"
+
+#: src/cli/tracker-main.c:111
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr ""
+"Sjå «tinysparql help <kommando>» for å lese om ein bestemt underkommando."
+
+#: src/cli/tracker-main.c:154
+#, c-format
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "«%s» er ikkje ein tinysparql-kommando. Sjå «tinysparql --help»"
+
+#: src/cli/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr "Sti til ei fil med ei spørjing eller oppdatering som skal køyrast"
+
+#: src/cli/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "SPARQL-spørjing"
+
+#: src/cli/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/cli/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr "Vert berre brukt med --query og til oppdateringar av databasen."
+
+#: src/cli/tracker-query.c:76
+msgid "Provides an argument for a query parameter."
+msgstr "Gjev eit argument for ein spørjeparameter."
+
+#: src/cli/tracker-query.c:77
+msgid "PARAMETER:TYPE:VALUE"
+msgstr "PARAMETER:TYPE:VALUE"
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#: src/cli/tracker-query.c:219 src/cli/tracker-query.c:267
+msgid "None"
+msgstr "Ingen"
+
+#: src/cli/tracker-query.c:287
+#, c-format
+msgid "Invalid argument string %s"
+msgstr "Ugyldig argumentstreng %s"
+
+#: src/cli/tracker-query.c:297
+#, c-format
+msgid "Invalid parameter type for argument %s"
+msgstr "Ugyldig parametertype for argumentet %s"
+
+#: src/cli/tracker-query.c:365
+msgid "Could not get UTF-8 path from path"
+msgstr "Klarte ikkje hente UTF-8-sti frå sti"
+
+#: src/cli/tracker-query.c:376 src/cli/tracker-sql.c:75
+msgid "Could not read file"
+msgstr "Klarte ikkje lese fila"
+
+#: src/cli/tracker-query.c:407
+msgid "Could not run update"
+msgstr "Klarte ikkje køyre oppdatering"
+
+#: src/cli/tracker-query.c:414
+msgid "Done"
+msgstr "Ferdig"
+
+#: src/cli/tracker-query.c:433 src/cli/tracker-sql.c:134
+#: src/cli/tracker-sql.c:169
+msgid "Could not run query"
+msgstr "Klarte ikkje køyre spørjing"
+
+#: src/cli/tracker-query.c:442 src/cli/tracker-query.c:444
+msgid "No results found matching your query"
+msgstr "Ingen resultat som samsvarar med søket ditt"
+
+#: src/cli/tracker-query.c:442 src/cli/tracker-query.c:444
+#: src/cli/tracker-sql.c:141
+msgid "Results"
+msgstr "Resultat"
+
+#: src/cli/tracker-query.c:502 src/cli/tracker-sql.c:258
+msgid "File and query can not be used together"
+msgstr "Fil og spørjing kan ikkje brukast saman"
+
+#: src/cli/tracker-sql.c:49
+msgid "Path to use to run a query from file"
+msgstr "Sti til ei fil med ei spørjing som skal køyrast"
+
+#: src/cli/tracker-sql.c:53
+msgid "SQL query"
+msgstr "SQL-spørjing"
+
+#: src/cli/tracker-sql.c:54
+msgid "SQL"
+msgstr "SQL"
+
+#: src/cli/tracker-sql.c:109
+msgid "Failed to initialize data manager"
+msgstr "Klarte ikkje starte datahandsamaren"
+
+#: src/cli/tracker-sql.c:177
+msgid "Empty result set"
+msgstr "Tomt resultatsett"
+
+#: src/cli/tracker-sql.c:256
+msgid "A database path must be specified"
+msgstr "Du må oppgje ein sti til databasen"
+
+#. Translators: this is a HTTP port
+#: src/cli/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "Port å lytte på"
+
+#. Translators: this is a HTTP port
+#: src/cli/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "Port ikkje oppgjeve"
+
+#. Translators: This will point to a local HTTP address
+#: src/cli/tracker-webide.c:81
+#, c-format
+msgid "Creating Web IDE at %s…"
+msgstr "Opprettar nettbasert IDE på %s …"
+
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: src/libtinysparql/core/tracker-collation.c:116
+msgid "the|a|an"
+msgstr "the|a|an|ein|ei|eit|den|det|dei"
+
+#: src/portal/tracker-main.c:51
+msgid "Version"
+msgstr "Versjon"
