@@ -59,9 +59,9 @@ def main():
 
     print(f"Exposing a Tracker endpoint on bus name {unique_name}")
     print()
-    print(f"Try connecting over D-Bus using `tracker3 sparql`:")
+    print(f"Try connecting over D-Bus using `tinysparql query`:")
     print()
-    print(f"   tracker3 sparql --dbus-service={unique_name} -q ...")
+    print(f"   tinysparql query --dbus-service={unique_name} -q ...")
 
     loop = GLib.MainLoop.new(None, False)
 

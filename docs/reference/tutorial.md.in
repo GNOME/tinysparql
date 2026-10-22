@@ -18,13 +18,13 @@ in your system, if that is the case you can for example start a fresh
 empty SPARQL service for local testing:
 
 ```bash
-$ tracker3 endpoint --dbus-service org.example.Endpoint --ontology nepomuk
+$ tinysparql endpoint --dbus-service org.example.Endpoint --ontology nepomuk
 ```
 
 The queries can be run in this specific service with:
 
 ```bash
-$ tracker3 sparql --dbus-service org.example.Endpoint --query $SPARQL_QUERY
+$ tinysparql query --dbus-service org.example.Endpoint --query $SPARQL_QUERY
 ```
 
 ## RDF Triples
