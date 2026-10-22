@@ -5,3 +5,7 @@
 *.gcno
 *.pyc
 build/
+
+# Ignore meson's subprojects folder
+/subprojects/*
+!/subprojects/*.wrap
