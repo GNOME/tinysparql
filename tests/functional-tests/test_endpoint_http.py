@@ -63,7 +63,7 @@ class TestEndpointHttp(fixtures.TrackerCommandLineTestCase):
         shutil.rmtree(self._dirpath)
 
     def test_http_query_cli(self):
-        """Query the HTTP endpoint via `tracker3 sparql`"""
+        """Query the HTTP endpoint via `tinysparql query`"""
 
         stdout = self.run_cli(
             [
