@@ -54,9 +54,10 @@ typedef struct {
 typedef struct {
 	TrackerSparqlConnection *direct;
 	GDBusConnection *dbus_conn;
+	GAsyncQueue *queue;
+	GError *error;
 } StartupData;
 
-static gboolean started = FALSE;
 static const gchar *bus_name = NULL;
 
 static void
@@ -242,8 +243,9 @@ static gpointer
 thread_func (gpointer user_data)
 {
 	StartupData *data = user_data;
+	GAsyncQueue *queue = g_async_queue_ref (data->queue);
 	TrackerEndpointDBus *endpoint;
-	TrackerEndpointHttp *endpoint_http;
+	TrackerEndpointHttp *endpoint_http = NULL;
 	GMainContext *context;
 	GMainLoop *main_loop;
 
@@ -252,17 +254,17 @@ thread_func (gpointer user_data)
 
 	main_loop = g_main_loop_new (context, FALSE);
 
-	endpoint = tracker_endpoint_dbus_new (data->direct, data->dbus_conn, NULL, NULL, NULL);
-	if (!endpoint)
-		return NULL;
+	endpoint = tracker_endpoint_dbus_new (data->direct, data->dbus_conn, NULL, NULL, &data->error);
+	if (endpoint && !data->error)
+		endpoint_http = tracker_endpoint_http_new (data->direct, 54322, NULL, NULL, &data->error);
 
-	endpoint_http = tracker_endpoint_http_new (data->direct, 54322, NULL, NULL, NULL);
-	if (!endpoint_http)
-		return NULL;
+	g_async_queue_push (queue, GINT_TO_POINTER (1));
+	g_async_queue_unref (queue);
+	if (endpoint_http)
+		g_main_loop_run (main_loop);
 
-	started = TRUE;
-	g_main_loop_run (main_loop);
-
+	g_clear_object (&endpoint_http);
+	g_clear_object (&endpoint);
 	g_main_loop_unref (main_loop);
 	g_main_context_pop_thread_default (context);
 	g_main_context_unref (context);
@@ -276,20 +278,30 @@ create_connections (TrackerSparqlConnection **dbus,
                     TrackerSparqlConnection **remote,
                     GError                  **error)
 {
-	StartupData data;
+	StartupData data = { 0 };
 	GThread *thread;
 
-	data.direct = create_local_connection (NULL);
+	data.direct = create_local_connection (error);
 	if (!data.direct)
 		return FALSE;
 	data.dbus_conn = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, error);
-	if (!data.dbus_conn)
+	if (!data.dbus_conn) {
+		g_object_unref (data.direct);
 		return FALSE;
+	}
 
+	data.queue = g_async_queue_new ();
 	thread = g_thread_new (NULL, thread_func, &data);
+	g_async_queue_pop (data.queue);
+	g_async_queue_unref (data.queue);
 
-	while (!started)
-		g_usleep (100);
+	if (data.error) {
+		g_propagate_error (error, data.error);
+		g_thread_join (thread);
+		g_object_unref (data.dbus_conn);
+		g_object_unref (data.direct);
+		return FALSE;
+	}
 
 	bus_name = g_dbus_connection_get_unique_name (data.dbus_conn);
 	*dbus = tracker_sparql_connection_bus_new (bus_name,
@@ -330,8 +342,9 @@ main (gint argc, gchar **argv)
 
 	g_test_init (&argc, &argv, NULL);
 
-	g_assert_true (create_connections (&dbus, &direct, &remote, &error));
+	retval = create_connections (&dbus, &direct, &remote, &error);
 	g_assert_no_error (error);
+	g_assert_true (retval);
 
 	add_tests (direct, "direct", TRUE);
 	add_tests (dbus, "dbus", FALSE);
