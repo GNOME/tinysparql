@@ -5,6 +5,7 @@
 # Jordi Mas i Hernàndez <jmas@softcatala.org>, 2015
 # Jordi Serratosa <jordis@softcatala.cat>, 2017.
 # Xavi Ivars <xavi.ivars@gmail.com>, 2026.
+# Artur Vicedo <artur@softcatala.org>, 2026.
 #
 # data miner -> extractor de dades
 #
@@ -13,87 +14,85 @@ msgstr ""
 "Project-Id-Version: Tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/issues/\n"
 "POT-Creation-Date: 2026-03-17 13:27+0000\n"
-"PO-Revision-Date: 2026-08-27 18:17+0000\n"
-"Last-Translator: Xavi Ivars <xavi.ivars@gmail.com>\n"
+"PO-Revision-Date: 2026-11-20 22:33+0000\n"
+"Last-Translator: Artur Vicedo <artur@softcatala.org>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
 "Language: ca@valencia\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Minairó 1.2.0\n"
+"X-Generator: Minairó 1.15.0\n"
 
 #: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46
 #: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
 #: src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
-#, fuzzy
-#| msgid "Only allow read based actions on the database"
 msgid "Location of the database"
-msgstr "Permet que només es facen consultes de lectura a la base de dades"
+msgstr "Ubicació de la base de dades"
 
 #: src/cli/tracker-endpoint.c:59 src/cli/tracker-endpoint.c:71
 msgid "DIR"
-msgstr ""
+msgstr "DIR"
 
 #: src/cli/tracker-endpoint.c:62
 msgid "Specify the DBus name of this endpoint"
-msgstr ""
+msgstr "Especifica el nom DBus d'aquest extrem"
 
 #: src/cli/tracker-endpoint.c:63 src/cli/tracker-endpoint.c:67
 msgid "NAME"
-msgstr ""
+msgstr "NOM"
 
 #: src/cli/tracker-endpoint.c:66
 msgid "Specify the ontology name used in this endpoint"
-msgstr ""
+msgstr "Especifica el nom d'ontologia usat en aquest extrem"
 
 #: src/cli/tracker-endpoint.c:70
 msgid "Specify a path to an ontology to be used in this endpoint"
-msgstr ""
+msgstr "Especifica un camí a una ontologia que s'utilitzarà en aquest extrem"
 
 #: src/cli/tracker-endpoint.c:74
 msgid "HTTP port"
-msgstr ""
+msgstr "Port HTTP"
 
 #: src/cli/tracker-endpoint.c:78
 msgid "Whether to only allow HTTP connections in the loopback device"
-msgstr ""
+msgstr "Si només s'han de permetre connexions HTTP en el dispositiu loopback"
 
 #: src/cli/tracker-endpoint.c:82
 msgid "Use session bus"
-msgstr ""
+msgstr "Utilitza el bus de la sessió"
 
 #: src/cli/tracker-endpoint.c:86
 msgid "Use system bus"
-msgstr ""
+msgstr "Utilitza el bus del sistema"
 
 #: src/cli/tracker-endpoint.c:90
 msgid "List SPARQL endpoints available in DBus"
-msgstr ""
+msgstr "Llista els extrems SPARQL disponibles a DBus"
 
 #: src/cli/tracker-endpoint.c:94
 msgid "List network-local HTTP SPARQL endpoints"
-msgstr ""
+msgstr "Llista els extrems de xarxa local HTTP SPARQL"
 
 #. TRANSLATORS: these are commandline arguments
 #: src/cli/tracker-endpoint.c:115
 msgid "--list can only be used with --session or --system"
-msgstr ""
+msgstr "--list només es pot utilitzar amb --session o --system"
 
 #. TRANSLATORS: those are commandline arguments
 #: src/cli/tracker-endpoint.c:121
 msgid "One “ontology” or “ontology-path” option should be provided"
-msgstr ""
+msgstr "S'ha de proporcionar una opció «ontology» o «ontology-path»"
 
 #. TRANSLATORS: those are commandline arguments
 #: src/cli/tracker-endpoint.c:127
 msgid "--http-port cannot be used with --dbus-service"
-msgstr ""
+msgstr "No es pot utilitzar --http-port amb --dbus-service"
 
 #: src/cli/tracker-endpoint.c:198
 #, c-format
 msgid "Creating HTTP endpoint at %s…"
-msgstr ""
+msgstr "S'està creant un punt extrem HTTP a %s…"
 
 #: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
 #: src/cli/tracker-webide.c:100
@@ -103,15 +102,13 @@ msgstr ""
 #. Carriage return, so we paper over the ^C
 #: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
 #: src/cli/tracker-webide.c:105
-#, fuzzy
-#| msgid "No network connection"
 msgid "Closing connection…"
-msgstr "No hi ha cap connexió de xarxa"
+msgstr "S'està tancant la connexió…"
 
 #: src/cli/tracker-endpoint.c:241
 #, c-format
 msgid "Creating endpoint at %s…"
-msgstr ""
+msgstr "S'està creant un punt extrem a %s…"
 
 #: src/cli/tracker-endpoint.c:277
 msgid "Could not own DBus name"
@@ -119,7 +116,7 @@ msgstr "No s'ha pogut obtindre la propietat del nom DBus"
 
 #: src/cli/tracker-endpoint.c:291
 msgid "DBus name lost"
-msgstr ""
+msgstr "S'ha perdut el nom DBus"
 
 #: src/cli/tracker-endpoint.c:609 src/cli/tracker-export.c:219
 #: src/cli/tracker-import.c:201 src/cli/tracker-introspect.c:1030
@@ -131,13 +128,12 @@ msgstr "No s'han reconegut les opcions"
 #: src/cli/tracker-endpoint.c:655
 #, c-format
 msgid "Opening database at %s…"
-msgstr ""
+msgstr "S'està obrint la base de dades en %s…"
 
 #: src/cli/tracker-endpoint.c:658
-#, fuzzy, c-format
-#| msgid "Backing up database"
+#, c-format
 msgid "Creating in-memory database"
-msgstr "S'està fent una còpia de seguretat de la base de dades"
+msgstr "Creació d'una base de dades en memòria"
 
 #: src/cli/tracker-endpoint.c:688
 #, c-format
@@ -145,6 +141,8 @@ msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
 msgstr ""
+"S'ha creat una base de dades nova. Utilitzeu l'opció «--dbus-service» per a "
+"compartir aquesta base de dades en un bus de missatges."
 
 #: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
 #: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
@@ -156,44 +154,38 @@ msgstr "FITXER"
 #: src/cli/tracker-export.c:50 src/cli/tracker-import.c:50
 #: src/cli/tracker-introspect.c:102 src/cli/tracker-query.c:56
 msgid "Connects to a DBus service"
-msgstr ""
+msgstr "Connecta a un servei DBus"
 
 #: src/cli/tracker-export.c:51 src/cli/tracker-import.c:51
 #: src/cli/tracker-introspect.c:103 src/cli/tracker-query.c:57
 msgid "DBus service name"
-msgstr ""
+msgstr "Nom del servei DBus"
 
 #: src/cli/tracker-export.c:54
-#, fuzzy
-#| msgid "Output results format: “sparql”, or “turtle”"
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
-msgstr "Els resultats d'eixida de format: \"«SPARQL», o «tortuga»"
+msgstr "Format del resultat eixint: «turtle», «trig» o «json-ld»"
 
 #: src/cli/tracker-export.c:55
-#, fuzzy
-#| msgid "FORMAT"
 msgid "RDF_FORMAT"
-msgstr "FORMAT"
+msgstr "RDF_FORMAT"
 
 #: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54
 #: src/cli/tracker-introspect.c:106 src/cli/tracker-query.c:60
 msgid "Connects to a remote service"
-msgstr ""
+msgstr "Connecta a un servei remot"
 
 #: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
 #: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
-#, fuzzy
-#| msgid "Remote service to query to"
 msgid "Remote service URI"
-msgstr "El servei remot per consultar a"
+msgstr "URI del servei remot"
 
 #: src/cli/tracker-export.c:62
 msgid "Output TriG format which includes named graph information"
-msgstr ""
+msgstr "Format TriG d'eixida que inclou informació del gràfic amb nom"
 
 #: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
 msgid "IRI"
-msgstr ""
+msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
 #: src/cli/tracker-export.c:95 src/cli/tracker-import.c:91
@@ -201,6 +193,7 @@ msgstr ""
 #, c-format
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
+"Especifica una opció «--database», «--dbus-service» o «--remote-service»"
 
 #: src/cli/tracker-export.c:121 src/cli/tracker-export.c:142
 #: src/cli/tracker-import.c:130 src/cli/tracker-introspect.c:834
@@ -220,50 +213,31 @@ msgstr "Format de serialització no compatible «%s»\n"
 
 #: src/cli/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
-msgstr ""
+msgstr "Format TriG d'eixida que inclou informació del gràfic amb nom"
 
 #: src/cli/tracker-import.c:108 src/cli/tracker-import.c:146
-#, fuzzy
-#| msgid "Could not run update"
 msgid "Could not run import"
-msgstr "No s'ha pogut executar l'actualització"
+msgstr "No s'ha pogut executar la importació"
 
 #: src/cli/tracker-introspect.c:110
-#, fuzzy
-#| msgid "List all Tracker processes"
 msgid "Lists all available classes"
-msgstr "Llista tots els processos del Tracker"
+msgstr "Llista totes les classes disponibles"
 
 #: src/cli/tracker-introspect.c:114
-#, fuzzy
-#| msgid "List all Tracker processes"
 msgid "Lists all available prefixes"
-msgstr "Llista tots els processos del Tracker"
+msgstr "Llista tots els prefixos disponibles"
 
 #: src/cli/tracker-introspect.c:118
-#, fuzzy
-#| msgid ""
-#| "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgid "Lists all classes which notify changes in the database"
-msgstr ""
-"Recupera classes que notifiquin de canvis a la base de dades («CLASSE» és "
-"opcional)"
+msgstr "Llista totes les classes que notifiquin de canvis a la base de dades"
 
 #: src/cli/tracker-introspect.c:122
-#, fuzzy
-#| msgid ""
-#| "Retrieve indexes used in database to improve performance (PROPERTY is "
-#| "optional)"
 msgid "List indexes used in database to improve performance"
-msgstr ""
-"Recupera índexs utilitzats a la base de dades per millorar el rendiment "
-"(«PROPIETAT» és opcional)"
+msgstr "Llista índexs utilitzats a la base de dades per a millorar el rendiment"
 
 #: src/cli/tracker-introspect.c:125
-#, fuzzy
-#| msgid "Retrieve classes"
 msgid "Retrieve all named graphs"
-msgstr "Recupera les classes"
+msgstr "Recupera tots els grafs amb nom"
 
 #: src/cli/tracker-introspect.c:129
 msgid ""
@@ -278,10 +252,8 @@ msgid "CLASS"
 msgstr "CLASSE"
 
 #: src/cli/tracker-introspect.c:133
-#, fuzzy
-#| msgid "List all Tracker processes"
 msgid "Lists all available properties"
-msgstr "Llista tots els processos del Tracker"
+msgstr "Llista totes les propietats disponibles"
 
 #: src/cli/tracker-introspect.c:137
 msgid ""
@@ -325,7 +297,7 @@ msgstr "No s'han pogut llistar les propietats"
 
 #: src/cli/tracker-introspect.c:923
 msgid "Namespaces"
-msgstr ""
+msgstr "Espais de noms"
 
 #: src/cli/tracker-introspect.c:937
 msgid "Could not list classes"
@@ -348,14 +320,12 @@ msgid "Indexes"
 msgstr "Índexs"
 
 #: src/cli/tracker-introspect.c:997
-#, fuzzy
-#| msgid "Could not list classes"
 msgid "Could not list named graphs"
-msgstr "No s'han pogut llistar les classes"
+msgstr "No s'han pogut llistar els grafs amb nom"
 
 #: src/cli/tracker-introspect.c:1005
 msgid "Named graphs"
-msgstr ""
+msgstr "Grafs amb nom"
 
 #: src/cli/tracker-introspect.c:1039
 msgid ""
@@ -366,56 +336,48 @@ msgstr ""
 "l'argument --tree"
 
 #: src/cli/tracker-main.c:69
-#, fuzzy
-#| msgid "Get help on how to use Tracker and any of these commands"
 msgid "Get help on how to use TinySPARQL and any of these commands"
-msgstr "Obteniu ajuda de com utilitzar el Tracker i qualsevol d'estes ordes."
+msgstr ""
+"Obteniu ajuda de com utilitzar el TinySPARQL i qualsevol d'aquestes ordres"
 
 #: src/cli/tracker-main.c:70
 msgid "Create a SPARQL endpoint"
-msgstr ""
+msgstr "Crea un extrem SPARQL"
 
 #: src/cli/tracker-main.c:71
 msgid "Export data from a TinySPARQL database"
-msgstr ""
+msgstr "Exporta les dades des d'una base de dades TinySPARQL"
 
 #: src/cli/tracker-main.c:72
 msgid "Import data into a TinySPARQL database"
-msgstr ""
+msgstr "Importa dades a una base de dades TinySPARQL"
 
 #: src/cli/tracker-main.c:73
 msgid "Introspect a SPARQL endpoint"
-msgstr ""
+msgstr "Introspecciona un extrem SPARQL"
 
 #: src/cli/tracker-main.c:74
-#, fuzzy
-#| msgid "- Query or update using SPARQL"
 msgid "Query and update the index using SPARQL"
-msgstr "- Consulta o actualització amb SPARQL"
+msgstr "Consulta i actualitza l'índex utilitzant SPARQL"
 
 #: src/cli/tracker-main.c:75
 msgid "Create a Web IDE to query local databases"
-msgstr ""
+msgstr "Crea un IDE web per a consultar bases de dades locals"
 
 #: src/cli/tracker-main.c:92
-#, fuzzy
-#| msgid "Available tracker commands are:"
 msgid "Available tinysparql commands are:"
-msgstr "Les ordes disponibles del Tracker són:"
+msgstr "Les ordres disponibles de «tinysparql» són:"
 
 #: src/cli/tracker-main.c:111
-#, fuzzy
-#| msgid "See “tracker help <command>” to read about a specific subcommand."
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr ""
-"Vegeu «tracker help <command>» per a llegir més sobre una subordre "
+"Vegeu «tinysparql help <ordre>» per a llegir més sobre una subordre "
 "específica."
 
 #: src/cli/tracker-main.c:154
-#, fuzzy, c-format
-#| msgid "“%s” is not a tracker command. See “tracker --help”"
+#, c-format
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
-msgstr "«%s» no és una orde del Tracker. Vegeu «tracker --help»"
+msgstr "«%s» no és una ordre de «tinysparql». Vegeu «tinysparql --help»"
 
 #: src/cli/tracker-query.c:64
 msgid "Path to use to run a query or update from file"
@@ -438,11 +400,11 @@ msgstr ""
 
 #: src/cli/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
-msgstr ""
+msgstr "Proporciona un paràmetre per a un paràmetre de consulta."
 
 #: src/cli/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
-msgstr ""
+msgstr "PARÀMETRE:TIPUS:VALOR"
 
 #. To translators: This is to say there are no
 #. * search results found. We use a "foo: None"
@@ -455,12 +417,12 @@ msgstr "Cap"
 #: src/cli/tracker-query.c:287
 #, c-format
 msgid "Invalid argument string %s"
-msgstr ""
+msgstr "El paràmetre de tipus cadena %s no és vàlid"
 
 #: src/cli/tracker-query.c:297
 #, c-format
 msgid "Invalid parameter type for argument %s"
-msgstr ""
+msgstr "El paràmetre %s no té un tipus vàlid"
 
 #: src/cli/tracker-query.c:365
 msgid "Could not get UTF-8 path from path"
@@ -517,26 +479,24 @@ msgid "Empty result set"
 msgstr "El conjunt de resultats és buit"
 
 #: src/cli/tracker-sql.c:256
-#, fuzzy
-#| msgid "An argument must be supplied"
 msgid "A database path must be specified"
-msgstr "S'ha de proporcionar algun argument"
+msgstr "Cal especificar un camí a la base de dades"
 
 #. Translators: this is a HTTP port
 #: src/cli/tracker-webide.c:40
 msgid "Port to listen on"
-msgstr ""
+msgstr "Port on escoltar"
 
 #. Translators: this is a HTTP port
 #: src/cli/tracker-webide.c:50
 msgid "Port not specified"
-msgstr ""
+msgstr "No s'ha especificat el port"
 
 #. Translators: This will point to a local HTTP address
 #: src/cli/tracker-webide.c:81
 #, c-format
 msgid "Creating Web IDE at %s…"
-msgstr ""
+msgstr "S'està creant un IDE web a %s…"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
